@@ -24,7 +24,7 @@ const sequelize = new Sequelize(
     await sequelize.authenticate();
     console.log("Postgres Connected!");
   } catch (error) {
-    console.error(err);
+    console.error(error);
   }
 })();
 
