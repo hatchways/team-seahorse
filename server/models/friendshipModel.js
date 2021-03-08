@@ -6,7 +6,7 @@ const FriendshipModel = db.define("FriendshipModel", {
 		type: dt.INTEGER,
 		primaryKey: true,
 		autoIncrement: true,
-	}
+	},
 });
 
 module.exports = FriendshipModel;
