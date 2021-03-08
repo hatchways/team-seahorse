@@ -2,7 +2,7 @@ const { DataType: dt } = require("sequelize");
 const UserModel = require("./userModel");
 const db = require("./index");
 
-const FriendRequestModel = db.define("FriendRequestModel", {
+const FriendRequestModel = db.define("FriendRequest", {
 	id: {
 		type: dt.INTEGER,
 		primaryKey: true,

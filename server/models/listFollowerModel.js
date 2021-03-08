@@ -3,7 +3,7 @@ const ProductListModel = require("./productListModel");
 const UserModel = require("./userModel");
 const db = require("./index");
 
-const ListFollowerModel = db.define("ListFollowerModel", {
+const ListFollowerModel = db.define("ListFollower", {
 	id: {
 		type: dt.INTEGER,
 		primaryKey: true,

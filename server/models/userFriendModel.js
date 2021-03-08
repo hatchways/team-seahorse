@@ -3,7 +3,7 @@ const UserModel = require("./userModel");
 const FriendshipModel = require("./friendshipModel");
 const db = require("./index");
 
-const UserFriendModel = db.define("UserFriendModel", {
+const UserFriendModel = db.define("UserFriend", {
 	id: {
 		type: dt.INTEGER,
 		primaryKey: true,
