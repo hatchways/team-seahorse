@@ -69,9 +69,6 @@ router.post(
       email: newUser.email,
       msg: "success",
     });
-
-    // Refactor when dashboard/home page is done.
-    // res.redirect('req.headers.host')
   }
 );
 
@@ -82,16 +79,15 @@ router.post(
     check("password", "Must not be empty").notEmpty(),
   ],
   async (req, res) => {
-    // if (req.cookies.token) res.redirect(req.headers.host)
 
     validate(req, res);
 
     const { email, password } = req.body;
 
     //find email
-    const exisitingUser = await UserModel.findOne({ where: { email } });
+    const existingUser = await UserModel.findOne({ where: { email } });
 
-    if (!exisitingUser)
+    if (!existingUser)
       return res.status(400).send({
         //update to error obj, having code and message
         msg: "User does not exist",
@@ -99,13 +95,13 @@ router.post(
       });
 
     // check given password
-    if (!exisitingUser.isPasswordCorrect(password)) {
+    if (!existingUser.isPasswordCorrect(password)) {
       res.status(403).send({
         msg: "Incorrect Password",
       });
     }
 
-    const token = setJwt(exisitingUser);
+    const token = setJwt(existingUser);
 
     // Set token to cookie
     res.cookie("token", token, tokenOptions);
@@ -113,13 +109,10 @@ router.post(
 
     //Temporary code
     res.send({
-      name: exisitingUser.name,
-      email: exisitingUser.email,
+      name: existingUser.name,
+      email: existingUser.email,
       msg: "success",
     });
-
-    // Refactor when dashboard/home page is done.
-    // res.redirect('enter_homepage_url_here')
   }
 );
 
