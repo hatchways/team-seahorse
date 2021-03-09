@@ -6,6 +6,7 @@ const logger = require("morgan");
 
 const indexRouter = require("./routes/index");
 const pingRouter = require("./routes/ping");
+const authRouter = require('./routes/auth')
 
 const { json, urlencoded } = express;
 
@@ -17,11 +18,12 @@ var app = express();
 app.use(logger("dev"));
 app.use(json());
 app.use(urlencoded({ extended: false }));
-app.use(cookieParser());
+app.use(cookieParser()  );
 app.use(express.static(join(__dirname, "public")));
 
 app.use("/", indexRouter);
 app.use("/ping", pingRouter);
+app.use('/auth', authRouter)
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
