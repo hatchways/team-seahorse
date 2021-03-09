@@ -7,11 +7,11 @@ const ProductModel = db.define("Product", {
 		primaryKey: true,
 		autoIncrement: true,
 	},
-	lastKnownPrice: {
+	current_price: {
 		type: dt.DECIMAL(10, 2),
 		allowNull: false,
 	},
-	priceDrop: {
+	previous_price: {
 		type: dt.DECIMAL(10, 2),
 	},
 	link: {
@@ -23,7 +23,7 @@ const ProductModel = db.define("Product", {
 		type: dt.STRING,
 		allowNull: false,
 	},
-	soldOut: {
+	is_still_available: {
 		type: dt.BOOLEAN,
 		allowNull: false,
 	},
