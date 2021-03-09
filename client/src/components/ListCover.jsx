@@ -25,7 +25,7 @@ const ListCover = () => {
 
   return (
     <Grid item>
-      <Card className={classes.card}>
+      <Card className={classes.card} elevation={0}>
         <CardMedia className={classes.image} image={sample} />
         <CardContent>
           <Typography align="center">Title</Typography>
