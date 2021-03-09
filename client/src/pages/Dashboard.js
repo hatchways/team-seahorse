@@ -2,6 +2,7 @@ import { Grid, makeStyles } from "@material-ui/core";
 import React from "react";
 import AddNewItem from "../components/AddNewItem";
 import Header from "../components/Header";
+import Lists from "../components/Lists";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -30,6 +31,9 @@ const Dashboard = () => {
       >
         <Grid item>
           <AddNewItem />
+        </Grid>
+        <Grid item>
+          <Lists />
         </Grid>
       </Grid>
     </Grid>

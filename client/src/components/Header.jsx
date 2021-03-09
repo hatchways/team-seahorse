@@ -13,7 +13,7 @@ import logo from "../images/logo.png";
 const useStyles = makeStyles(() => ({
   toolbar: {
     backgroundColor: "white",
-    height: "100px",
+    height: 100,
   },
   navItem: {
     paddingRight: 40,
@@ -30,8 +30,8 @@ const Header = () => {
           component="img"
           src={logo}
           alt="logo"
-          width="229px"
-          height="28px"
+          width={229}
+          height={28}
           px={5}
         />
         <Box flexGrow={1} display="flex" justifyContent="flex-end" px={5}>
