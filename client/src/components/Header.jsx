@@ -11,15 +11,12 @@ import { Link } from "react-router-dom";
 import logo from "../images/logo.png";
 
 const useStyles = makeStyles(() => ({
-  container: {
-    minHeight: "100vh",
-  },
   toolbar: {
     backgroundColor: "white",
     height: "100px",
   },
   navItem: {
-    paddingLeft: 40,
+    paddingRight: 40,
   },
 }));
 
@@ -27,7 +24,7 @@ const Header = () => {
   const classes = useStyles();
 
   return (
-    <AppBar position="fixed" elevation={1}>
+    <AppBar position="relative" elevation={1}>
       <Toolbar className={classes.toolbar}>
         <Box
           component="img"
@@ -54,9 +51,7 @@ const Header = () => {
           >
             Friends
           </Typography>
-          <Typography className={classes.navItem} color="textPrimary">
-            Notifications
-          </Typography>
+          <Typography color="textPrimary">Notifications</Typography>
         </Box>
         <Box
           display="flex"
