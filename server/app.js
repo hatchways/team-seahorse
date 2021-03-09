@@ -11,6 +11,8 @@ const { json, urlencoded } = express;
 
 //for testing db connection
 const sequelize = require("./models");
+//synchronizes models
+require("./models/models");
 
 var app = express();
 
