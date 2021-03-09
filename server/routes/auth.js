@@ -6,7 +6,7 @@ const router = express.Router();
 
 const setJwt = (user) => {
   const token = jwt.sign(
-    { id: user.id, email: user.email },
+    { id: user.id},
     process.env.JWT_SECRET,
     {
       expiresIn: "14d",
@@ -63,7 +63,6 @@ router.post(
     res.cookie("token", token, tokenOptions);
     res.user = jwt.decode(token);
 
-    // Temporary code
     res.status(201).send({
       name: newUser.name,
       email: newUser.email,
@@ -89,7 +88,6 @@ router.post(
 
     if (!existingUser)
       return res.status(400).send({
-        //update to error obj, having code and message
         msg: "User does not exist",
         errorCode: "400",
       });
@@ -107,7 +105,6 @@ router.post(
     res.cookie("token", token, tokenOptions);
     res.user = jwt.decode(token);
 
-    //Temporary code
     res.send({
       name: existingUser.name,
       email: existingUser.email,
