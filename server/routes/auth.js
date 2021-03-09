@@ -5,12 +5,29 @@ const jwt = require("jsonwebtoken");
 const router = express.Router();
 
 const setJwt = (user) => {
-  const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, {
-    expiresIn: "14d",
-  });
+  const token = jwt.sign(
+    { id: user.id, email: user.email },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: "14d",
+    }
+  );
 
   return token;
 };
+
+const validate = (_req, _res) => {
+  const errors = validationResult(_req);
+
+  if (!errors.isEmpty()) {
+    return _res.status(400).send(errors);
+  }
+};
+
+const tokenOptions = {
+  httpOnly: true,
+  expires: new Date().getDate() + 14
+}
 
 router.post(
   "/register",
@@ -22,13 +39,7 @@ router.post(
     check("email", "Must be an Email").isEmail().notEmpty(),
   ],
   async (req, res) => {
-    // if (req.cookies.token) res.redirect('req.headers.host')
-
-    const errors = validationResult(req);
-
-    if (!errors.isEmpty()) {
-      return res.status(400).send(errors);
-    }
+    validate(req, res);
 
     const { name, email, password } = req.body;
 
@@ -49,8 +60,8 @@ router.post(
     const token = setJwt(newUser);
 
     //Set token to Cookie
-    res.cookie("token", token);
-    res.user = jwt.decode(token)
+    res.cookie("token", token, tokenOptions);
+    res.user = jwt.decode(token);
 
     // Temporary code
     res.status(201).send({
@@ -60,7 +71,7 @@ router.post(
     });
 
     // Refactor when dashboard/home page is done.
-    // res.redirect('enter_homepage_url_here')
+    // res.redirect('req.headers.host')
   }
 );
 
@@ -73,13 +84,7 @@ router.post(
   async (req, res) => {
     // if (req.cookies.token) res.redirect(req.headers.host)
 
-    const errors = validationResult(req);
-
-    if (!errors.isEmpty()) {
-      return res.status(400).send({
-        errors,
-      });
-    }
+    validate(req, res);
 
     const { email, password } = req.body;
 
@@ -103,8 +108,8 @@ router.post(
     const token = setJwt(exisitingUser);
 
     // Set token to cookie
-    res.cookie("token", token);
-    res.user = jwt.decode(token)
+    res.cookie("token", token, tokenOptions);
+    res.user = jwt.decode(token);
 
     //Temporary code
     res.send({
