@@ -22,4 +22,6 @@ const UserListModel = db.define("UserList", {
   },
 });
 
+//Creates a UserLists table if one does not already exist.
+UserListModel.sync();
 module.exports = UserListModel;

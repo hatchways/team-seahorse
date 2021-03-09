@@ -27,4 +27,6 @@ const ListProductModel = db.define("ListProduct", {
   },
 });
 
+//Creates a ListProducts table if one does not already exist.
+ListProductModel.sync();
 module.exports = ListProductModel;
