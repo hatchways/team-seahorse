@@ -1,4 +1,4 @@
-const { DataType: dt } = require("sequelize");
+const { DataTypes: dt } = require("sequelize");
 const UserListModel = require("./userListModel");
 const ProductModel = require("./productModel");
 const db = require("./index");
@@ -27,6 +27,4 @@ const ListProductModel = db.define("ListProduct", {
   },
 });
 
-//Creates a ListProducts table if one does not already exist.
-ListProductModel.sync();
 module.exports = ListProductModel;

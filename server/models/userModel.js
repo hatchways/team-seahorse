@@ -57,6 +57,4 @@ UserModel.prototype.isPasswordCorrect = function (givenPassword) {
   return hashAndSalt(givenPassword, this.salt()) == this.password();
 };
 
-//Creates a Users table if one does not already exist.
-UserModel.sync();
 module.exports = UserModel;

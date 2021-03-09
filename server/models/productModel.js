@@ -29,6 +29,4 @@ const ProductModel = db.define("Product", {
   },
 });
 
-//Creates a Products table if one does not already exist.
-ProductModel.sync();
 module.exports = ProductModel;
