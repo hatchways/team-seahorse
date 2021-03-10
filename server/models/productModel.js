@@ -14,6 +14,10 @@ const ProductModel = db.define("Product", {
   previous_price: {
     type: dt.DECIMAL(10, 2),
   },
+  name: {
+    type: dt.STRING,
+    allowNull: false,
+  },
   link: {
     type: dt.STRING,
     allowNull: false,
