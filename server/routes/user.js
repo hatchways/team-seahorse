@@ -43,9 +43,9 @@ router.post(
     const { name, email, password } = req.body;
 
     //Check if email is used
-    const exisitingUser = await UserModel.findOne({ where: { email } });
+    const existingUser = await UserModel.findOne({ where: { email } });
 
-    if (exisitingUser)
+    if (existingUser)
       return res
         .status(400)
         .send({ error: { message: "User already exist", code: "400" } });
@@ -63,7 +63,8 @@ router.post(
 
     res.status(201).send({
       name: newUser.name,
-      email: newUser.email
+      email: newUser.email,
+      id: newUser.id
     });
   }
 );
@@ -103,11 +104,12 @@ router.post(
     res.send({
       name: existingUser.name,
       email: existingUser.email,
+      id: existingUser.id
     });
   }
 );
 
-router.get('/getUser',authenticate ,(req,res) => {
+router.get('/getCurrentUser',authenticate ,(req,res) => {
 
   res.send({
     user : req.user
