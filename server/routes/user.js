@@ -3,7 +3,7 @@ const { check, validationResult, cookie } = require("express-validator");
 const UserModel = require("../models/userModel");
 const jwt = require("jsonwebtoken");
 const router = express.Router();
-const authenticate = require('../middlewares/authMiddleware')
+const authenticate = require("../middlewares/authMiddleware");
 
 const setJwt = (user) => {
   const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
@@ -24,7 +24,7 @@ const validate = (_req, _res) => {
 const tokenOptions = {
   httpOnly: true,
   //14 days
-  maxAge: 1209600
+  maxAge: 1209600,
 };
 
 router.post(
@@ -37,7 +37,6 @@ router.post(
     check("email", "Must be an Email").isEmail(),
   ],
   async (req, res) => {
-    console.log('object')
     validate(req, res);
 
     const { name, email, password } = req.body;
@@ -65,8 +64,8 @@ router.post(
       user: {
         name: newUser.name,
         email: newUser.email,
-        id: newUser.id
-      }
+        id: newUser.id,
+      },
     });
   }
 );
@@ -104,21 +103,19 @@ router.post(
     res.cookie("token", token, tokenOptions);
 
     res.send({
-      user : {
+      user: {
         name: existingUser.name,
         email: existingUser.email,
-        id: existingUser.id
-      }
+        id: existingUser.id,
+      },
     });
   }
 );
 
-router.get('/getCurrentUser',authenticate ,(req,res) => {
-
+router.get("/getCurrentUser", authenticate, (req, res) => {
   res.send({
-    user : req.user
-  })
-
-})
+    user: req.user,
+  });
+});
 
 module.exports = router;
