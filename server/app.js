@@ -7,7 +7,7 @@ const logger = require("morgan");
 const indexRouter = require("./routes/index");
 const pingRouter = require("./routes/ping");
 const authRouter = require("./routes/auth");
-const listRouter = require("./routes/list");
+const listsRouter = require("./routes/lists");
 
 const { json, urlencoded } = express;
 

@@ -1,11 +1,14 @@
 const express = require("express");
 const { params, validationResult, cookie } = require("express-validation");
 const router = express.Router();
+const authMiddleware = require("../middlewares/authMiddleware");
 const db = require("../models");
 const ListProductModel = require("../models/listProductModel");
 const UserList = require("../models/userListModel");
 
 //TODO: Add validations.
+
+router.use(authMiddleware);
 
 //Returns information for each list belonging to the user.
 router.get("/", async (req, res) => {
@@ -48,6 +51,30 @@ router.post("/", async (req, res) => {
     res.status(201).send();
   } catch {
     res.status(500).send();
+  }
+});
+
+//Change title and contents of list belonging to the user.
+router.put("/:listId", async (req, res) => {
+  try {
+    //Change the title of the list.
+    if (req.body.title != null) {
+      //TODO: throw error if affectedRows is 0.
+      const [affectedRows] = await UserList.update(
+        { title: req.body.title },
+        {
+          where: {
+            user_id: req.user,
+            list_id: req.params,
+          },
+        }
+      );
+    }
+    if (req.body.products != null && req.body.products.delete != null) {
+      //TODO
+    }
+  } catch {
+    //TODO: Add catch
   }
 });
 
