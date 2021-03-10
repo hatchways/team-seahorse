@@ -3,6 +3,7 @@ const { check, validationResult, cookie } = require("express-validator");
 const UserModel = require("../models/userModel");
 const jwt = require("jsonwebtoken");
 const router = express.Router();
+const authenticate = require('../middlewares/authMiddleware')
 
 const setJwt = (user) => {
   const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
@@ -36,6 +37,7 @@ router.post(
     check("email", "Must be an Email").isEmail(),
   ],
   async (req, res) => {
+    console.log('object')
     validate(req, res);
 
     const { name, email, password } = req.body;
@@ -104,5 +106,13 @@ router.post(
     });
   }
 );
+
+router.get('/getUser',authenticate ,(req,res) => {
+
+  res.send({
+    user : req.user
+  })
+
+})
 
 module.exports = router;
