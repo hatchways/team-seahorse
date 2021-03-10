@@ -33,7 +33,7 @@ router.post(
     check("password", "Must be at least 6 characters long").isLength({
       min: 6,
     }),
-    check("email", "Must be an Email").isEmail().notEmpty(),
+    check("email", "Must be an Email").isEmail(),
   ],
   async (req, res) => {
     validate(req, res);
