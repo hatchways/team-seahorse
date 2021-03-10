@@ -80,7 +80,7 @@ const AuthModal = () => {
   const [signedIn, setSignedIn] = useState(true);
 
   useEffect(async () => {
-    let results = await fetch("/getUser");
+    let results = await fetch("/user/getCurrentUser");
     results = await results.json();
 
     typeof results.user === "undefined"
@@ -106,7 +106,7 @@ const AuthModal = () => {
 
     //email is handled by the TextField
     if (signingIn) {
-      let result = await fetch("/login", {
+      let result = await fetch("/user/login", {
         method: "POST",
         headers: { "Content-type": "application/json" },
         body: JSON.stringify({
@@ -114,15 +114,14 @@ const AuthModal = () => {
           password,
         }),
       });
-      console.log("objectzxc");
+      
       result = await result.json();
       
-      console.log("object");
       setSignedIn(
         result.user !== undefined && result.user.id !== undefined ? true : false
       );
     } else {
-      let result = await fetch("/register", {
+      let result = await fetch("/user/register", {
         method: "POST",
         headers: { "Content-type": "application/json" },
         body: JSON.stringify({
@@ -239,11 +238,6 @@ const AuthModal = () => {
             </Typography>
           </Box>
         </form>
-        <button onClick = { () => {
-          console.log(signingIn)
-        }}>
-          asdasdads
-        </button>
       </Paper>
     </Modal>
   );
