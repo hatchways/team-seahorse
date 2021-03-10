@@ -8,7 +8,7 @@ const UserList = require("../models/userListModel");
 //TODO: Add validations.
 
 //Returns information for each list belonging to the user.
-router.get("/lists", async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const results = await UserList.findAll({
       attributes: ["id"],
@@ -21,13 +21,13 @@ router.get("/lists", async (req, res) => {
 });
 
 //Returns product information for a given list belonging to the user.
-router.get("/lists/:listId", async (req, res) => {
+router.get("/:listId", async (req, res) => {
   //Queries all the products of each list, as well as the link for each of those products, and the user each of those
   //lists belongs to. Only returns products of the specified list, and only if that list belongs to the user.
   try {
     //TODO: Throw error if no list was found.
     const [results] = await db.query(`
-        SELECT "Products".name, "Products".link FROM "ListProducts" 
+        SELECT "Products".name, "Products".link, "Products".id FROM "ListProducts" 
         JOIN "Products" ON ("ListProducts".product_id = "Products".id)
         JOIN "UserLists" ON ("ListProducts".list_id = "UserLists".id)
         WHERE ( "ListProducts".list_id = ${req.params.listId} AND "ListProducts".user_id = ${req.user} )
@@ -39,7 +39,7 @@ router.get("/lists/:listId", async (req, res) => {
 });
 
 //Creates a list belonging to the user.
-router.post("/lists", async (req, res) => {
+router.post("/", async (req, res) => {
   try {
     await UserList.create({
       user_id: req.user,
