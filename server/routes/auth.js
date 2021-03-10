@@ -5,13 +5,9 @@ const jwt = require("jsonwebtoken");
 const router = express.Router();
 
 const setJwt = (user) => {
-  const token = jwt.sign(
-    { id: user.id},
-    process.env.JWT_SECRET,
-    {
-      expiresIn: "14d",
-    }
-  );
+  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+    expiresIn: "14d",
+  });
 
   return token;
 };
@@ -26,8 +22,9 @@ const validate = (_req, _res) => {
 
 const tokenOptions = {
   httpOnly: true,
-  expires: new Date().getDate() + 14
-}
+  //14 days
+  maxAge: 1209600
+};
 
 router.post(
   "/register",
@@ -64,8 +61,7 @@ router.post(
 
     res.status(201).send({
       name: newUser.name,
-      email: newUser.email,
-      msg: "success",
+      email: newUser.email
     });
   }
 );
@@ -77,7 +73,6 @@ router.post(
     check("password", "Must not be empty").notEmpty(),
   ],
   async (req, res) => {
-
     validate(req, res);
 
     const { email, password } = req.body;
