@@ -8,18 +8,18 @@ const UserListModel = db.define("UserList", {
     primaryKey: true,
     autoIncrement: true,
   },
-  user_id: {
-    type: dt.INTEGER,
-    allowNull: false,
-    references: {
-      model: UserModel,
-      key: "id",
-    },
-  },
   title: {
     type: dt.STRING(32),
     allowNull: false,
   },
+});
+
+UserModel.hasMany(UserListModel, {
+  foreignKey: {
+    name: "user_id",
+    allowNull: false,
+  },
+  onDelete: "CASCADE",
 });
 
 module.exports = UserListModel;

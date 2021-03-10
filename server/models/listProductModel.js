@@ -27,4 +27,19 @@ const ListProductModel = db.define("ListProduct", {
   },
 });
 
+UserListModel.hasMany(ListProductModel, {
+  foreignKey: {
+    name: "list_id",
+    allowNull: false,
+  },
+  onDelete: "CASCADE",
+});
+ProductModel.hasMany(ListProductModel, {
+  foreignKey: {
+    name: "product_id",
+    allowNull: false,
+  },
+  onDelete: "CASCADE",
+});
+
 module.exports = ListProductModel;
