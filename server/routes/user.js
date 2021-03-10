@@ -62,9 +62,11 @@ router.post(
     res.cookie("token", token, tokenOptions);
 
     res.status(201).send({
-      name: newUser.name,
-      email: newUser.email,
-      id: newUser.id
+      user: {
+        name: newUser.name,
+        email: newUser.email,
+        id: newUser.id
+      }
     });
   }
 );
@@ -102,9 +104,11 @@ router.post(
     res.cookie("token", token, tokenOptions);
 
     res.send({
-      name: existingUser.name,
-      email: existingUser.email,
-      id: existingUser.id
+      user : {
+        name: existingUser.name,
+        email: existingUser.email,
+        id: existingUser.id
+      }
     });
   }
 );
