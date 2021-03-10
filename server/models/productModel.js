@@ -23,6 +23,10 @@ const ProductModel = db.define("Product", {
     allowNull: false,
     unique: true,
   },
+  image_url: {
+    type: dt.STRING,
+    allowNull: false,
+  },
   company: {
     type: dt.STRING,
     allowNull: false,
