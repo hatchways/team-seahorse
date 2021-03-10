@@ -61,7 +61,6 @@ router.post(
 
     //Set token to Cookie
     res.cookie("token", token, tokenOptions);
-    res.user = jwt.decode(token);
 
     res.status(201).send({
       name: newUser.name,
@@ -94,8 +93,8 @@ router.post(
 
     // check given password
     if (!existingUser.isPasswordCorrect(password)) {
-      res.status(403).send({
-        msg: "Incorrect Password",
+      res.status(400).send({
+        msg: "Invalid Credential",
       });
     }
 
@@ -103,12 +102,10 @@ router.post(
 
     // Set token to cookie
     res.cookie("token", token, tokenOptions);
-    res.user = jwt.decode(token);
 
     res.send({
       name: existingUser.name,
       email: existingUser.email,
-      msg: "success",
     });
   }
 );
