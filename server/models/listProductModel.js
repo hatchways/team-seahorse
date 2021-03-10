@@ -9,22 +9,6 @@ const ListProductModel = db.define("ListProduct", {
     primaryKey: true,
     autoIncrement: true,
   },
-  list_id: {
-    type: dt.INTEGER,
-    allowNull: false,
-    references: {
-      model: UserListModel,
-      key: "id",
-    },
-  },
-  product_id: {
-    type: dt.INTEGER,
-    allowNull: false,
-    references: {
-      model: ProductModel,
-      key: "id",
-    },
-  },
 });
 
 UserListModel.hasMany(ListProductModel, {
