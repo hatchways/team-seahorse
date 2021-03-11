@@ -1,11 +1,8 @@
 const express = require("express");
-const { params, validationResult, cookie } = require("express-validator");
 const router = express.Router();
 const authMiddleware = require("../middlewares/authMiddleware");
-const { transaction } = require("../models");
 const db = require("../models");
 const ListProductModel = require("../models/listProductModel");
-const ProductModel = require("../models/productModel");
 const UserList = require("../models/userListModel");
 
 //TODO: Add validations.
@@ -30,14 +27,16 @@ router.get("/:listId", async (req, res) => {
   //Queries all the products of each list, as well as the link for each of those products, and the user each of those
   //lists belongs to. Only returns products of the specified list, and only if that list belongs to the user.
   try {
-    //TODO: Throw error if no list was found.
-    const [results] = await db.query(`
+    const [[result]] = await db.query(`
         SELECT "Products".name, "Products".link, "Products".id FROM "ListProducts" 
         JOIN "Products" ON ("ListProducts".product_id = "Products".id)
         JOIN "UserLists" ON ("ListProducts".list_id = "UserLists".id)
         WHERE ( "ListProducts".list_id = ${req.params.listId} AND "ListProducts".user_id = ${req.user} )
     `);
-    res.status(200).send(JSON.stringify(results));
+    if (result == null) {
+      throw "no list found";
+    }
+    res.status(200).send(JSON.stringify(result));
   } catch {
     res.status(500).send();
   }
@@ -46,11 +45,11 @@ router.get("/:listId", async (req, res) => {
 //Creates a list belonging to the user.
 router.post("/", async (req, res) => {
   try {
-    await UserList.create({
+    const result = await UserList.create({
       user_id: req.user,
       title: req.body.title,
     });
-    res.status(201).send();
+    res.status(201).send(result.id);
   } catch {
     res.status(500).send();
   }
@@ -76,10 +75,10 @@ router.put("/:listId", async (req, res) => {
     }
     if (req.body.products != null && req.body.products.delete != null) {
       const productIds = req.body.products.delete;
-      //Removes each product, then checks to see if the product still exists in other lists. If it doesn't, the product
-      //is removed from the database.
       for (let i = 0; i < productIds; i++) {
         const productId = productIds[i];
+        //NOTE TO SELF: Hooks won't be fired if a raw query is being run and it looks like sequelize doesn't natively
+        //support deleting with associations. Currently this code allows a user to delete *any* list.
         await ListProductModel.destroy({
           where: { product_id: productId, list_id: req.params.listId },
           transaction,
@@ -87,9 +86,28 @@ router.put("/:listId", async (req, res) => {
       }
     }
     await transaction.commit();
+    res.status(201).send();
   } catch {
     res.status(500).send();
     await transaction.rollback();
+  }
+});
+
+//Deletes list belonging to the user.
+router.delete("/:listId", async (req, res) => {
+  try {
+    const affectedRows = await UserList.destroy({
+      where: {
+        id: req.params.listId,
+        user_id: req.user,
+      },
+    });
+    if (affectedRows == 0) {
+      throw "noRowDeleted";
+    }
+    res.status(200).send();
+  } catch {
+    res.status(500).send();
   }
 });
 
