@@ -11,6 +11,7 @@ import {
   Grid,
 } from "@material-ui/core";
 import React, { useState, useEffect } from "react";
+import { Link, Redirect, useHistory } from "react-router-dom";
 
 const useStyles = makeStyles(() => ({
   centerAdornment: {
@@ -69,12 +70,14 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const AuthModal = () => {
+const AuthModal = ({ isAuthPage }) => {
   const [signingIn, setSigningIn] = useState(false);
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [signedIn, setSignedIn] = useState(true);
+
+  const history = useHistory();
 
   useEffect(async () => {
     let results = await fetch("/user/getCurrentUser");
@@ -83,6 +86,8 @@ const AuthModal = () => {
     typeof results.user === "undefined"
       ? setSignedIn(false)
       : setSignedIn(true);
+
+    if (signedIn) history.push("/dashboard");
   }, []);
 
   const submitHandler = async (e) => {
@@ -93,53 +98,63 @@ const AuthModal = () => {
       return;
     }
 
-    if (name.trim().length === 0 && !signingIn) {
+    if (name.trim().length === 0 && pathname === "/signup") {
       alert("Name must not be just spaces");
       return;
     }
 
-    //email is handled by the TextField
-    if (signingIn) {
-      let result = await fetch("/user/login", {
-        method: "POST",
-        headers: { "Content-type": "application/json" },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      });
+    try {
+      //email is handled by the TextField
+      if (pathname === "/signup") {
+        let result = await fetch("/user/register", {
+          method: "POST",
+          headers: { "Content-type": "application/json" },
+          body: JSON.stringify({
+            name,
+            email,
+            password,
+          }),
+        });
 
-      result = await result.json();
+        result = await result.json();
 
-      setSignedIn(
-        result.user !== undefined && result.user.id !== undefined ? true : false
-      );
-    } else {
-      let result = await fetch("/user/register", {
-        method: "POST",
-        headers: { "Content-type": "application/json" },
-        body: JSON.stringify({
-          name,
-          email,
-          password,
-        }),
-      });
+        setSignedIn(
+          result.user !== undefined && result.user.id !== undefined
+            ? true
+            : false
+        );
+      } else {
+        let result = await fetch("/user/login", {
+          method: "POST",
+          headers: { "Content-type": "application/json" },
+          body: JSON.stringify({
+            email,
+            password,
+          }),
+        });
 
-      result = await result.json();
+        result = await result.json();
 
-      setSignedIn(
-        result.user !== undefined && result.user.id !== undefined ? true : false
-      );
+        setSignedIn(
+          result.user !== undefined && result.user.id !== undefined
+            ? true
+            : false
+        );
+      }
+    } catch (error) {
+      alert("Something went wrong");
+      console.error(error);
     }
   };
 
   const classes = useStyles();
+  const { pathname } = window.location;
 
   return (
-    <Modal open={!signedIn}>
+    <Modal open={!signedIn} hideBackdrop={isAuthPage}>
       <Paper id="auth-paper" className={classes.paper} elevation={3}>
         <Typography variant="h4" className={classes.h4}>
-          {signingIn ? "Sign In" : "Sign Up"}
+          {pathname === "/signup" ? "Sign Up" : "Sign In"}
         </Typography>
 
         <form onSubmit={submitHandler} style={{ display: "block" }}>
@@ -149,8 +164,8 @@ const AuthModal = () => {
             justify="center"
             alignItems="center"
           >
-            {!signingIn && (
-              <Grid item md={"auto"} >
+            {pathname === "/signup" && (
+              <Grid item md={"auto"}>
                 <Box className={classes.box}>
                   <Typography variant="h6" className={classes.typography}>
                     Your Name:{" "}
@@ -224,7 +239,7 @@ const AuthModal = () => {
                   variant="contained"
                   type="submit"
                 >
-                  {signingIn ? "Login" : "Register"}
+                  {pathname === "/signup" ? "Register" : "Login"}
                 </Button>
               </Box>
             </Grid>
@@ -234,14 +249,13 @@ const AuthModal = () => {
             <Grid item>
               <Box className={classes.footer}>
                 <Typography variant="subtitle2">
-                  {signingIn ? " Not a member?" : "Already a Member?"}
-                  <Typography
-                    className={classes.hyperlink}
-                    onClick={() => {
-                      setSigningIn(!signingIn);
-                    }}
-                  >
-                    {signingIn ? " Sign Up" : " Sign In"}
+                  {pathname === "/signup"
+                    ? "Already a Member?"
+                    : "Not a member?"}
+                  <Typography className={classes.hyperlink}>
+                    <Link to={pathname === "/signup" ? "/signin" : "/signup"}>
+                      {pathname === "/signup" ? " Sign In" : " Sign Up"}
+                    </Link>
                   </Typography>
                 </Typography>
               </Box>
