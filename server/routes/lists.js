@@ -77,12 +77,26 @@ router.put("/:listId", async (req, res) => {
       const productIds = req.body.products.delete;
       for (let i = 0; i < productIds; i++) {
         const productId = productIds[i];
-        //NOTE TO SELF: Hooks won't be fired if a raw query is being run and it looks like sequelize doesn't natively
-        //support deleting with associations. Currently this code allows a user to delete *any* list.
-        await ListProductModel.destroy({
-          where: { product_id: productId, list_id: req.params.listId },
-          transaction,
-        });
+        await db.query(`
+          DELETE FROM "ListProducts"
+          USING "UserLists"
+          WHERE (
+            "ListProducts".list_id = "UserLists".id
+            AND "ListProducts".product_id = ${productId} AND "ListProducts".list_id = ${req.params.listId}
+            AND "UserLists".user_id = ${req.user}
+          )
+        `);
+        const productStillExistsInOtherLists =
+          (await ListProductModel.count({
+            where: { product_id: productId },
+            transaction,
+          })) == 1;
+        if (!productStillExistsInOtherLists) {
+          await ProductModel.destroy({
+            where: { id: productId },
+            transaction,
+          });
+        }
       }
     }
     await transaction.commit();
