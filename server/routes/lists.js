@@ -1,9 +1,11 @@
 const express = require("express");
-const { params, validationResult, cookie } = require("express-validation");
+const { params, validationResult, cookie } = require("express-validator");
 const router = express.Router();
 const authMiddleware = require("../middlewares/authMiddleware");
+const { transaction } = require("../models");
 const db = require("../models");
 const ListProductModel = require("../models/listProductModel");
+const ProductModel = require("../models/productModel");
 const UserList = require("../models/userListModel");
 
 //TODO: Add validations.
@@ -54,8 +56,9 @@ router.post("/", async (req, res) => {
   }
 });
 
-//Change title and contents of list belonging to the user.
+//Change title and remove items in list belonging to the user.
 router.put("/:listId", async (req, res) => {
+  const transaction = await db.transaction();
   try {
     //Change the title of the list.
     if (req.body.title != null) {
@@ -67,14 +70,26 @@ router.put("/:listId", async (req, res) => {
             user_id: req.user,
             list_id: req.params,
           },
+          transaction,
         }
       );
     }
     if (req.body.products != null && req.body.products.delete != null) {
-      //TODO
+      const productIds = req.body.products.delete;
+      //Removes each product, then checks to see if the product still exists in other lists. If it doesn't, the product
+      //is removed from the database.
+      for (let i = 0; i < productIds; i++) {
+        const productId = productIds[i];
+        await ListProductModel.destroy({
+          where: { product_id: productId, list_id: req.params.listId },
+          transaction,
+        });
+      }
     }
+    await transaction.commit();
   } catch {
-    //TODO: Add catch
+    res.status(500).send();
+    await transaction.rollback();
   }
 });
 
