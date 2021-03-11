@@ -8,6 +8,7 @@ import {
   Box,
   Divider,
   Tooltip,
+  Grid,
 } from "@material-ui/core";
 import React, { useState, useEffect } from "react";
 
@@ -28,10 +29,6 @@ const useStyles = makeStyles(() => ({
     backgroundColor: "#f2f2f2",
   },
   textField: {
-    position: "relative",
-    left: "50%",
-    top: "50%",
-    transform: "translate(-50%, 0)",
     borderRadius: `4px 4px 4px 4px`,
     outline: "none",
     padding: "7px",
@@ -91,15 +88,12 @@ const AuthModal = () => {
   const submitHandler = async (e) => {
     e.preventDefault();
 
-    const _name = name.trim().length;
-    const _password = password.length;
-
-    if (_password < 7) {
+    if (password.length < 7) {
       alert("Password must be greater than 6");
       return;
     }
 
-    if (_name === 0 && !signingIn) {
+    if (name.trim().length === 0 && !signingIn) {
       alert("Name must not be just spaces");
       return;
     }
@@ -114,9 +108,9 @@ const AuthModal = () => {
           password,
         }),
       });
-      
+
       result = await result.json();
-      
+
       setSignedIn(
         result.user !== undefined && result.user.id !== undefined ? true : false
       );
@@ -149,94 +143,110 @@ const AuthModal = () => {
         </Typography>
 
         <form onSubmit={submitHandler} style={{ display: "block" }}>
-          {!signingIn && (
-            <Box component="div" className={classes.box}>
-              <Typography variant="h6" className={classes.typography}>
-                Your Name:{" "}
-              </Typography>
+          <Grid
+            container
+            direction="column"
+            justify="center"
+            alignItems="center"
+          >
+            {!signingIn && (
+              <Grid item md={"auto"} >
+                <Box className={classes.box}>
+                  <Typography variant="h6" className={classes.typography}>
+                    Your Name:{" "}
+                  </Typography>
 
-              <Tooltip title="Enter your name" placement="right-start">
-                <TextField
-                  className={classes.textField}
-                  placeholder="Name"
-                  required={true}
-                  value={name}
-                  onChange={(e) => {
-                    setName(e.target.value);
-                  }}
-                />
-              </Tooltip>
-            </Box>
-          )}
+                  <Tooltip title="Enter your name" placement="right-start">
+                    <TextField
+                      className={classes.textField}
+                      placeholder="Name"
+                      required={true}
+                      value={name}
+                      onChange={(e) => {
+                        setName(e.target.value);
+                      }}
+                    />
+                  </Tooltip>
+                </Box>
+              </Grid>
+            )}
+            <Grid item>
+              <Box className={classes.box}>
+                <Typography variant="h6" className={classes.typography}>
+                  Your email:{" "}
+                </Typography>
 
-          <Box component="div" className={classes.box}>
-            <Typography variant="h6" className={classes.typography}>
-              Your email:{" "}
-            </Typography>
+                <Tooltip title="Enter your email" placement="right-start">
+                  <TextField
+                    className={classes.textField}
+                    placeholder="Email"
+                    required={true}
+                    type="email"
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                    }}
+                  />
+                </Tooltip>
+              </Box>
+            </Grid>
 
-            <Tooltip title="Enter your email" placement="right-start">
-              <TextField
-                className={classes.textField}
-                placeholder="Email"
-                required={true}
-                type="email"
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                }}
-              />
-            </Tooltip>
-          </Box>
+            <Grid item>
+              <Box className={classes.box}>
+                <Typography variant="h6" className={classes.typography}>
+                  Your Password:{" "}
+                </Typography>
 
-          <Box component="div" className={classes.box}>
-            <Typography variant="h6" className={classes.typography}>
-              Your Password:{" "}
-            </Typography>
+                <Tooltip
+                  title="Enter at least 7 characters"
+                  placement="right-start"
+                >
+                  <TextField
+                    error={password.trim().length === 0 ? true : false}
+                    className={classes.textField}
+                    placeholder="Password"
+                    required={true}
+                    type="password"
+                    value={password}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                    }}
+                  />
+                </Tooltip>
+              </Box>
+            </Grid>
 
-            <Tooltip
-              title="Enter at least 7 characters"
-              placement="right-start"
-            >
-              <TextField
-                error={password.trim().length === 0 ? true : false}
-                className={classes.textField}
-                placeholder="Password"
-                required={true}
-                type="password"
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                }}
-              />
-            </Tooltip>
-          </Box>
+            <Grid item>
+              <Box>
+                <Button
+                  className={classes.button}
+                  color="primary"
+                  variant="contained"
+                  type="submit"
+                >
+                  {signingIn ? "Login" : "Register"}
+                </Button>
+              </Box>
+            </Grid>
 
-          <Box>
-            <Button
-              className={classes.button}
-              color="primary"
-              variant="contained"
-              type="submit"
-            >
-              {signingIn ? "Login" : "Register"}
-            </Button>
-          </Box>
+            <Divider />
 
-          <Divider />
-
-          <Box className={classes.footer}>
-            <Typography variant="subtitle2">
-              {signingIn ? " Not a member?" : "Already a Member?"}
-              <Typography
-                className={classes.hyperlink}
-                onClick={() => {
-                  setSigningIn(!signingIn);
-                }}
-              >
-                {signingIn ? " Sign Up" : " Sign In"}
-              </Typography>
-            </Typography>
-          </Box>
+            <Grid item>
+              <Box className={classes.footer}>
+                <Typography variant="subtitle2">
+                  {signingIn ? " Not a member?" : "Already a Member?"}
+                  <Typography
+                    className={classes.hyperlink}
+                    onClick={() => {
+                      setSigningIn(!signingIn);
+                    }}
+                  >
+                    {signingIn ? " Sign Up" : " Sign In"}
+                  </Typography>
+                </Typography>
+              </Box>
+            </Grid>
+          </Grid>
         </form>
       </Paper>
     </Modal>
