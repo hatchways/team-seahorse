@@ -14,7 +14,7 @@ router.get("/", async (req, res) => {
   try {
     const results = await UserList.findAll({
       attributes: ["id"],
-      where: { user_id: req.user },
+      where: { user_id: req.user.id },
     });
     res.status(200).send(JSON.stringify(results));
   } catch {
@@ -27,16 +27,15 @@ router.get("/:listId", async (req, res) => {
   //Queries all the products of each list, as well as the link for each of those products, and the user each of those
   //lists belongs to. Only returns products of the specified list, and only if that list belongs to the user.
   try {
-    const [[result]] = await db.query(`
+    const [results] = await db.query(`
         SELECT "Products".name, "Products".link, "Products".id FROM "ListProducts" 
         JOIN "Products" ON ("ListProducts".product_id = "Products".id)
         JOIN "UserLists" ON ("ListProducts".list_id = "UserLists".id)
-        WHERE ( "ListProducts".list_id = ${req.params.listId} AND "ListProducts".user_id = ${req.user} )
+        WHERE ( "ListProducts".list_id = ${parseInt(
+          req.params.listId
+        )} AND "UserLists".user_id = ${req.user.id} )
     `);
-    if (result == null) {
-      throw "no list found";
-    }
-    res.status(200).send(JSON.stringify(result));
+    res.status(200).send(JSON.stringify(results));
   } catch {
     res.status(500).send();
   }
@@ -46,7 +45,7 @@ router.get("/:listId", async (req, res) => {
 router.post("/", async (req, res) => {
   try {
     const result = await UserList.create({
-      user_id: req.user,
+      user_id: req.user.id,
       title: req.body.title,
     });
     res.status(201).send(result.id);
@@ -55,9 +54,8 @@ router.post("/", async (req, res) => {
   }
 });
 
-//Change title and remove items in list belonging to the user.
+//Change title in list belonging to the user.
 router.put("/:listId", async (req, res) => {
-  const transaction = await db.transaction();
   try {
     //Change the title of the list.
     if (req.body.title != null) {
@@ -66,44 +64,15 @@ router.put("/:listId", async (req, res) => {
         { title: req.body.title },
         {
           where: {
-            user_id: req.user,
+            user_id: req.user.id,
             list_id: req.params,
           },
-          transaction,
         }
       );
     }
-    if (req.body.products != null && req.body.products.delete != null) {
-      const productIds = req.body.products.delete;
-      for (let i = 0; i < productIds; i++) {
-        const productId = productIds[i];
-        await db.query(`
-          DELETE FROM "ListProducts"
-          USING "UserLists"
-          WHERE (
-            "ListProducts".list_id = "UserLists".id
-            AND "ListProducts".product_id = ${productId} AND "ListProducts".list_id = ${req.params.listId}
-            AND "UserLists".user_id = ${req.user}
-          )
-        `);
-        const productStillExistsInOtherLists =
-          (await ListProductModel.count({
-            where: { product_id: productId },
-            transaction,
-          })) == 1;
-        if (!productStillExistsInOtherLists) {
-          await ProductModel.destroy({
-            where: { id: productId },
-            transaction,
-          });
-        }
-      }
-    }
-    await transaction.commit();
     res.status(201).send();
   } catch {
     res.status(500).send();
-    await transaction.rollback();
   }
 });
 
@@ -113,7 +82,7 @@ router.delete("/:listId", async (req, res) => {
     const affectedRows = await UserList.destroy({
       where: {
         id: req.params.listId,
-        user_id: req.user,
+        user_id: req.user.id,
       },
     });
     if (affectedRows == 0) {
