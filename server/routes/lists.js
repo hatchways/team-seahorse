@@ -83,6 +83,7 @@ router.delete("/:listId", async (req, res) => {
   let transaction = null;
   try {
     transaction = await db.transaction();
+    //Deletes the list.
     const affectedRows = await UserList.destroy({
       where: {
         id: parseInt(req.params.listId),
@@ -93,6 +94,7 @@ router.delete("/:listId", async (req, res) => {
     if (affectedRows == 0) {
       throw "noRowDeleted";
     }
+    //Finds all products that aren't associated with a list.
     const listlessProductIds = (
       await ProductModel.findAll({
         where: {
@@ -108,6 +110,7 @@ router.delete("/:listId", async (req, res) => {
         transaction,
       })
     ).map((productObj) => productObj.id);
+    //Deletes all products no longer associated with a list.
     await ProductModel.destroy({
       where: { id: listlessProductIds },
       transaction,
