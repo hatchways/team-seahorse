@@ -17,7 +17,7 @@ router.get("/", async (req, res) => {
       where: { user_id: req.user.id },
     });
     res.status(200).send(JSON.stringify(results));
-  } catch {
+  } catch (error) {
     res.status(500).send();
   }
 });
@@ -48,8 +48,8 @@ router.post("/", async (req, res) => {
       user_id: req.user.id,
       title: req.body.title,
     });
-    res.status(201).send(result.id);
-  } catch {
+    res.status(201).send({ id: result.id });
+  } catch (error) {
     res.status(500).send();
   }
 });
@@ -64,14 +64,14 @@ router.put("/:listId", async (req, res) => {
         { title: req.body.title },
         {
           where: {
+            id: parseInt(req.params.listId),
             user_id: req.user.id,
-            list_id: req.params,
           },
         }
       );
     }
     res.status(201).send();
-  } catch {
+  } catch (error) {
     res.status(500).send();
   }
 });
@@ -81,7 +81,7 @@ router.delete("/:listId", async (req, res) => {
   try {
     const affectedRows = await UserList.destroy({
       where: {
-        id: req.params.listId,
+        id: parseInt(req.params.listId),
         user_id: req.user.id,
       },
     });
@@ -89,7 +89,7 @@ router.delete("/:listId", async (req, res) => {
       throw "noRowDeleted";
     }
     res.status(200).send();
-  } catch {
+  } catch (error) {
     res.status(500).send();
   }
 });
