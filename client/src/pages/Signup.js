@@ -1,9 +1,10 @@
 import React from 'react'
+import AuthModal from "../components/AuthModal";
 
-const Signup = ({AuthModal}) => {
+const Signup = () => {
     return (
         <>
-            {AuthModal}
+            <AuthModal isAuthPage={true} />
         </>
     )
 }
