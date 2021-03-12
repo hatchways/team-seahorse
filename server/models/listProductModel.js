@@ -28,15 +28,15 @@ ProductModel.hasMany(ListProductModel, {
   hooks: true,
 });
 
-//TODO: Test this feature with the lists router.
 //Checks to see if the product still exists in other lists. If it doesn't, the product is removed from the database.
 ListProductModel.afterDestroy(async (listProduct, options) => {
   const { transaction } = options;
+  const productId = listProduct.product_id;
   const productStillExistsInOtherLists =
     (await ListProductModel.count({
       where: { product_id: productId },
       transaction,
-    })) == 1;
+    })) != 0;
   if (!productStillExistsInOtherLists) {
     await ProductModel.destroy({
       where: { id: productId },
