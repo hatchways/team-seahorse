@@ -1,9 +1,11 @@
+const { Op } = require("sequelize");
 const express = require("express");
 const router = express.Router();
 const authMiddleware = require("../middlewares/authMiddleware");
 const db = require("../models");
 const ListProductModel = require("../models/listProductModel");
 const UserList = require("../models/userListModel");
+const ProductModel = require("../models/productModel");
 
 //TODO: Add validations.
 
@@ -78,19 +80,43 @@ router.put("/:listId", async (req, res) => {
 
 //Deletes list belonging to the user.
 router.delete("/:listId", async (req, res) => {
+  let transaction = null;
   try {
+    transaction = await db.transaction();
     const affectedRows = await UserList.destroy({
       where: {
         id: parseInt(req.params.listId),
         user_id: req.user.id,
       },
+      transaction,
     });
     if (affectedRows == 0) {
       throw "noRowDeleted";
     }
+    const listlessProductIds = (
+      await ProductModel.findAll({
+        where: {
+          "$ListProducts.product_id$": {
+            [Op.is]: null,
+          },
+        },
+        include: [
+          {
+            model: ListProductModel,
+          },
+        ],
+        transaction,
+      })
+    ).map((productObj) => productObj.id);
+    await ProductModel.destroy({
+      where: { id: listlessProductIds },
+      transaction,
+    });
+    await transaction.commit();
     res.status(200).send();
   } catch (error) {
     res.status(500).send();
+    if (transaction != null) await transaction.rollback();
   }
 });
 

@@ -28,21 +28,40 @@ ProductModel.hasMany(ListProductModel, {
   hooks: true,
 });
 
-//Checks to see if the product still exists in other lists. If it doesn't, the product is removed from the database.
-ListProductModel.afterDestroy(async (listProduct, options) => {
-  const { transaction } = options;
-  const productId = listProduct.product_id;
-  const productStillExistsInOtherLists =
-    (await ListProductModel.count({
-      where: { product_id: productId },
-      transaction,
-    })) != 0;
-  if (!productStillExistsInOtherLists) {
-    await ProductModel.destroy({
-      where: { id: productId },
-      transaction,
-    });
-  }
-});
+// const onListProductDestroy = async (listProduct, options) => {
+//   const { transaction } = options;
+//   const productId = listProduct.product_id;
+//   const productStillExistsInOtherLists =
+//     (await ListProductModel.count({
+//       where: { product_id: productId },
+//       transaction,
+//     })) != 0;
+//   if (!productStillExistsInOtherLists) {
+//     await ProductModel.destroy({
+//       where: { id: productId },
+//       transaction,
+//     });
+//   }
+// };
+
+// //Checks to see if the product still exists in other lists. If it doesn't, the product is removed from the database.
+// ListProductModel.afterDestroy(onListProductDestroy);
+// ListProductModel.afterBulkDestroy(async (listProducts) => {
+//   //TODO: error handle
+//   const { transaction } = options;
+//   const productIds = listProducts.map((listProduct) => listProduct.product_id);
+//   const remainingproductIds = await ListProductModel.findAll({
+//     attributes: ["product_id"],
+//     where: { product_id: productIds },
+//     transaction,
+//   });
+//   const listlessProductIds = productIds.filter(
+//     (productId) => !remainingproductIds.includes(productId)
+//   );
+//   await ProductModel.destroy({
+//     where: { id: listlessProductIds },
+//     transaction,
+//   });
+// });
 
 module.exports = ListProductModel;
