@@ -2,12 +2,18 @@ const db = require("../models");
 const express = require("express");
 const router = express.Router();
 const authMiddleware = require("../middlewares/authMiddleware");
+const {
+  validate,
+  listIdCheck,
+  productIdCheck,
+} = require("../middlewares/validate");
 const ProductModel = require("../models/productModel");
 const ListProductModel = require("../models/listProductModel");
 
-router.use(authMiddleware);
+const giveServerError = (res) =>
+  res.status(500).send({ errors: [{ msg: "Server error" }] });
 
-router.get("/:productId", async (req, res) => {
+const getProduct = async (req, res) => {
   try {
     const result = await ProductModel.findOne({
       where: { id: parseInt(req.params.productId) },
@@ -22,15 +28,20 @@ router.get("/:productId", async (req, res) => {
         "is_still_available",
       ],
     });
-    res.status(200).send(JSON.stringify(result));
+    if (result == null) {
+      res.status(400).send({ errors: [{ msg: "No product with given ID." }] });
+      return;
+    }
+    res.status(200).send(result);
   } catch (error) {
-    res.status(500).send();
+    console.error(error);
+    giveServerError(res);
   }
-});
+};
 
 //Removes product, then checks to see if the product still exists in other lists. If it doesn't, the product is removed
 //from the database.
-router.delete("/:listId/:productId", async (req, res) => {
+const deleteProduct = async (req, res) => {
   let transaction = null;
   const productId = parseInt(req.params.productId);
   const listId = parseInt(req.params.listId);
@@ -62,11 +73,21 @@ router.delete("/:listId/:productId", async (req, res) => {
     transaction.commit();
     res.status(200).send();
   } catch (error) {
-    res.status(500).send();
+    console.error(error);
+    giveServerError(res);
     if (transaction != null) {
       transaction.rollback();
     }
   }
-});
+};
+
+router.use(authMiddleware);
+router.get("/:productId", [productIdCheck, validate, getProduct]);
+router.delete("/:listId/:productId", [
+  productIdCheck,
+  listIdCheck,
+  validate,
+  deleteProduct,
+]);
 
 module.exports = router;

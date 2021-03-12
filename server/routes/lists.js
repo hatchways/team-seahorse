@@ -1,5 +1,10 @@
 const { Op } = require("sequelize");
 const express = require("express");
+const {
+  validate,
+  listIdCheck,
+  titleCheck,
+} = require("../middlewares/validate");
 const router = express.Router();
 const authMiddleware = require("../middlewares/authMiddleware");
 const db = require("../models");
@@ -7,25 +12,25 @@ const ListProductModel = require("../models/listProductModel");
 const UserList = require("../models/userListModel");
 const ProductModel = require("../models/productModel");
 
-//TODO: Add validations.
+const giveServerError = (res) =>
+  res.status(500).send({ errors: [{ msg: "Server error" }] });
 
-router.use(authMiddleware);
-
-//Returns information for each list belonging to the user.
-router.get("/", async (req, res) => {
+//Returns id of each list belonging to the user.
+const getLists = async (req, res) => {
   try {
     const results = await UserList.findAll({
       attributes: ["id"],
       where: { user_id: req.user.id },
     });
-    res.status(200).send(JSON.stringify(results));
+    res.status(200).send(results);
   } catch (error) {
-    res.status(500).send();
+    console.error(error);
+    giveServerError(res);
   }
-});
+};
 
 //Returns product information for a given list belonging to the user.
-router.get("/:listId", async (req, res) => {
+const getList = async (req, res) => {
   //Queries all the products of each list, as well as the link for each of those products, and the user each of those
   //lists belongs to. Only returns products of the specified list, and only if that list belongs to the user.
   try {
@@ -37,14 +42,27 @@ router.get("/:listId", async (req, res) => {
           req.params.listId
         )} AND "UserLists".user_id = ${req.user.id} )
     `);
-    res.status(200).send(JSON.stringify(results));
+    //If no products are found, we check if the list even exists as belonging to the user (since we get the same result
+    //if the list is empty). If the list doesn't exist as belonging to the user, we return a 400 error.
+    if (results.length == 0) {
+      const listExists =
+        (await UserList.count({
+          where: { id: parseInt(req.params.listId), user_id: req.user_id },
+        })) == 1;
+      if (!listExists) {
+        res.status(400).send({ errors: [{ msg: "No list with given ID." }] });
+        return;
+      }
+    }
+    res.status(200).send(results);
   } catch (error) {
-    res.status(500).send();
+    console.error(error);
+    giveServerError(res);
   }
-});
+};
 
 //Creates a list belonging to the user.
-router.post("/", async (req, res) => {
+const createList = async (req, res) => {
   try {
     const result = await UserList.create({
       user_id: req.user.id,
@@ -52,34 +70,36 @@ router.post("/", async (req, res) => {
     });
     res.status(201).send({ id: result.id });
   } catch (error) {
-    res.status(500).send();
+    console.error(error);
+    giveServerError(res);
   }
-});
+};
 
 //Change title in list belonging to the user.
-router.put("/:listId", async (req, res) => {
+const changeList = async (req, res) => {
   try {
-    //Change the title of the list.
-    if (req.body.title != null) {
-      //TODO: throw error if affectedRows is 0.
-      const [affectedRows] = await UserList.update(
-        { title: req.body.title },
-        {
-          where: {
-            id: parseInt(req.params.listId),
-            user_id: req.user.id,
-          },
-        }
-      );
+    const [affectedRows] = await UserList.update(
+      { title: req.body.title },
+      {
+        where: {
+          id: parseInt(req.params.listId),
+          user_id: req.user.id,
+        },
+      }
+    );
+    if (affectedRows == 0) {
+      res.status(400).send({ errors: [{ msg: "No list with given ID." }] });
+      return;
     }
     res.status(201).send();
   } catch (error) {
-    res.status(500).send();
+    console.error(error);
+    giveServerError(res);
   }
-});
+};
 
 //Deletes list belonging to the user.
-router.delete("/:listId", async (req, res) => {
+const deleteList = async (req, res) => {
   let transaction = null;
   try {
     transaction = await db.transaction();
@@ -91,8 +111,10 @@ router.delete("/:listId", async (req, res) => {
       },
       transaction,
     });
+    //Returns a 400 error if there wasn't a list to delete.
     if (affectedRows == 0) {
-      throw "noRowDeleted";
+      res.status(400).send({ errors: [{ msg: "No list with given ID." }] });
+      return;
     }
     //Finds all products that aren't associated with a list.
     const listlessProductIds = (
@@ -102,11 +124,7 @@ router.delete("/:listId", async (req, res) => {
             [Op.is]: null,
           },
         },
-        include: [
-          {
-            model: ListProductModel,
-          },
-        ],
+        include: [ListProductModel],
         transaction,
       })
     ).map((productObj) => productObj.id);
@@ -118,9 +136,17 @@ router.delete("/:listId", async (req, res) => {
     await transaction.commit();
     res.status(200).send();
   } catch (error) {
-    res.status(500).send();
+    console.error(error);
+    giveServerError(res);
     if (transaction != null) await transaction.rollback();
   }
-});
+};
+
+router.use(authMiddleware);
+router.get("/", getLists);
+router.get("/:listId", [listIdCheck, validate, getList]);
+router.post("/", [titleCheck, validate, createList]);
+router.put("/:listId", [listIdCheck, titleCheck, validate, changeList]);
+router.delete("/:listId", [listIdCheck, validate, deleteList]);
 
 module.exports = router;

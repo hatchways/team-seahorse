@@ -20,7 +20,6 @@ UserModel.hasMany(UserListModel, {
     allowNull: false,
   },
   onDelete: "CASCADE",
-  hooks: true,
 });
 
 module.exports = UserListModel;

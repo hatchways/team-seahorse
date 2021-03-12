@@ -17,7 +17,6 @@ UserListModel.hasMany(ListProductModel, {
     allowNull: false,
   },
   onDelete: "CASCADE",
-  hooks: true,
 });
 ProductModel.hasMany(ListProductModel, {
   foreignKey: {
@@ -25,7 +24,6 @@ ProductModel.hasMany(ListProductModel, {
     allowNull: false,
   },
   onDelete: "CASCADE",
-  hooks: true,
 });
 
 module.exports = ListProductModel;
