@@ -80,7 +80,6 @@ const AuthModal = ({ isAuthPage }) => {
   const history = useHistory();
 
   useEffect(async () => {
-    console.log("object");
     setIsFirst(false);
     let results = await fetch("/user/getCurrentUser");
 
