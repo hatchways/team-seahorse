@@ -36,7 +36,7 @@ router.get("/:listId", async (req, res) => {
         )} AND "UserLists".user_id = ${req.user.id} )
     `);
     res.status(200).send(JSON.stringify(results));
-  } catch {
+  } catch (error) {
     res.status(500).send();
   }
 });
