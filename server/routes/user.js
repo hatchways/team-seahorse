@@ -27,8 +27,9 @@ const tokenOptions = {
   maxAge: 1209600,
 };
 
+//Sign Up User
 router.post(
-  "/register",
+  "/signup",
   [
     check("name", "Name must not be empty").notEmpty(),
     check("password", "Must be at least 6 characters long").isLength({
@@ -70,8 +71,9 @@ router.post(
   }
 );
 
+//Sign In User
 router.post(
-  "/login",
+  "/signin",
   [
     check("email", "Must be an Email").isEmail(),
     check("password", "Must not be empty").notEmpty(),
@@ -112,10 +114,44 @@ router.post(
   }
 );
 
-router.get("/getCurrentUser", authenticate, (req, res) => {
+//Log out User
+router.get("/logout", (req, res) => {
+  res.clearCookie("token");
+
+  res.send({
+    msg: "Successful Log out",
+  });
+});
+
+//Get currently logged in user obj
+router.get("/currentUser", authenticate, (req, res) => {
   res.send({
     user: req.user,
   });
+});
+
+//Get user by id
+router.get("/:id", async (req, res) => {
+  const { id } = req.params;
+console.log(req.params)
+  try {
+    const user = await UserModel.findOne({ where: { id } });
+
+    if (!user) {
+      return res.status(400).send({
+        msg: "User does not exist",
+        errorCode: "400",
+      });
+    }
+
+    res.send({
+      user,
+    });
+  } catch (error) {
+    res.status(500).send({
+      msg: "Server Error",
+    });
+  }
 });
 
 module.exports = router;
