@@ -6,7 +6,7 @@ const logger = require("morgan");
 
 const indexRouter = require("./routes/index");
 const pingRouter = require("./routes/ping");
-const authRouter = require("./routes/auth");
+const authRouter = require("./routes/user");
 const listsRouter = require("./routes/lists");
 const productsRouter = require("./routes/products");
 
