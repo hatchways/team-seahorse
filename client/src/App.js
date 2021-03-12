@@ -15,18 +15,8 @@ function App() {
       <BrowserRouter>
         <Route exact path="/" component={null} />
         <Route path="/dashboard" component={Dashboard} />
-        <Route
-          path="/signin"
-          render={(props) => (
-            <Signin AuthModal={<AuthModal isAuthPage={true} />} />
-          )}
-        />
-        <Route
-          path="/signup"
-          render={(props) => (
-            <Signup AuthModal={<AuthModal isAuthPage={true} />} />
-          )}
-        />
+        <Route path="/signin" component={Signin} />
+        <Route path="/signup" component={Signup} />
       </BrowserRouter>
     </MuiThemeProvider>
   );
