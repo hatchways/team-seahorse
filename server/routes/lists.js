@@ -71,6 +71,13 @@ const createList = async (req, res) => {
     res.status(201).send({ id: result.id });
   } catch (error) {
     console.error(error);
+    //If title is not unique
+    if (
+      error.errors[0].type == "unique violation" &&
+      error.errors[0].path == "title"
+    ) {
+      res.status(400).send({ errors: [{ msg: "title must be unique." }] });
+    }
     giveServerError(res);
   }
 };
@@ -94,6 +101,13 @@ const changeList = async (req, res) => {
     res.status(201).send();
   } catch (error) {
     console.error(error);
+    //If title is not unique
+    if (
+      error.errors[0].type == "unique violation" &&
+      error.errors[0].path == "title"
+    ) {
+      res.status(400).send({ errors: [{ msg: "title must be unique." }] });
+    }
     giveServerError(res);
   }
 };
