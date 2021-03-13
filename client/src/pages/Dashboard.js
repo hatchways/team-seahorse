@@ -1,5 +1,6 @@
 import { Grid, makeStyles } from "@material-ui/core";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useHistory } from "react-router";
 import AddNewItem from "../components/AddNewItem";
 import Header from "../components/Header";
 import Lists from "../components/Lists";
@@ -16,27 +17,60 @@ const useStyles = makeStyles(() => ({
 
 const Dashboard = () => {
   const classes = useStyles();
+  const history = useHistory();
+
+  const [user, setUser] = useState({});
+  const [signedIn, setSignedIn] = useState(false);
+
+  useEffect(async () => {
+    checkCurrentUser();
+  }, []);
+
+  const checkCurrentUser = async () => {
+    //redirect to landing page if no token
+    let results = await fetch("/user/currentUser");
+
+    results = await results.json();
+
+    if (results.user === undefined) {
+      history.push("/");
+    } else {
+      //get user by id
+      setSignedIn(true)
+      let data = await fetch(`/user/${results.user.id}`);
+
+      data = await data.json()
+
+      console.log(data)
+
+      setUser(data.user);
+    }
+  };
 
   return (
-    <Grid container className={classes.root} direction="column">
-      <Grid item>
-        <Header />
-      </Grid>
-      <Grid
-        item
-        container
-        className={classes.bodyContainer}
-        alignItems="center"
-        direction="column"
-      >
-        <Grid item>
-          <AddNewItem />
+    <>
+      {!signedIn ? null : (
+        <Grid container className={classes.root} direction="column">
+          <Grid item>
+            <Header user={user} />
+          </Grid>
+          <Grid
+            item
+            container
+            className={classes.bodyContainer}
+            alignItems="center"
+            direction="column"
+          >
+            <Grid item>
+              <AddNewItem />
+            </Grid>
+            <Grid item>
+              <Lists />
+            </Grid>
+          </Grid>
         </Grid>
-        <Grid item>
-          <Lists />
-        </Grid>
-      </Grid>
-    </Grid>
+      )}
+    </>
   );
 };
 
