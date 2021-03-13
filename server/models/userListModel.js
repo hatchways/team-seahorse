@@ -11,6 +11,7 @@ const UserListModel = db.define("UserList", {
   title: {
     type: dt.STRING(32),
     allowNull: false,
+    unique: "uniqueTitleForUser",
   },
 });
 
@@ -18,6 +19,7 @@ UserModel.hasMany(UserListModel, {
   foreignKey: {
     name: "user_id",
     allowNull: false,
+    unique: "uniqueTitleForUser",
   },
   onDelete: "CASCADE",
 });
