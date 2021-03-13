@@ -89,7 +89,7 @@ const AuthModal = ({ isAuthPage }) => {
   }, []);
 
   const checkCurrentUser = async () => {
-    let results = await fetch("/user/getCurrentUser");
+    let results = await fetch("/user/currentUser");
 
     results = await results.json();
 
@@ -125,7 +125,7 @@ const AuthModal = ({ isAuthPage }) => {
     try {
       //email is handled by the TextField
       if (pathname === "/signup") {
-        let result = await fetch("/user/register", {
+        let result = await fetch("/user/signup", {
           method: "POST",
           headers: { "Content-type": "application/json" },
           body: JSON.stringify({
@@ -143,7 +143,7 @@ const AuthModal = ({ isAuthPage }) => {
             : false
         );
       } else {
-        let result = await fetch("/user/login", {
+        let result = await fetch("/user/signin", {
           method: "POST",
           headers: { "Content-type": "application/json" },
           body: JSON.stringify({
