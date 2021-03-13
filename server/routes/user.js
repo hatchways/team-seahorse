@@ -115,7 +115,7 @@ router.post(
 );
 
 //Log out User
-router.get("/logout", (req, res) => {
+router.get("/signout", (req, res) => {
   res.clearCookie("token");
 
   res.send({
