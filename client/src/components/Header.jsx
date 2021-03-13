@@ -5,12 +5,15 @@ import {
   makeStyles,
   Toolbar,
   Typography,
+  Button,
+  Popover,
+  MenuItem,
 } from "@material-ui/core";
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import logo from "../images/logo.png";
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   toolbar: {
     backgroundColor: "white",
     height: 100,
@@ -18,10 +21,35 @@ const useStyles = makeStyles(() => ({
   navItem: {
     paddingRight: 40,
   },
+  typography: {
+    padding: theme.spacing(2),
+  },
+  profileBtn: {
+    width: "120px",
+  },
+  avatar: {
+    marginRight: 20,
+  },
 }));
 
-const Header = () => {
+const Header = ({ user }) => {
   const classes = useStyles();
+  const history = useHistory()
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const signoutHandler = async () => {
+    await fetch('/user/signout')
+    history.push('/')
+  }
 
   return (
     <AppBar position="relative" elevation={1}>
@@ -53,15 +81,39 @@ const Header = () => {
           </Typography>
           <Typography color="textPrimary">Notifications</Typography>
         </Box>
+
         <Box
           display="flex"
-          width="100px"
-          px={5}
+          // width="100px"
           alignItems="center"
           justifyContent="space-between"
+          // style= {{background:"red"}}
         >
-          <Avatar />
-          <Typography color="textPrimary">Profile</Typography>
+          <Avatar className={classes.avatar} />
+          <Button
+            color="primary"
+            onClick={handleClick}
+            className={classes.profileBtn}
+          >
+            Profile
+          </Button>
+          <Popover
+            open={open}
+            anchorEl={anchorEl}
+            onClose={handleClose}
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "right",
+            }}
+            transformOrigin={{
+              vertical: "top",
+              horizontal: "right",
+            }}
+          >
+              <MenuItem>Profile</MenuItem>
+              <MenuItem>My account</MenuItem>
+              <MenuItem onClick= {signoutHandler} >Logout</MenuItem>
+          </Popover>
         </Box>
       </Toolbar>
     </AppBar>
