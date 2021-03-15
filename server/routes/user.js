@@ -4,6 +4,8 @@ const UserModel = require("../models/userModel");
 const jwt = require("jsonwebtoken");
 const router = express.Router();
 const authenticate = require("../middlewares/authMiddleware");
+const UserNotificationModel = require("../models/userNotificationsModel");
+const NotificationModel = require("../models/notificationModel");
 
 const setJwt = (user) => {
   const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
@@ -27,6 +29,7 @@ const tokenOptions = {
   maxAge: 1209600,
 };
 
+//Register
 router.post(
   "/register",
   [
@@ -70,6 +73,7 @@ router.post(
   }
 );
 
+//Login
 router.post(
   "/login",
   [
@@ -112,6 +116,70 @@ router.post(
   }
 );
 
+//Get all notifications of a user Id
+router.get("/getAll/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    //Through the UserNotification Model from below, we'll be able to obtain the
+    //notification_id that is only present on the particular user
+    const userNotification = await UserNotificationModel.findAll({
+      where: { user_id: id },
+    });
+
+    const promiseArr = [];
+
+    //Get all the notifications for each of the values in the array
+    userNotification.forEach((userNotif) => {
+      promiseArr.push(
+        NotificationModel.findOne({ where: { id: userNotif.notification_id } })
+      );
+    });
+
+    const data = await Promise.all(promiseArr);
+
+    res.send(data);
+  } catch (error) {
+    res.status(500).send({
+      msg: "Server Error",
+    });
+  }
+});
+
+//Get all unread using user id
+router.get("/getAllUnread/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const userNotification = await UserNotificationModel.findAll({
+      where: { user_id: id },
+    });
+
+    let promiseArr = [];
+
+    userNotification.forEach((element) => {
+      promiseArr.push(
+        NotificationModel.findOne({
+          where: { id: element.notification_id, isRead: false },
+        })
+      );
+    });
+
+    let data = await Promise.all(promiseArr);
+
+    data = data[0] === null ? [] : data;
+
+    console.log(data);
+
+    res.send(data);
+  } catch (error) {
+    res.status(500).send({
+      msg: "Server Error",
+    });
+  }
+});
+
+//Get current user who's logged in
 router.get("/getCurrentUser", authenticate, (req, res) => {
   res.send({
     user: req.user,

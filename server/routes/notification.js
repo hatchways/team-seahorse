@@ -1,0 +1,90 @@
+const authMiddleware = require("../middlewares/authMiddleware");
+const ListProductModel = require("../models/listProductModel");
+const NotificationModel = require("../models/notificationModel");
+const ProductModel = require("../models/productModel");
+const UserListModel = require("../models/userListModel");
+const UserNotificationModel = require("../models/userNotificationsModel");
+const router = require("express").Router();
+
+//Make the given notification id read
+router.get("/read/:id", authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { userId } = req.headers;
+
+    if (!id) return res.status(400).send({ msg: "Must have an id parameter" });
+    if (!userId)
+      return res.status(400).send({ msg: "Must have a userId in headers" });
+
+    const userNotification = await UserNotificationModel.findOne({
+      where: { notification_id: id, user_id: userId },
+    });
+
+    const updatedUserNotification = await userNotification.update({
+      isRead: true,
+    });
+
+    res.send(updatedUserNotification);
+  } catch (error) {
+    res.status(500).send({
+      msg: "Server Error",
+    });
+  }
+});
+
+//Create a notification using a product id given inside the body
+router.post("/createNotification", async (req, res) => {
+  try {
+    const { id } = req.body;
+
+    //Create the notification model using the productId which is also is updated by a service
+    const newNotif = await NotificationModel.create({
+      productId: id,
+    });
+
+    //The plan here is to get the user_id who should get the notification. The said user_id can
+    //be found through ListProductModel => UserListModel.obj.user_id
+
+    //Get all ListProducts that has the same product_id
+    const listProduct = await ListProductModel.findAll({
+      where: { product_id: id },
+    });
+
+    let promiseArr = [];
+
+    //Asynchronous request for finding all the UserListModel using each list_id
+    for (let x = 0; x < listProduct.length; x++) {
+      promiseArr.push(
+        UserListModel.findOne({ where: { id: listProduct[x].list_id } })
+      );
+    }
+
+    const userList = await Promise.all(promiseArr);
+
+    promiseArr = [];
+
+    //Now simply create the UserNotificationModel using the user_id from the
+    //UserListModel and the NotificationModel.id from the very first code.
+    userList.forEach((list) => {
+      promiseArr.push(
+        UserNotificationModel.create({
+          user_id: list.user_id,
+          notification_id: newNotif.id,
+        })
+      );
+    });
+
+    const newUserNotif = await Promise.all(promiseArr);
+
+    res.status(201).send({
+      notification: newNotif,
+      userNotification: newUserNotif,
+    });
+  } catch (error) {
+    res.status(500).send({
+      msg: "Server Error",
+    });
+  }
+});
+
+module.exports = router;
