@@ -34,7 +34,7 @@ const useStyles = makeStyles((theme) => ({
 
 const Header = ({ user }) => {
   const classes = useStyles();
-  const history = useHistory()
+  const history = useHistory();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
 
@@ -47,9 +47,9 @@ const Header = ({ user }) => {
   };
 
   const signoutHandler = async () => {
-    await fetch('/user/signout')
-    history.push('/')
-  }
+    await fetch("/user/signout");
+    history.push("/");
+  };
 
   return (
     <AppBar position="relative" elevation={1}>
@@ -84,10 +84,8 @@ const Header = ({ user }) => {
 
         <Box
           display="flex"
-          // width="100px"
           alignItems="center"
           justifyContent="space-between"
-          // style= {{background:"red"}}
         >
           <Avatar className={classes.avatar} />
           <Button
@@ -110,9 +108,9 @@ const Header = ({ user }) => {
               horizontal: "right",
             }}
           >
-              <MenuItem>Profile</MenuItem>
-              <MenuItem>My account</MenuItem>
-              <MenuItem onClick= {signoutHandler} >Logout</MenuItem>
+            <MenuItem>Profile</MenuItem>
+            <MenuItem>My account</MenuItem>
+            <MenuItem onClick={signoutHandler}>Logout</MenuItem>
           </Popover>
         </Box>
       </Toolbar>

@@ -32,18 +32,16 @@ const Dashboard = () => {
 
     results = await results.json();
 
-    if (results.user === undefined) {
+    if (!results.user) {
       history.push("/");
     } else {
       //get user by id
       setSignedIn(true)
-      let data = await fetch(`/user/${results.user.id}`);
+      const data = await fetch(`/user/${results.user.id}`);
 
-      data = await data.json()
+      const parsedData = await data.json()
 
-      console.log(data)
-
-      setUser(data.user);
+      setUser(parsedData.user);
     }
   };
 
