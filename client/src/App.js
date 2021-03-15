@@ -6,14 +6,20 @@ import UsersProvider from "./providers/UsersProvider";
 
 import "./App.css";
 import Dashboard from "./pages/Dashboard";
+import AuthModal from "./components/AuthModal";
+import Signin from "./pages/Signin";
+import Signup from "./pages/Signup";
 
 function App() {
   return (
+
     <UsersProvider>
       <MuiThemeProvider theme={theme}>
         <BrowserRouter>
-          <Route exact path="/" component={null} />
-          <Route path="/dashboard" component={Dashboard} />
+         <Route exact path="/" component={null} />
+        <Route path="/dashboard" component={Dashboard} />
+        <Route path="/signin" component={Signin} />
+        <Route path="/signup" component={Signup} />
         </BrowserRouter>
       </MuiThemeProvider>
     </UsersProvider>
