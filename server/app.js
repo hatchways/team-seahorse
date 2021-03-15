@@ -6,7 +6,7 @@ const logger = require("morgan");
 
 const indexRouter = require("./routes/index");
 const pingRouter = require("./routes/ping");
-const authRouter = require("./routes/user");
+const userRouter = require("./routes/user");
 const listsRouter = require("./routes/lists");
 const productsRouter = require("./routes/products");
 
@@ -27,7 +27,7 @@ app.use(express.static(join(__dirname, "public")));
 
 app.use("/", indexRouter);
 app.use("/ping", pingRouter);
-app.use("/auth", authRouter);
+app.use("/user", userRouter);
 app.use("/lists", listsRouter);
 app.use("/products", productsRouter);
 
