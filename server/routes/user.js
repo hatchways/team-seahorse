@@ -117,7 +117,7 @@ router.post(
 );
 
 //Get all notifications of a user Id
-router.get("/getAll/:id", async (req, res) => {
+router.get("/getAllNotifications/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -147,7 +147,7 @@ router.get("/getAll/:id", async (req, res) => {
 });
 
 //Get all unread using user id
-router.get("/getAllUnread/:id", async (req, res) => {
+router.get("/getAllUnreadNotifications/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
