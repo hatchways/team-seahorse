@@ -48,7 +48,7 @@ router.post(
     if (existingUser)
       return res
         .status(400)
-        .send({ error: { message: "User already exist", code: "400" } });
+        .send({ error: { msg: "User already exist", code: "400" } });
 
     const newUser = await UserModel.create({
       name,
