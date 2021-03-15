@@ -1,5 +1,6 @@
 const { DataTypes: dt } = require("sequelize");
 const db = require("./index");
+const NotificationModel = require("./notificationModel");
 
 const ProductModel = db.define("Product", {
   id: {
@@ -35,6 +36,14 @@ const ProductModel = db.define("Product", {
     type: dt.BOOLEAN,
     allowNull: false,
   },
+});
+
+NotificationModel.belongsTo(ProductModel, {
+  as: "Product",
+  foreignKey: {
+    name: 'productId',
+    allowNull: false
+  }
 });
 
 module.exports = ProductModel;
