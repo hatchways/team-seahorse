@@ -169,8 +169,6 @@ router.get("/getAllUnread/:id", async (req, res) => {
 
     data = data[0] === null ? [] : data;
 
-    console.log(data);
-
     res.send(data);
   } catch (error) {
     res.status(500).send({
