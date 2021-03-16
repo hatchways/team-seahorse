@@ -140,7 +140,12 @@ const AuthModal = ({ isAuthPage }) => {
             : false
         );
       } else {
-        const result = login(email, password);
+        const result = await login(email, password);
+
+        if (result.error) {
+          openErrorAlert(result.error.msg);
+          error = true;
+        }
 
         setSignedIn(
           result.user !== undefined && result.user.id !== undefined
