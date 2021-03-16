@@ -1,4 +1,4 @@
-const { param, body, validationResult } = require("express-validator");
+const { param, body, oneOf, validationResult } = require("express-validator");
 
 const validate = (req, res, next) => {
   const errors = validationResult(req);
@@ -11,21 +11,29 @@ const validate = (req, res, next) => {
 const listIdCheck = param("listId", "listId must be a number.").isNumeric();
 const productIdCheck = param(
   "productId",
-  "productId must be a number"
+  "productId must be a number."
 ).isNumeric();
-const titleCheck = [
-  body("title", "title must be a string").isString(),
-  body("title", "title cannot be empty or longer than 32 characters.").isLength(
-    {
-      min: 1,
-      max: 32,
-    }
-  ),
-];
+const titleCheck = body("title")
+  .isString()
+  .withMessage("title must be a string.")
+  .isLength({
+    min: 1,
+    max: 32,
+  })
+  .withMessage("title cannot be empty or longer than 32 characters.");
+const coverImageUrlCheck = body("coverImageUrl")
+  .isURL()
+  .withMessage("coverImageUrl must be a URL.");
+const titleOrCoverImageUrlCheck = oneOf(
+  [titleCheck, coverImageUrlCheck],
+  "either title or coverImageUrl must be present."
+);
 
 module.exports = {
   validate,
   listIdCheck,
   productIdCheck,
   titleCheck,
+  coverImageUrlCheck,
+  titleOrCoverImageUrlCheck,
 };

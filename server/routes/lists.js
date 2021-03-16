@@ -4,6 +4,8 @@ const {
   validate,
   listIdCheck,
   titleCheck,
+  coverImageUrlCheck,
+  titleOrCoverImageUrlCheck,
 } = require("../middlewares/validate");
 const router = express.Router();
 const authMiddleware = require("../middlewares/authMiddleware");
@@ -67,6 +69,7 @@ const createList = async (req, res) => {
     const result = await UserList.create({
       user_id: req.user.id,
       title: req.body.title,
+      cover_image_url: req.body.coverImageUrl,
     });
     res.status(201).send({ id: result.id });
   } catch (error) {
@@ -82,11 +85,11 @@ const createList = async (req, res) => {
   }
 };
 
-//Change title in list belonging to the user.
+//Change title and cover image url in list belonging to the user.
 const changeList = async (req, res) => {
   try {
     const [affectedRows] = await UserList.update(
-      { title: req.body.title },
+      { title: req.body.title, cover_image_url: req.body.coverImageUrl },
       {
         where: {
           id: parseInt(req.params.listId),
@@ -159,8 +162,13 @@ const deleteList = async (req, res) => {
 router.use(authMiddleware);
 router.get("/", getLists);
 router.get("/:listId", [listIdCheck, validate, getList]);
-router.post("/", [titleCheck, validate, createList]);
-router.put("/:listId", [listIdCheck, titleCheck, validate, changeList]);
+router.post("/", [titleCheck, coverImageUrlCheck, validate, createList]);
+router.put("/:listId", [
+  listIdCheck,
+  titleOrCoverImageUrlCheck,
+  validate,
+  changeList,
+]);
 router.delete("/:listId", [listIdCheck, validate, deleteList]);
 
 module.exports = router;
