@@ -6,11 +6,16 @@ const scrapeCraigslist = async (url) => {
   const page = await browser.newPage();
   await page.goto(url);
   const data = await page.evaluate(() => {
+    const galleryElement = document.querySelector(".gallery");
     return {
       title: document.querySelector("#titletextonly").textContent,
       price: document.querySelector(".price").textContent,
-      imageUrl: document.querySelector(".gallery").children[3].firstElementChild
-        .firstElementChild.firstElementChild.src,
+      imageUrl:
+        //If there isn't a given image, we use the URL of the placeholder image Craigslist uses.
+        galleryElement != null
+          ? document.querySelector(".gallery").children[3].firstElementChild
+              .firstElementChild.firstElementChild.src
+          : "https://craigslist.org/images/peace.jpg",
     };
   });
   //wait for 1s, to prevent some cases which might cause abuse of use(optional)
