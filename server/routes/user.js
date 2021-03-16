@@ -22,7 +22,9 @@ const validate = (_req, _res) => {
 };
 
 const tokenOptions = {
-  httpOnly: true,
+  //To enable acquiring of cookie in the client during development,
+  //add NODE_ENV = development in .env
+  httpOnly: process.env.NODE_ENV === "development" ? false : true,
   //14 days
   maxAge: 1209600,
 };
@@ -133,7 +135,6 @@ router.get("/currentUser", authenticate, (req, res) => {
 //Get user by id
 router.get("/:id", async (req, res) => {
   const { id } = req.params;
-console.log(req.params)
   try {
     const user = await UserModel.findOne({ where: { id } });
 
