@@ -1,11 +1,12 @@
-import React, { useState, createContext } from "react";
+import React, { useState, createContext, useEffect } from "react";
 import Cookies from "js-cookie";
-
+import axios from "axios";
 export const userContext = createContext();
 
 const UsersProvider = ({ children }) => {
   const [token, setToken] = useState(Cookies.get("token"));
   const [user, setUser] = useState(null);
+  const [lists, setLists] = useState(null);
 
   const login = async (email, password) => {
     let data = await fetch("/user/signin", {
@@ -45,17 +46,13 @@ const UsersProvider = ({ children }) => {
   //This method will only return the parsed value of the token
   const getCurrentUser = async () => {
     let results = await fetch("/user/currentUser");
-
     results = await results.json();
-
     return results;
   };
 
   const getUserById = async (id) => {
     const data = await fetch(`/user/${id}`);
-
     const parsedData = await data.json();
-
     return parsedData;
   };
 
@@ -76,26 +73,56 @@ const UsersProvider = ({ children }) => {
 
     if (tokenUserData.user) {
       const data = await getUserById(tokenUserData.user.id);
-
       setUser(data.user);
-
       return data;
     }
 
     return { msg: "Error on obtaining user by id " };
   };
 
+  const axiosWithAuth = () => {
+    return axios.create({
+      baseURL: process.env.REACT_APP_BACKEND,
+      withCredentials: true,
+    });
+  };
+
+  const addList = async (title) => {
+    try {
+      await axiosWithAuth().post(`/lists`, { user_id: user.id, title: title });
+      getList();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const getList = async () => {
+    try {
+      const { data } = await axiosWithAuth().get(`/lists`);
+      setLists(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    getList();
+    // eslint-disable-next-line
+  }, []);
+
   return (
     <userContext.Provider
       value={{
         user,
         token,
+        lists,
         login,
         register,
         getCurrentUser,
         logout,
         getUserById,
         loadUser,
+        addList,
       }}
     >
       {children}
