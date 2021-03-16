@@ -24,14 +24,16 @@ const validate = (_req, _res) => {
 };
 
 const tokenOptions = {
-  httpOnly: true,
+  //To enable acquiring of cookie in the client during development,
+  //add NODE_ENV = development in .env
+  httpOnly: process.env.NODE_ENV === "development" ? false : true,
   //14 days
   maxAge: 1209600,
 };
 
-//Register
+//Sign Up User
 router.post(
-  "/register",
+  "/signup",
   [
     check("name", "Name must not be empty").notEmpty(),
     check("password", "Must be at least 6 characters long").isLength({
@@ -50,7 +52,7 @@ router.post(
     if (existingUser)
       return res
         .status(400)
-        .send({ error: { message: "User already exist", code: "400" } });
+        .send({ error: { msg: "User already exist", code: "400" } });
 
     const newUser = await UserModel.create({
       name,
@@ -73,9 +75,9 @@ router.post(
   }
 );
 
-//Login
+//Sign In User
 router.post(
-  "/login",
+  "/signin",
   [
     check("email", "Must be an Email").isEmail(),
     check("password", "Must not be empty").notEmpty(),
@@ -177,11 +179,43 @@ router.get("/getAllUnreadNotifications/:id", async (req, res) => {
   }
 });
 
-//Get current user who's logged in
-router.get("/getCurrentUser", authenticate, (req, res) => {
+//Log out User
+router.get("/signout", (req, res) => {
+  res.clearCookie("token");
+
+  res.send({
+    msg: "Successful Log out",
+  });
+});
+
+//Get currently logged in user obj
+router.get("/currentUser", authenticate, (req, res) => {
   res.send({
     user: req.user,
   });
+});
+
+//Get user by id
+router.get("/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const user = await UserModel.findOne({ where: { id } });
+
+    if (!user) {
+      return res.status(400).send({
+        msg: "User does not exist",
+        errorCode: "400",
+      });
+    }
+
+    res.send({
+      user,
+    });
+  } catch (error) {
+    res.status(500).send({
+      msg: "Server Error",
+    });
+  }
 });
 
 module.exports = router;
