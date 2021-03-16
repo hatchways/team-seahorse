@@ -18,3 +18,5 @@ const scrapeCraigslist = async (url) => {
   browser.close();
   return data;
 };
+
+module.exports = scrapeCraigslist;
