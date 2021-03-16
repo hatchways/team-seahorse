@@ -9,8 +9,9 @@ import {
   Tooltip,
   Grid,
 } from "@material-ui/core";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Link, useHistory, useLocation } from "react-router-dom";
+import { userContext as context } from "../providers/UsersProvider";
 import ErrorAlert from "./ErrorAlert";
 
 const useStyles = makeStyles(() => ({
@@ -81,19 +82,19 @@ const AuthModal = ({ isAuthPage }) => {
   const history = useHistory();
   const location = useLocation();
   const classes = useStyles();
+  const userContext = useContext(context);
 
   const { pathname } = location;
+  const { login, register, getCurrentUser, temp } = userContext;
 
   useEffect(() => {
     checkCurrentUser();
   }, []);
 
   const checkCurrentUser = async () => {
-    let results = await fetch("/user/currentUser");
+    const results = await getCurrentUser();
 
-    results = await results.json();
-
-    if (results.user === undefined) {
+    if (!results.user) {
       setSignedIn(false);
     } else {
       setSignedIn(true);
@@ -106,7 +107,7 @@ const AuthModal = ({ isAuthPage }) => {
     setTimeout(() => {
       setIsError(false);
     }, 5000);
-    setAlertMessage("Password must be greater than 6");
+    setAlertMessage(msg);
   };
 
   const submitHandler = async (e) => {
@@ -123,19 +124,15 @@ const AuthModal = ({ isAuthPage }) => {
     }
 
     try {
-      //email is handled by the TextField
-      if (pathname === "/signup") {
-        let result = await fetch("/user/signup", {
-          method: "POST",
-          headers: { "Content-type": "application/json" },
-          body: JSON.stringify({
-            name,
-            email,
-            password,
-          }),
-        });
+      let error = false;
 
-        result = await result.json();
+      if (pathname === "/signup") {
+        let result = await register(name, email, password);
+
+        if (result.error) {
+          openErrorAlert(result.error.msg);
+          error = true;
+        }
 
         setSignedIn(
           result.user !== undefined && result.user.id !== undefined
@@ -143,16 +140,7 @@ const AuthModal = ({ isAuthPage }) => {
             : false
         );
       } else {
-        let result = await fetch("/user/signin", {
-          method: "POST",
-          headers: { "Content-type": "application/json" },
-          body: JSON.stringify({
-            email,
-            password,
-          }),
-        });
-
-        result = await result.json();
+        const result = login(email, password);
 
         setSignedIn(
           result.user !== undefined && result.user.id !== undefined
@@ -160,9 +148,12 @@ const AuthModal = ({ isAuthPage }) => {
             : false
         );
       }
-      history.push("/dashboard");
+
+      if (error === false) {
+        history.push("/dashboard");
+      }
     } catch (error) {
-      alert("Something went wrong");
+      openErrorAlert("Something went wrong on our part, sorry!");
       console.error(error);
     }
   };
