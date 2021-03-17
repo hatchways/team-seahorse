@@ -13,9 +13,20 @@ const scrapeEbay = async (url) => {
   const page = await browser.newPage();
   await page.goto(url);
 
-  const imgUrl = await getValue('//*[@id="icImg"]', "src");
-  const title = await getValue('//*[@id="itemTitle"]/text()', "textContent");
-  const price = await getValue('//*[@id="prcIsum"]', "textContent");
+  let imgUrl;
+  let title;
+  let price;
+
+  try {
+    imgUrl = await getValue('//*[@id="icImg"]', "src");
+    title = await getValue('//*[@id="itemTitle"]/text()', "textContent");
+    price = await getValue('//*[@id="prcIsum"]', "textContent");
+  } catch (error) {
+    return {
+      msg: `Error getting values on product link. Please check if product is still available: ${url}`,
+      error,
+    };
+  }
 
   browser.close();
 
