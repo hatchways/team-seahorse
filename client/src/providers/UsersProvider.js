@@ -87,15 +87,6 @@ const UsersProvider = ({ children }) => {
     });
   };
 
-  const addList = async (title) => {
-    try {
-      await axiosWithAuth().post(`/lists`, { user_id: user.id, title: title });
-      getList();
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   const getList = async () => {
     try {
       const { data } = await axiosWithAuth().get(`/lists`);
@@ -122,7 +113,6 @@ const UsersProvider = ({ children }) => {
         logout,
         getUserById,
         loadUser,
-        addList,
       }}
     >
       {children}
