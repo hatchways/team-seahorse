@@ -6,6 +6,9 @@ const router = express.Router();
 const authenticate = require("../middlewares/authMiddleware");
 const UserNotificationModel = require("../models/userNotificationsModel");
 const NotificationModel = require("../models/notificationModel");
+const UserListModel = require("../models/userListModel");
+const ListProductModel = require("../models/listProductModel");
+const ProductModel = require("../models/productModel");
 
 const setJwt = (user) => {
   const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
@@ -129,21 +132,31 @@ router.get("/getAllNotifications/:id", async (req, res) => {
       where: { user_id: id },
     });
 
-    const promiseArr = [];
-
-    //Get all the notifications for each of the values in the array
-    userNotification.forEach((userNotif) => {
-      promiseArr.push(
-        NotificationModel.findOne({ where: { id: userNotif.notification_id } })
-      );
+    //After getting all the UserNotification Model for the user, we take that model and
+    //use the notification_id inside to make our way through the products information
+    const promiseArr = userNotification.map((userNotif) => {
+      return NotificationModel.findOne({
+        where: { id: userNotif.notification_id },
+      }).then((notif) => {
+        return ProductModel.findOne({ where: { id: notif.productId } }).then(
+          (product) => {
+            return {
+              isRead: userNotif.isRead,
+              id: userNotif.id,
+              product,
+            };
+          }
+        );
+      });
     });
 
-    const data = await Promise.all(promiseArr);
+    const notifications = await Promise.all(promiseArr);
 
-    res.send(data);
+    res.send(notifications);
   } catch (error) {
     res.status(500).send({
       msg: "Server Error",
+      error,
     });
   }
 });
@@ -154,24 +167,32 @@ router.get("/getAllUnreadNotifications/:id", async (req, res) => {
     const { id } = req.params;
 
     const userNotification = await UserNotificationModel.findAll({
-      where: { user_id: id },
+      where: { user_id: id, isRead: false },
     });
 
-    let promiseArr = [];
-
-    userNotification.forEach((element) => {
-      promiseArr.push(
-        NotificationModel.findOne({
-          where: { id: element.notification_id, isRead: false },
-        })
-      );
+    //Using an async/await would later on require me to do a search in
+    //an array to find pairs, to mitigate that process, I had to use .then
+    //which enabled me to use the those pairs without look ups. the pairs
+    //are the userNotif and the product
+    const promiseArr = userNotification.map((userNotif) => {
+      return NotificationModel.findOne({
+        where: { id: userNotif.notification_id },
+      }).then((notif) => {
+        return ProductModel.findOne({ where: { id: notif.productId } }).then(
+          (product) => {
+            return {
+              isRead: userNotif.isRead,
+              id: userNotif.id,
+              product,
+            };
+          }
+        );
+      });
     });
 
-    let data = await Promise.all(promiseArr);
+    const result = await Promise.all(promiseArr);
 
-    data = data[0] === null ? [] : data;
-
-    res.send(data);
+    res.send(result);
   } catch (error) {
     res.status(500).send({
       msg: "Server Error",
@@ -196,7 +217,7 @@ router.get("/currentUser", authenticate, (req, res) => {
 });
 
 //Get user by id
-router.get("/:id", async (req, res) => {
+router.get("/getUser/:id", async (req, res) => {
   const { id } = req.params;
   try {
     const user = await UserModel.findOne({ where: { id } });
