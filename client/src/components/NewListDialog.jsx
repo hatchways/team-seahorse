@@ -4,6 +4,7 @@ import {
   Typography,
   Dialog,
   DialogTitle,
+  DialogContent,
   Button,
   TextField,
 } from "@material-ui/core";
@@ -11,14 +12,14 @@ import { useState } from "react";
 import axios from "axios";
 
 const useStyles = makeStyles(() => ({
-  dialogPaper: {
-    height: "50%",
-    minWidth: "30%",
-    maxWidth: "40%",
+  button: {
+    height: 56,
+    borderRadius: 28,
+    width: 142,
   },
 }));
 
-const NewListDialog = ({ isOpen, closeDialog }) => {
+const NewListDialog = ({ isOpen, onClose }) => {
   const classes = useStyles();
 
   const [title, setTitle] = useState("");
@@ -41,52 +42,57 @@ const NewListDialog = ({ isOpen, closeDialog }) => {
       await axios
         .create({ baseUrl: "localhost:3001", withCredentials: true })
         .post("/lists", { title, coverImageUrl });
-      closeDialog();
+      onClose();
       setAwaitingResponse(false);
     } catch (error) {
       setAwaitingResponse(false);
       console.log(error.response);
+      if(errorText == "")
     }
   };
   return (
-    <Dialog
-      classes={{ paper: classes.dialogPaper }}
-      open={isOpen}
-      onClose={closeDialog}
-    >
-      <Grid container alignItems="center" direction="column" spacing={5}>
-        <Grid item>
-          <DialogTitle>Create New List</DialogTitle>
+    <Dialog open={isOpen} onClose={onClose}>
+      <DialogContent>
+        <Grid
+          container
+          alignItems="center"
+          direction="column"
+          style={{ padding: "0 30px" }}
+        >
+          <Grid item>
+            <DialogTitle>Create New List</DialogTitle>
+          </Grid>
+          <Grid item style={{ margin: "10px 0" }}>
+            <Typography variant="h6">Add a Title</Typography>
+            <TextField
+              label="Title"
+              variant="outlined"
+              onChange={handleTitleChange}
+              autoFocus
+            />
+          </Grid>
+          <Grid item style={{ margin: "10px 0" }}>
+            <Typography variant="h6">Add a Cover Image</Typography>
+            <TextField
+              label="Image URL"
+              variant="outlined"
+              defaultValue="http://example.com/image"
+              onChange={handleCoverImageUrlChange}
+            />
+          </Grid>
+          <Grid item style={{ marginTop: "30px" }}>
+            <Button
+              className={classes.button}
+              variant="contained"
+              color="secondary"
+              onClick={handleSubmit}
+              disabled={awaitingResponse}
+            >
+              Create List
+            </Button>
+          </Grid>
         </Grid>
-        <Grid item>
-          <Typography variant="h6">Add a Title</Typography>
-          <TextField
-            label="Title"
-            variant="outlined"
-            onChange={handleTitleChange}
-            autoFocus
-          />
-        </Grid>
-        <Grid item>
-          <Typography variant="h6">Add a Cover Image</Typography>
-          <TextField
-            label="Image URL"
-            variant="outlined"
-            defaultValue="http://example.com/image"
-            onChange={handleCoverImageUrlChange}
-          />
-        </Grid>
-        <Grid item>
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={handleSubmit}
-            disabled={awaitingResponse}
-          >
-            Create List
-          </Button>
-        </Grid>
-      </Grid>
+      </DialogContent>
     </Dialog>
   );
 };

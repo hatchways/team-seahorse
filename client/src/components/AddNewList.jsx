@@ -47,7 +47,7 @@ const AddNewList = () => {
       </Grid>
       <NewListDialog
         isOpen={dialogIsOpen}
-        closeDialog={() => setDialogIsOpen(false)}
+        onClose={() => setDialogIsOpen(false)}
       />
     </>
   );
