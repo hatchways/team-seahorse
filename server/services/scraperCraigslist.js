@@ -9,17 +9,17 @@ const scrapeCraigslist = async (url) => {
   let productInfo = undefined;
   if (res.status() == "200") {
     productInfo = await page.evaluate(() => {
-      const galleryElement = document.querySelector(".gallery");
+      const imageContainer = document.querySelector('*[id^="1_image"]');
+      const priceElement = document.querySelector(".price");
       return {
         title: document.querySelector("#titletextonly").textContent,
-        price: document.querySelector(".price").textContent,
+        price: priceElement != null ? priceElement.textContent : null,
         imageUrl:
           //If there isn't a given image, we use the URL of the placeholder image Craigslist uses.
-          galleryElement != null
-            ? document.querySelector(".gallery").children[3].firstElementChild
-                .firstElementChild.firstElementChild.src
+          imageContainer != null
+            ? imageContainer.firstElementChild.src
             : "https://craigslist.org/images/peace.jpg",
-        isStillAvailable: false,
+        isStillAvailable: true,
       };
     });
   } else {
@@ -31,9 +31,5 @@ const scrapeCraigslist = async (url) => {
   browser.close();
   return productInfo;
 };
-
-scrapeCraigslist("https://stlouis.craigslist.org/vgm/5639115690.html").then(
-  console.log
-);
 
 module.exports = scrapeCraigslist;
