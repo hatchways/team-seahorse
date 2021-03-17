@@ -1,6 +1,6 @@
 const puppeteer = require("puppeteer");
 
-const scrape = async (url) => {
+const scrapeEbay = async (url) => {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
   await page.goto(url);
