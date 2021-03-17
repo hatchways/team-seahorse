@@ -11,9 +11,13 @@ const scrapeCraigslist = async (url) => {
     productInfo = await page.evaluate(() => {
       const imageContainer = document.querySelector('*[id^="1_image"]');
       const priceElement = document.querySelector(".price");
+      if (priceElement == null) {
+        throw "no price";
+      }
       return {
         title: document.querySelector("#titletextonly").textContent,
-        price: priceElement != null ? priceElement.textContent : null,
+        //Removes currency symbol (e.g. "$25" -> "25")
+        price: priceElement.textContent.substr(1),
         imageUrl:
           //If there isn't a given image, we use the URL of the placeholder image Craigslist uses.
           imageContainer != null

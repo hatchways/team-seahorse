@@ -9,6 +9,7 @@ const ProductModel = db.define("Product", {
   },
   current_price: {
     type: dt.DECIMAL(10, 2),
+    allowNull: false,
   },
   previous_price: {
     type: dt.DECIMAL(10, 2),
