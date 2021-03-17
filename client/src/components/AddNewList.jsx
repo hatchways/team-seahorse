@@ -29,6 +29,7 @@ const useStyles = makeStyles(() => ({
 
 const AddNewList = () => {
   const classes = useStyles();
+
   return (
     <Grid item>
       <Card className={classes.card} elevation={0}>
