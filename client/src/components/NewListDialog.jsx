@@ -33,9 +33,11 @@ const NewListDialog = ({ isOpen, closeDialog }) => {
   const handleTitleChange = (e) => {
     setTitle(e.target.value);
   };
+  //TODO: Should be in useEffect
   const handleSubmit = async () => {
     try {
       setAwaitingResponse(true);
+      //TODO: Use environment variable for baseUrl
       await axios
         .create({ baseUrl: "localhost:3001", withCredentials: true })
         .post("/lists", { title, coverImageUrl });
@@ -70,6 +72,7 @@ const NewListDialog = ({ isOpen, closeDialog }) => {
           <TextField
             label="Image URL"
             variant="outlined"
+            defaultValue="http://example.com/image"
             onChange={handleCoverImageUrlChange}
           />
         </Grid>
