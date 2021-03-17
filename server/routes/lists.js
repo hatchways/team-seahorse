@@ -21,7 +21,7 @@ const giveServerError = (res) =>
 const getLists = async (req, res) => {
   try {
     const results = await UserList.findAll({
-      attributes: ["id"],
+      attributes: ["id", "title"],
       where: { user_id: req.user.id },
     });
     res.status(200).send(results);
