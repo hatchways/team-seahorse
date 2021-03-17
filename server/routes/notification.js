@@ -7,22 +7,18 @@ const UserNotificationModel = require("../models/userNotificationsModel");
 const router = require("express").Router();
 
 //Make the given notification id read
-router.get("/read/:id", authMiddleware, async (req, res) => {
+router.put("/read/:id", authMiddleware, async (req, res) => {
   try {
-    const { id } = req.params;
-    const { userId } = req.headers;
+    const { id: notificationId } = req.params;
+    const { id: userId } = req.user;
 
-    if (!id) return res.status(400).send({ msg: "Must have an id parameter" });
-    if (!userId)
-      return res.status(400).send({ msg: "Must have a userId in headers" });
+    if (!notificationId) return res.status(400).send({ msg: "Must have an id parameter" });
+    if (!userId) return res.status(400).send({ msg: "Must be authenticated" });
 
-    const userNotification = await UserNotificationModel.findOne({
-      where: { notification_id: id, user_id: userId },
-    });
-
-    const updatedUserNotification = await userNotification.update({
-      isRead: true,
-    });
+    const updatedUserNotification = await UserNotificationModel.update(
+      { isRead: true },
+      { where: { id: notificationId, user_id: userId } }
+    );
 
     res.send(updatedUserNotification);
   } catch (error) {
@@ -50,31 +46,23 @@ router.post("/createNotification", async (req, res) => {
       where: { product_id: id },
     });
 
-    let promiseArr = [];
-
     //Asynchronous request for finding all the UserListModel using each list_id
-    for (let x = 0; x < listProduct.length; x++) {
-      promiseArr.push(
-        UserListModel.findOne({ where: { id: listProduct[x].list_id } })
-      );
-    }
+    let promiseArr = listProduct.map((LP) => {
+      return UserListModel.findOne({ where: { id: LP.list_id } });
+    });
 
     const userList = await Promise.all(promiseArr);
 
-    promiseArr = [];
-
     //Now simply create the UserNotificationModel using the user_id from the
     //UserListModel and the NotificationModel.id from the very first code.
-    userList.forEach((list) => {
-      promiseArr.push(
-        UserNotificationModel.create({
-          user_id: list.user_id,
-          notification_id: newNotif.id,
-        })
-      );
+    let userNotifPromiseArr = userList.map((list) => {
+      return UserNotificationModel.create({
+        user_id: list.user_id,
+        notification_id: newNotif.id,
+      });
     });
 
-    const newUserNotif = await Promise.all(promiseArr);
+    const newUserNotif = await Promise.all(userNotifPromiseArr);
 
     res.status(201).send({
       notification: newNotif,
@@ -83,6 +71,7 @@ router.post("/createNotification", async (req, res) => {
   } catch (error) {
     res.status(500).send({
       msg: "Server Error",
+      error,
     });
   }
 });
