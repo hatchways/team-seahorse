@@ -69,7 +69,7 @@ const createList = async (req, res) => {
     const result = await UserList.create({
       user_id: req.user.id,
       title: req.body.title,
-      cover_image_url: req.body.coverImageUrl,
+      coverImageUrl: req.body.coverImageUrl,
     });
     res.status(201).send({ id: result.id });
   } catch (error) {
@@ -89,7 +89,7 @@ const createList = async (req, res) => {
 const changeList = async (req, res) => {
   try {
     const [affectedRows] = await UserList.update(
-      { title: req.body.title, cover_image_url: req.body.coverImageUrl },
+      { title: req.body.title, coverImageUrl: req.body.coverImageUrl },
       {
         where: {
           id: parseInt(req.params.listId),

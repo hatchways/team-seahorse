@@ -13,7 +13,7 @@ const UserListModel = db.define("UserList", {
     allowNull: false,
     unique: "uniqueTitleForUser",
   },
-  cover_image_url: {
+  coverImageUrl: {
     type: dt.STRING,
     allowNull: false,
   },

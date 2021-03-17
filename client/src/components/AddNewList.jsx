@@ -30,7 +30,7 @@ const useStyles = makeStyles(() => ({
 
 const AddNewList = () => {
   const classes = useStyles();
-  const [dialogIsOpen, setDialogIsOpen] = useState(false);
+  const [newListDialogIsOpen, setNewListDialogIsOpen] = useState(false);
 
   return (
     <>
@@ -38,7 +38,7 @@ const AddNewList = () => {
         <Card className={classes.card} elevation={0}>
           <CardActionArea
             className={classes.action}
-            onClick={() => setDialogIsOpen(true)}
+            onClick={() => setNewListDialogIsOpen(true)}
           >
             <AddIcon className={classes.icon} color="primary" />
             <Typography>ADD NEW LIST</Typography>
@@ -46,8 +46,8 @@ const AddNewList = () => {
         </Card>
       </Grid>
       <NewListDialog
-        isOpen={dialogIsOpen}
-        onClose={() => setDialogIsOpen(false)}
+        isOpen={newListDialogIsOpen}
+        onClose={() => setNewListDialogIsOpen(false)}
       />
     </>
   );

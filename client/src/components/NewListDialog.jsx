@@ -17,6 +17,15 @@ const useStyles = makeStyles(() => ({
     borderRadius: 28,
     width: 142,
   },
+  dialogGrid: {
+    padding: "0 30px",
+  },
+  formItem: {
+    margin: "10px 0",
+  },
+  formButton: {
+    marginTop: "30px",
+  },
 }));
 
 const NewListDialog = ({ isOpen, onClose }) => {
@@ -34,20 +43,18 @@ const NewListDialog = ({ isOpen, onClose }) => {
   const handleTitleChange = (e) => {
     setTitle(e.target.value);
   };
-  //TODO: Should be in useEffect
   const handleSubmit = async () => {
     try {
       setAwaitingResponse(true);
-      //TODO: Use environment variable for baseUrl
       await axios
-        .create({ baseUrl: "localhost:3001", withCredentials: true })
+        .create({ withCredentials: true })
         .post("/lists", { title, coverImageUrl });
       onClose();
       setAwaitingResponse(false);
     } catch (error) {
+      //TODO: Error handling
       setAwaitingResponse(false);
       console.log(error.response);
-      if(errorText == "")
     }
   };
   return (
@@ -55,14 +62,14 @@ const NewListDialog = ({ isOpen, onClose }) => {
       <DialogContent>
         <Grid
           container
+          className={classes.dialogGrid}
           alignItems="center"
           direction="column"
-          style={{ padding: "0 30px" }}
         >
           <Grid item>
             <DialogTitle>Create New List</DialogTitle>
           </Grid>
-          <Grid item style={{ margin: "10px 0" }}>
+          <Grid item className={classes.formItem}>
             <Typography variant="h6">Add a Title</Typography>
             <TextField
               label="Title"
@@ -71,7 +78,7 @@ const NewListDialog = ({ isOpen, onClose }) => {
               autoFocus
             />
           </Grid>
-          <Grid item style={{ margin: "10px 0" }}>
+          <Grid item className={classes.formItem}>
             <Typography variant="h6">Add a Cover Image</Typography>
             <TextField
               label="Image URL"
@@ -80,7 +87,7 @@ const NewListDialog = ({ isOpen, onClose }) => {
               onChange={handleCoverImageUrlChange}
             />
           </Grid>
-          <Grid item style={{ marginTop: "30px" }}>
+          <Grid item className={classes.formButton}>
             <Button
               className={classes.button}
               variant="contained"
