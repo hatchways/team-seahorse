@@ -13,6 +13,10 @@ const UserListModel = db.define("UserList", {
     allowNull: false,
     unique: "uniqueTitleForUser",
   },
+  imageUrl: {
+    type: dt.STRING(128),
+    allowNull: true,
+  },
 });
 
 UserModel.hasMany(UserListModel, {

@@ -158,8 +158,10 @@ const deleteList = async (req, res) => {
   }
 };
 
-const uploadImage = (req, res) => {
-  uploadFile(req, res, (err) => {
+const uploadImage = async (req, res) => {
+  const listId = req.params.listId;
+
+  uploadFile(req, res, async (err) => {
     if (err) {
       console.log(err);
       return res.json({
@@ -171,12 +173,21 @@ const uploadImage = (req, res) => {
         },
       });
     } else {
-      const imageName = req.file.key;
       const imageUrl = req.file.location;
-      res.status(200).json({
-        image: imageName,
-        imageUrl: imageUrl,
-      });
+
+      try {
+        const [updatedList] = await UserList.update(
+          { imageUrl: imageUrl },
+          {
+            where: {
+              id: +listId,
+            },
+          }
+        );
+        res.status(200).json({ updatedList, imageUrl: imageUrl });
+      } catch (error) {
+        res.status(400).send({ error: { msg: "upload fail" } });
+      }
     }
   });
 };
@@ -188,6 +199,6 @@ router.post("/", [titleCheck, validate, createList]);
 router.put("/:listId", [listIdCheck, titleCheck, validate, changeList]);
 router.delete("/:listId", [listIdCheck, validate, deleteList]);
 
-router.post("/:listId/upload", [listIdCheck, validate, uploadImage]);
+router.post("/:listId/upload-image", [listIdCheck, validate, uploadImage]);
 
 module.exports = router;
