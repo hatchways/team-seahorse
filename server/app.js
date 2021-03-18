@@ -9,7 +9,7 @@ const pingRouter = require("./routes/ping");
 const userRouter = require("./routes/user");
 const listsRouter = require("./routes/lists");
 const productsRouter = require("./routes/products");
-
+const imageUploadRouter = require("./routes/imageUpload");
 const { json, urlencoded } = express;
 
 //for testing db connection
@@ -30,6 +30,7 @@ app.use("/ping", pingRouter);
 app.use("/user", userRouter);
 app.use("/lists", listsRouter);
 app.use("/products", productsRouter);
+app.use("/upload-image", imageUploadRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
