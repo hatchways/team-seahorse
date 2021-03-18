@@ -107,6 +107,7 @@ const UsersProvider = ({ children }) => {
         user,
         token,
         lists,
+        setLists,
         login,
         register,
         getCurrentUser,

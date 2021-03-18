@@ -28,7 +28,7 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const NewListDialog = ({ isOpen, onClose }) => {
+const NewListDialog = ({ isOpen, onClose, onAddList }) => {
   const classes = useStyles();
 
   const [title, setTitle] = useState("");
@@ -46,10 +46,11 @@ const NewListDialog = ({ isOpen, onClose }) => {
   const handleSubmit = async () => {
     try {
       setAwaitingResponse(true);
-      await axios
+      const result = await axios
         .create({ withCredentials: true })
         .post("/lists", { title, coverImageUrl });
       onClose();
+      onAddList({ id: result.data.id, title });
       setAwaitingResponse(false);
     } catch (error) {
       //TODO: Error handling

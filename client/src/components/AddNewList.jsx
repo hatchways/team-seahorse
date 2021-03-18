@@ -28,7 +28,7 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const AddNewList = () => {
+const AddNewList = ({ onAddList }) => {
   const classes = useStyles();
   const [newListDialogIsOpen, setNewListDialogIsOpen] = useState(false);
 
@@ -48,6 +48,7 @@ const AddNewList = () => {
       <NewListDialog
         isOpen={newListDialogIsOpen}
         onClose={() => setNewListDialogIsOpen(false)}
+        onAddList={onAddList}
       />
     </>
   );
