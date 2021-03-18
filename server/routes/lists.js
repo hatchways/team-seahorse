@@ -159,8 +159,6 @@ const deleteList = async (req, res) => {
 };
 
 const uploadImage = (req, res) => {
-  const listId = req.params.listId;
-
   uploadFile(req, res, (err) => {
     if (err) {
       console.log(err);
@@ -174,10 +172,10 @@ const uploadImage = (req, res) => {
       });
     } else {
       const imageName = req.file.key;
-      const imageLocation = req.file.location;
+      const imageUrl = req.file.location;
       res.status(200).json({
         image: imageName,
-        location: imageLocation,
+        imageUrl: imageUrl,
       });
     }
   });
