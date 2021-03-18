@@ -11,6 +11,8 @@ const db = require("../models");
 const ListProductModel = require("../models/listProductModel");
 const UserList = require("../models/userListModel");
 const ProductModel = require("../models/productModel");
+const upload = require("../services/imageUpload");
+const uploadFile = upload.single("image");
 
 const giveServerError = (res) =>
   res.status(500).send({ errors: [{ msg: "Server error" }] });
@@ -156,11 +158,38 @@ const deleteList = async (req, res) => {
   }
 };
 
+const uploadImage = (req, res) => {
+  const listId = req.params.listId;
+
+  uploadFile(req, res, (err) => {
+    if (err) {
+      console.log(err);
+      return res.json({
+        success: false,
+        errors: {
+          title: "Image Upload Error",
+          detail: err.message,
+          error: err,
+        },
+      });
+    } else {
+      const imageName = req.file.key;
+      const imageLocation = req.file.location;
+      res.status(200).json({
+        image: imageName,
+        location: imageLocation,
+      });
+    }
+  });
+};
+
 router.use(authMiddleware);
 router.get("/", getLists);
 router.get("/:listId", [listIdCheck, validate, getList]);
 router.post("/", [titleCheck, validate, createList]);
 router.put("/:listId", [listIdCheck, titleCheck, validate, changeList]);
 router.delete("/:listId", [listIdCheck, validate, deleteList]);
+
+router.post("/:listId/upload", [listIdCheck, validate, uploadImage]);
 
 module.exports = router;
