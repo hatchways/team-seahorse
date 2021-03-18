@@ -2,7 +2,9 @@ import { Box, Grid, makeStyles, Typography } from "@material-ui/core";
 import React, { useContext } from "react";
 import { userContext } from "../providers/UsersProvider";
 import AddNewList from "./AddNewList";
+import AddProductModal from "./AddProductModal";
 import ListCover from "./ListCover";
+import ListModal from "./ListModal";
 
 const useStyles = makeStyles(() => ({
   title: {
@@ -15,6 +17,8 @@ const Lists = () => {
   const { lists } = useContext(userContext);
   return (
     <Box px={10}>
+      <ListModal />
+      <AddProductModal />
       <Typography className={classes.title} align="left" variant="h6">
         My Shopping Lists:
       </Typography>
