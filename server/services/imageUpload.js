@@ -28,8 +28,9 @@ const upload = multer({
   storage: multerS3({
     s3,
     bucket: "seahorse-image",
+    acl: "public-read",
     key: function (req, file, cb) {
-      cb(null, Date.now().toString());
+      cb(null, file.originalname);
     },
   }),
 });

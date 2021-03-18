@@ -22,15 +22,15 @@ const useStyles = makeStyles(() => ({
 
 const ListCover = ({ list }) => {
   const classes = useStyles();
-  const { title } = list;
+  const { title, items, imageUrl } = list;
   return (
     <Grid item>
       <Card className={classes.card} elevation={0}>
-        <CardMedia className={classes.image} image={sample} />
+        <CardMedia className={classes.image} image={imageUrl} />
         <CardContent>
           <Typography align="center">{title}</Typography>
           <Typography variant="subtitle1" align="center">
-            50 items
+            {items} items
           </Typography>
         </CardContent>
       </Card>
