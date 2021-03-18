@@ -7,7 +7,6 @@ const uploadFile = upload.single("image");
 const uploadImage = (req, res) => {
   uploadFile(req, res, (err) => {
     if (err) {
-      console.log(err);
       return res.json({
         success: false,
         errors: {
@@ -23,6 +22,6 @@ const uploadImage = (req, res) => {
   });
 };
 
-router.post("/", [validate, uploadImage]);
+router.post("/", validate, uploadImage);
 
 module.exports = router;
