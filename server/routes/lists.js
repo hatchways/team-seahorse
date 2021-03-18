@@ -67,6 +67,7 @@ const createList = async (req, res) => {
     const result = await UserList.create({
       user_id: req.user.id,
       title: req.body.title,
+      imageUrl: req.body.imageUrl,
     });
     res.status(201).send({ id: result.id });
   } catch (error) {
