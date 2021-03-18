@@ -17,6 +17,10 @@ const UserListModel = db.define("UserList", {
     type: dt.STRING(128),
     allowNull: true,
   },
+  items: {
+    type: dt.INTEGER,
+    defaultValue: 0,
+  },
 });
 
 UserModel.hasMany(UserListModel, {
