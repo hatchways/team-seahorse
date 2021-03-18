@@ -90,8 +90,10 @@ router.post(
 
     if (!existingUser)
       return res.status(400).send({
-        msg: "User does not exist",
-        errorCode: "400",
+        error: {
+          msg: "Invalid Credentials",
+          errorCode: "400",
+        },
       });
 
     // check given password
