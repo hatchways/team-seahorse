@@ -53,9 +53,9 @@ const UsersProvider = ({ children }) => {
   //This method will only return the parsed value of the token
   const getCurrentUser = async () => {
     try {
-      let results = await fetch("/user/currentUser");
-      results = await results.json();
-      return results;
+      const userResponse = await fetch("/user/currentUser");
+      const userData = await userResponse.json();
+      return userData;
     } catch (error) {
       console.log(error);
       return error;
