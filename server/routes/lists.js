@@ -4,8 +4,9 @@ const {
   validate,
   listIdCheck,
   titleCheck,
-  coverImageUrlCheck,
-  titleOrCoverImageUrlCheck,
+  imageUrlCheck,
+  titleOrImageUrlCheck,
+  giveServerError,
 } = require("../middlewares/validate");
 const router = express.Router();
 const authMiddleware = require("../middlewares/authMiddleware");
@@ -14,14 +15,11 @@ const ListProductModel = require("../models/listProductModel");
 const UserList = require("../models/userListModel");
 const ProductModel = require("../models/productModel");
 
-const giveServerError = (res) =>
-  res.status(500).send({ errors: [{ msg: "Server error" }] });
-
 //Returns id of each list belonging to the user.
 const getLists = async (req, res) => {
   try {
     const results = await UserList.findAll({
-      attributes: ["id", "title"],
+      attributes: ["id", "title", "items", "imageUrl"],
       where: { user_id: req.user.id },
     });
     res.status(200).send(results);
@@ -69,7 +67,7 @@ const createList = async (req, res) => {
     const result = await UserList.create({
       user_id: req.user.id,
       title: req.body.title,
-      coverImageUrl: req.body.coverImageUrl,
+      imageUrl: req.body.imageUrl,
     });
     res.status(201).send({ id: result.id });
   } catch (error) {
@@ -90,7 +88,7 @@ const createList = async (req, res) => {
 const changeList = async (req, res) => {
   try {
     const [affectedRows] = await UserList.update(
-      { title: req.body.title, coverImageUrl: req.body.coverImageUrl },
+      { title: req.body.title, imageUrl: req.body.imageUrl },
       {
         where: {
           id: parseInt(req.params.listId),
@@ -163,10 +161,10 @@ const deleteList = async (req, res) => {
 router.use(authMiddleware);
 router.get("/", getLists);
 router.get("/:listId", [listIdCheck, validate, getList]);
-router.post("/", [titleCheck, coverImageUrlCheck, validate, createList]);
+router.post("/", [titleCheck, imageUrlCheck, validate, createList]);
 router.put("/:listId", [
   listIdCheck,
-  titleOrCoverImageUrlCheck,
+  titleOrImageUrlCheck,
   validate,
   changeList,
 ]);

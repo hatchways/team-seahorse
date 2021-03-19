@@ -63,13 +63,11 @@ const NewListDialog = ({ isOpen, onClose, onAddList }) => {
   const classes = useStyles();
 
   const [title, setTitle] = useState("");
-  const [coverImageUrl, setCoverImageUrl] = useState(
-    "http://example.com/image"
-  );
+  const [imageUrl, setImageUrl] = useState("http://example.com/image");
   const [awaitingResponse, setAwaitingResponse] = useState(false);
 
-  const handleCoverImageUrlChange = (e) => {
-    setCoverImageUrl(e.target.value);
+  const handleImageUrlChange = (e) => {
+    setImageUrl(e.target.value);
   };
   const handleTitleChange = (e) => {
     setTitle(e.target.value);
@@ -79,7 +77,7 @@ const NewListDialog = ({ isOpen, onClose, onAddList }) => {
       setAwaitingResponse(true);
       const result = await axios
         .create({ withCredentials: true })
-        .post("/lists", { title, coverImageUrl });
+        .post("/lists", { title, imageUrl });
       onClose();
       onAddList({ id: result.data.id, title });
       setAwaitingResponse(false);
@@ -127,7 +125,7 @@ const NewListDialog = ({ isOpen, onClose, onAddList }) => {
               textProps={{
                 label: "Image URL",
                 defaultValue: "http://example.com/image",
-                onChange: handleCoverImageUrlChange,
+                onChange: handleImageUrlChange,
               }}
             >
               Add a Cover

@@ -6,8 +6,9 @@ import {
   makeStyles,
   Typography,
 } from "@material-ui/core";
-import React from "react";
+import React, { useContext } from "react";
 import sample from "../images/sample.jpg";
+import { userContext as context } from "../providers/UsersProvider";
 
 const useStyles = makeStyles(() => ({
   card: {
@@ -22,15 +23,29 @@ const useStyles = makeStyles(() => ({
 
 const ListCover = ({ list }) => {
   const classes = useStyles();
-  const { title } = list;
+  const userContext = useContext(context);
+
+  const { updateIsListClicked } = userContext;
+
+  const { title, id } = list;
+
+  const clickHandler = async () => {
+    updateIsListClicked(true);
+
+    //Use a function that will load list products
+  };
+
   return (
-    <Grid item>
-      <Card className={classes.card} elevation={0}>
+    <Grid item style={{ cursor: "pointer" }}>
+      <Card
+        className={classes.card}
+        elevation={0}
+        onClick={() => clickHandler()}
+      >
         <CardMedia className={classes.image} image={sample} />
         <CardContent>
           <Typography align="center">{title}</Typography>
           <Typography variant="subtitle1" align="center">
-            50 items
           </Typography>
         </CardContent>
       </Card>

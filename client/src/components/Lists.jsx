@@ -3,6 +3,7 @@ import React, { useContext } from "react";
 import { userContext } from "../providers/UsersProvider";
 import AddNewList from "./AddNewList";
 import ListCover from "./ListCover";
+import ListModal from "./ListModal";
 
 const useStyles = makeStyles(() => ({
   title: {
@@ -15,6 +16,7 @@ const Lists = () => {
   const { lists, setLists } = useContext(userContext);
   return (
     <Box px={10}>
+      <ListModal />
       <Typography className={classes.title} align="left" variant="h6">
         My Shopping Lists:
       </Typography>
