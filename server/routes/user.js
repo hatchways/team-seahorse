@@ -54,13 +54,13 @@ router.post(
         .status(400)
         .send({ error: { msg: "User already exist", code: "400" } });
 
-    const transaction = await db.transaction();
     const newUser = await UserModel.create({
       name,
       email,
       password,
-      transaction,
     });
+
+    const transaction = await db.transaction();
     await UserListModel.create({
       user_id: newUser.id,
       title: "Shopping",
