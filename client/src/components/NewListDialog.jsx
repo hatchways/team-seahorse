@@ -7,11 +7,19 @@ import {
   DialogContent,
   Button,
   TextField,
+  IconButton,
 } from "@material-ui/core";
+import CloseIcon from "@material-ui/icons/Close";
 import { useState } from "react";
 import axios from "axios";
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
+  closeButton: {
+    position: "absolute",
+    right: theme.spacing(1),
+    top: theme.spacing(1),
+    color: theme.palette.grey[500],
+  },
   button: {
     height: 56,
     borderRadius: 28,
@@ -24,9 +32,32 @@ const useStyles = makeStyles(() => ({
     margin: "10px 0",
   },
   formButton: {
-    marginTop: "30px",
+    marginTop: 30,
+    marginBottom: 50,
+  },
+  formText: {
+    width: 500,
+    marginTop: 10,
+  },
+  dialogTitle: {
+    marginBottom: 30,
   },
 }));
+
+const DialogFormTextField = (props) => {
+  const classes = useStyles();
+
+  return (
+    <Grid container alignItems="center" direction="column">
+      <Typography variant="h6">{props.children}</Typography>
+      <TextField
+        className={classes.formText}
+        variant="outlined"
+        {...props.textProps}
+      />
+    </Grid>
+  );
+};
 
 const NewListDialog = ({ isOpen, onClose, onAddList }) => {
   const classes = useStyles();
@@ -59,7 +90,15 @@ const NewListDialog = ({ isOpen, onClose, onAddList }) => {
     }
   };
   return (
-    <Dialog open={isOpen} onClose={onClose}>
+    <Dialog open={isOpen} onClose={onClose} maxWidth="lg">
+      <IconButton
+        className={classes.closeButton}
+        edge="start"
+        onClick={onClose}
+        aria-label="close"
+      >
+        <CloseIcon />
+      </IconButton>
       <DialogContent>
         <Grid
           container
@@ -68,31 +107,37 @@ const NewListDialog = ({ isOpen, onClose, onAddList }) => {
           direction="column"
         >
           <Grid item>
-            <DialogTitle>Create New List</DialogTitle>
+            <DialogTitle className={classes.dialogTitle}>
+              Create New List
+            </DialogTitle>
           </Grid>
           <Grid item className={classes.formItem}>
-            <Typography variant="h6">Add a Title</Typography>
-            <TextField
-              label="Title"
-              variant="outlined"
-              onChange={handleTitleChange}
-              autoFocus
-            />
+            <DialogFormTextField
+              textProps={{
+                label: "Title",
+                onChange: handleTitleChange,
+                autoFocus: true,
+              }}
+            >
+              Add a Title
+            </DialogFormTextField>
           </Grid>
           <Grid item className={classes.formItem}>
-            <Typography variant="h6">Add a Cover Image</Typography>
-            <TextField
-              label="Image URL"
-              variant="outlined"
-              defaultValue="http://example.com/image"
-              onChange={handleCoverImageUrlChange}
-            />
+            <DialogFormTextField
+              textProps={{
+                label: "Image URL",
+                defaultValue: "http://example.com/image",
+                onChange: handleCoverImageUrlChange,
+              }}
+            >
+              Add a Cover
+            </DialogFormTextField>
           </Grid>
           <Grid item className={classes.formButton}>
             <Button
               className={classes.button}
               variant="contained"
-              color="secondary"
+              color="primary"
               onClick={handleSubmit}
               disabled={awaitingResponse}
             >

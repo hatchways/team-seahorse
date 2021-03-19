@@ -74,6 +74,7 @@ const createList = async (req, res) => {
     res.status(201).send({ id: result.id });
   } catch (error) {
     console.error(error);
+    //TODO: Currently throws error if a server error happens since error.error[0] might not exist
     //If title is not unique
     if (
       error.errors[0].type == "unique violation" &&
