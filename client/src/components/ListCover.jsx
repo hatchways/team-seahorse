@@ -46,7 +46,6 @@ const ListCover = ({ list }) => {
         <CardContent>
           <Typography align="center">{title}</Typography>
           <Typography variant="subtitle1" align="center">
-            {/* {items} items */}
           </Typography>
         </CardContent>
       </Card>
