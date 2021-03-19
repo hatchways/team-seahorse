@@ -99,7 +99,7 @@ const UsersProvider = ({ children }) => {
   useEffect(() => {
     getList();
     // eslint-disable-next-line
-  }, []);
+  }, [user]);
 
   return (
     <userContext.Provider
@@ -113,6 +113,7 @@ const UsersProvider = ({ children }) => {
         logout,
         getUserById,
         loadUser,
+        axiosWithAuth,
       }}
     >
       {children}

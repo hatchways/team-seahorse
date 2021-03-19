@@ -9,6 +9,7 @@ const {
 } = require("../middlewares/validate");
 const ProductModel = require("../models/productModel");
 const ListProductModel = require("../models/listProductModel");
+const { scrapeAmazon } = require("../services");
 
 const giveServerError = (res) =>
   res.status(500).send({ errors: [{ msg: "Server error" }] });
@@ -81,6 +82,16 @@ const deleteProduct = async (req, res) => {
   }
 };
 
+const addProduct = async (req, res) => {
+  const { url, linkId } = req.body;
+  console.log(url);
+  try {
+    const productData = await scrapeAmazon(url);
+
+    res.status(200).send(productData);
+  } catch (error) {}
+};
+
 router.use(authMiddleware);
 router.get("/:productId", [productIdCheck, validate, getProduct]);
 router.delete("/:listId/:productId", [
@@ -89,5 +100,6 @@ router.delete("/:listId/:productId", [
   validate,
   deleteProduct,
 ]);
+router.post("/", validate, addProduct);
 
 module.exports = router;

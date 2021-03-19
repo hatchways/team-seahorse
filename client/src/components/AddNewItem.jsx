@@ -6,7 +6,9 @@ import {
   Button,
   InputBase,
 } from "@material-ui/core";
-import React from "react";
+import React, { useContext, useState } from "react";
+import { productContext } from "../providers/ProductProvider";
+import { userContext } from "../providers/UsersProvider";
 
 const useStyles = makeStyles(() => ({
   title: { paddingBottom: 40 },
@@ -33,6 +35,15 @@ const useStyles = makeStyles(() => ({
 
 const AddNewItem = () => {
   const classes = useStyles();
+  const { lists } = useContext(userContext);
+  const { submitLink, product } = useContext(productContext);
+  const [link, setLink] = useState("");
+  const [listId, setListId] = useState("");
+
+  const handleSubmit = () => {
+    submitLink(listId, link);
+  };
+
   return (
     <Box py={8}>
       <Typography
@@ -53,14 +64,27 @@ const AddNewItem = () => {
         <InputBase
           className={classes.textInput}
           placeholder="Paste your link here"
+          value={link}
+          onChange={(e) => setLink(e.target.value)}
         />
         <TextField
           className={classes.selectInput}
           select
           label="Select List"
           InputProps={{ disableUnderline: true }}
-        />
-        <Button className={classes.button} color="primary" variant="contained">
+          onChange={(e) => setListId(e.target.value)}
+        >
+          {lists &&
+            lists.map((option) => (
+              <option value={option.id}>{option.title}</option>
+            ))}
+        </TextField>
+        <Button
+          className={classes.button}
+          color="primary"
+          variant="contained"
+          onClick={handleSubmit}
+        >
           Add
         </Button>
       </Box>
