@@ -135,6 +135,7 @@ const UsersProvider = ({ children }) => {
         user,
         token,
         lists,
+        setLists,
         isListClicked,
         currentListProducts,
         isAddingProd,

@@ -4,6 +4,8 @@ const {
   validate,
   listIdCheck,
   titleCheck,
+  imageUrlCheck,
+  titleOrImageUrlCheck,
   giveServerError,
 } = require("../middlewares/validate");
 const router = express.Router();
@@ -70,6 +72,7 @@ const createList = async (req, res) => {
     res.status(201).send({ id: result.id });
   } catch (error) {
     console.error(error);
+    //TODO: Currently throws error if a server error happens since error.error[0] might not exist
     //If title is not unique
     if (
       error.errors[0].type == "unique violation" &&
@@ -81,11 +84,11 @@ const createList = async (req, res) => {
   }
 };
 
-//Change title in list belonging to the user.
+//Change title and cover image url in list belonging to the user.
 const changeList = async (req, res) => {
   try {
     const [affectedRows] = await UserList.update(
-      { title: req.body.title },
+      { title: req.body.title, imageUrl: req.body.imageUrl },
       {
         where: {
           id: parseInt(req.params.listId),
@@ -158,8 +161,13 @@ const deleteList = async (req, res) => {
 router.use(authMiddleware);
 router.get("/", getLists);
 router.get("/:listId", [listIdCheck, validate, getList]);
-router.post("/", [titleCheck, validate, createList]);
-router.put("/:listId", [listIdCheck, titleCheck, validate, changeList]);
+router.post("/", [titleCheck, imageUrlCheck, validate, createList]);
+router.put("/:listId", [
+  listIdCheck,
+  titleOrImageUrlCheck,
+  validate,
+  changeList,
+]);
 router.delete("/:listId", [listIdCheck, validate, deleteList]);
 
 module.exports = router;

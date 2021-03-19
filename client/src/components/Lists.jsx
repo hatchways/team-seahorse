@@ -13,7 +13,7 @@ const useStyles = makeStyles(() => ({
 
 const Lists = () => {
   const classes = useStyles();
-  const { lists } = useContext(userContext);
+  const { lists, setLists } = useContext(userContext);
   return (
     <Box px={10}>
       <ListModal />
@@ -23,10 +23,9 @@ const Lists = () => {
       <Grid container spacing={2}>
         {lists &&
           lists.map((list) => {
-            return <ListCover key={lists.id} list={list} />;
+            return <ListCover key={list.id} list={list} />;
           })}
-          <ListCover list={{title: "the title"}} />
-        <AddNewList />
+        <AddNewList onAddList={(list) => setLists(lists.concat(list))} />
       </Grid>
     </Box>
   );
