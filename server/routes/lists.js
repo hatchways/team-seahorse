@@ -17,7 +17,7 @@ const ProductModel = require("../models/productModel");
 const getLists = async (req, res) => {
   try {
     const results = await UserList.findAll({
-      attributes: ["id", "title"],
+      attributes: ["id", "title", "items", "imageUrl"],
       where: { user_id: req.user.id },
     });
     res.status(200).send(results);
@@ -65,6 +65,7 @@ const createList = async (req, res) => {
     const result = await UserList.create({
       user_id: req.user.id,
       title: req.body.title,
+      imageUrl: req.body.imageUrl,
     });
     res.status(201).send({ id: result.id });
   } catch (error) {
