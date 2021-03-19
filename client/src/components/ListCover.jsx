@@ -23,15 +23,29 @@ const useStyles = makeStyles(() => ({
 
 const ListCover = ({ list }) => {
   const classes = useStyles();
-  const { title, items, imageUrl } = list;
+  const userContext = useContext(context);
+
+  const { updateIsListClicked } = userContext;
+
+  const { title, id } = list;
+
+  const clickHandler = async () => {
+    updateIsListClicked(true);
+
+    //Use a function that will load list products
+  };
+
   return (
-    <Grid item>
-      <Card className={classes.card} elevation={0}>
-        <CardMedia className={classes.image} image={imageUrl} />
+    <Grid item style={{ cursor: "pointer" }}>
+      <Card
+        className={classes.card}
+        elevation={0}
+        onClick={() => clickHandler()}
+      >
+        <CardMedia className={classes.image} image={sample} />
         <CardContent>
           <Typography align="center">{title}</Typography>
           <Typography variant="subtitle1" align="center">
-            {items} items
           </Typography>
         </CardContent>
       </Card>
