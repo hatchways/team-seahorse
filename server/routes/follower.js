@@ -11,7 +11,7 @@ const { UserModel, UserFollowerModel } = require("../models/models");
 const db = require("../models");
 
 //Gets all the users the user is currently following, and from that gets all the users that aren't part of that group.
-const getStrangers = async (req, res) => {
+const getSuggestions = async (req, res) => {
   let transaction = null;
   try {
     transaction = await db.transaction();
@@ -84,7 +84,7 @@ const followUser = async (req, res) => {
 };
 
 router.use(authMiddleware);
-router.get("/strangers", getStrangers);
+router.get("/suggestions", getSuggestions);
 router.get("/following", getFollowedUsers);
 router.post("/follow/:userId", [followerIdCheck, validate, followUser]);
 
