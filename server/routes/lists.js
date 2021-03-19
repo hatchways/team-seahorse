@@ -4,6 +4,7 @@ const {
   validate,
   listIdCheck,
   titleCheck,
+  giveServerError,
 } = require("../middlewares/validate");
 const router = express.Router();
 const authMiddleware = require("../middlewares/authMiddleware");
@@ -11,9 +12,6 @@ const db = require("../models");
 const ListProductModel = require("../models/listProductModel");
 const UserList = require("../models/userListModel");
 const ProductModel = require("../models/productModel");
-
-const giveServerError = (res) =>
-  res.status(500).send({ errors: [{ msg: "Server error" }] });
 
 //Returns id of each list belonging to the user.
 const getLists = async (req, res) => {

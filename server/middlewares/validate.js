@@ -22,10 +22,21 @@ const titleCheck = [
     }
   ),
 ];
+const followerIdCheck = param("userId")
+  .isNumeric()
+  .withMessage("userId must be a number.")
+  .custom((userId, { req }) => userId != req.user.id)
+  .withMessage("userId cannot be your user ID.");
+
+//Doesn't technically belong here, but I don't know where else to put it ¯\_(ツ)_/¯
+const giveServerError = (res) =>
+  res.status(500).send({ errors: [{ msg: "Server error" }] });
 
 module.exports = {
   validate,
   listIdCheck,
   productIdCheck,
   titleCheck,
+  followerIdCheck,
+  giveServerError,
 };
