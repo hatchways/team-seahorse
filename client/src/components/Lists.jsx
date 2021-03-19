@@ -25,6 +25,7 @@ const Lists = () => {
           lists.map((list) => {
             return <ListCover key={lists.id} list={list} />;
           })}
+          <ListCover list={{title: "the title"}} />
         <AddNewList />
       </Grid>
     </Box>
