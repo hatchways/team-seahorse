@@ -6,8 +6,9 @@ import {
   makeStyles,
   Typography,
 } from "@material-ui/core";
-import React from "react";
+import React, { useContext } from "react";
 import sample from "../images/sample.jpg";
+import { userContext as context } from "../providers/UsersProvider";
 
 const useStyles = makeStyles(() => ({
   card: {
