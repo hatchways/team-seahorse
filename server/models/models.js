@@ -6,7 +6,6 @@ const ProductModel = require("./productModel");
 const UserListModel = require("./userListModel");
 const ListProductModel = require("./listProductModel");
 const UserFollowerModel = require("./userFollowerModel");
-const ListFollowerModel = require("./listFollowerModel");
 
 //Creates tables for each model if the table doesn't already exist.
 db.sync();
@@ -17,5 +16,4 @@ module.exports = {
   UserListModel,
   ListProductModel,
   UserFollowerModel,
-  ListFollowerModel,
 };
