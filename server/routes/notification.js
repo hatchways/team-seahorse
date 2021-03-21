@@ -5,13 +5,6 @@ const UserListModel = require("../models/userListModel");
 const { PRICE } = require("../utils/enums");
 const router = require("express").Router();
 
-const validateOrderQuery = (order, res) => {
-  if (!order) order = "DESC";
-  else order = order.toUpperCase();
-
-  if (order !== "ASC" && order !== "DESC") return false;
-};
-
 //Make the given notification id read
 router.put("/read/:id", authMiddleware, async (req, res) => {
   try {
@@ -112,10 +105,14 @@ router.get("/price/all", authMiddleware, async (req, res) => {
   const { id } = req.user;
   let { order } = req.query;
 
-  if (!validateOrderQuery(order))
+  if (!order) order = "DESC";
+  else order = order.toUpperCase();
+
+  if (order !== "ASC" && order !== "DESC") {
     return res
       .status(400)
       .send({ error: { msg: "Invalid order query", errorCode: 400 } });
+  }
 
   try {
     const result = await NotificationModel.findAll({
@@ -140,10 +137,14 @@ router.get("/price/unread", authMiddleware, async (req, res) => {
   const { id } = req.user;
   let { order } = req.query;
 
-  if (!validateOrderQuery(order))
+  if (!order) order = "DESC";
+  else order = order.toUpperCase();
+
+  if (order !== "ASC" && order !== "DESC") {
     return res
       .status(400)
       .send({ error: { msg: "Invalid order query", errorCode: 400 } });
+  }
 
   try {
     const result = await NotificationModel.findAll({
