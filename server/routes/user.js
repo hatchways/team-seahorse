@@ -1,6 +1,7 @@
 const express = require("express");
 const { check, validationResult, cookie } = require("express-validator");
-const UserModel = require("../models/userModel");
+const { UserModel, UserListModel } = require("../models/models");
+const db = require("../models/");
 const jwt = require("jsonwebtoken");
 const router = express.Router();
 const authenticate = require("../middlewares/authMiddleware");
@@ -29,6 +30,7 @@ const tokenOptions = {
   maxAge: 1209600,
 };
 
+//TODO: Wrap in try/catch in case db calls fail.
 //Sign Up User
 router.post(
   "/signup",
@@ -57,6 +59,21 @@ router.post(
       email,
       password,
     });
+
+    const transaction = await db.transaction();
+    await UserListModel.create({
+      user_id: newUser.id,
+      title: "Shopping",
+      imageUrl: "https://image.flaticon.com/icons/png/512/1600/1600225.png",
+      transaction,
+    });
+    await UserListModel.create({
+      user_id: newUser.id,
+      title: "Wishlist",
+      imageUrl: "https://image.flaticon.com/icons/png/512/1600/1600225.png",
+      transaction,
+    });
+    await transaction.commit();
 
     const token = setJwt(newUser);
 
@@ -90,8 +107,10 @@ router.post(
 
     if (!existingUser)
       return res.status(400).send({
-        msg: "User does not exist",
-        errorCode: "400",
+        error: {
+          msg: "Invalid Credentials",
+          errorCode: "400",
+        },
       });
 
     // check given password

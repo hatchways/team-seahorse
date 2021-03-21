@@ -1,11 +1,19 @@
-import React, { useState, createContext } from "react";
+import React, { useState, createContext, useEffect } from "react";
 import Cookies from "js-cookie";
-
+import axios from "axios";
 export const userContext = createContext();
 
 const UsersProvider = ({ children }) => {
   const [token, setToken] = useState(Cookies.get("token"));
   const [user, setUser] = useState(null);
+  const [lists, setLists] = useState(null);
+
+  //#region  List Related
+  const [isListClicked, setIsListClicked] = useState(false);
+  const [isAddingProd, setIsAddingProd] = useState(false);
+  const [currentListProducts, setCurrentListProducts] = useState([]);
+  const [isLoadingListProducts, setIsLoadingListProducts] = useState(false);
+  //#endregion
 
   const login = async (email, password) => {
     let data = await fetch("/user/signin", {
@@ -44,18 +52,19 @@ const UsersProvider = ({ children }) => {
 
   //This method will only return the parsed value of the token
   const getCurrentUser = async () => {
-    let results = await fetch("/user/currentUser");
-
-    results = await results.json();
-
-    return results;
+    try {
+      const userResponse = await fetch("/user/currentUser");
+      const userData = await userResponse.json();
+      return userData;
+    } catch (error) {
+      console.log(error);
+      return error;
+    }
   };
 
   const getUserById = async (id) => {
     const data = await fetch(`/user/${id}`);
-
     const parsedData = await data.json();
-
     return parsedData;
   };
 
@@ -76,26 +85,71 @@ const UsersProvider = ({ children }) => {
 
     if (tokenUserData.user) {
       const data = await getUserById(tokenUserData.user.id);
-
       setUser(data.user);
-
       return data;
     }
 
     return { msg: "Error on obtaining user by id " };
   };
 
+  const axiosWithAuth = () => {
+    return axios.create({
+      baseURL: process.env.REACT_APP_BACKEND,
+      withCredentials: true,
+    });
+  };
+
+  const getList = async () => {
+    try {
+      const { data } = await axiosWithAuth().get(`/lists`);
+      setLists(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  //#region List Related
+
+  const updateIsListClicked = (bool) => {
+    setIsListClicked(bool);
+  };
+
+  const updateIsAddingProd = (bool) => {
+    setIsAddingProd(bool);
+  };
+
+  const updateIsLoadingListProducts = (bool) => {
+    setIsLoadingListProducts(bool);
+  };
+
+  //#endregion
+
+  useEffect(() => {
+    getList();
+    // eslint-disable-next-line
+  }, []);
+
   return (
     <userContext.Provider
       value={{
         user,
         token,
+        lists,
+        setLists,
+        isListClicked,
+        currentListProducts,
+        isAddingProd,
+        isLoadingListProducts,
         login,
         register,
         getCurrentUser,
         logout,
         getUserById,
         loadUser,
+        updateIsListClicked,
+        updateIsAddingProd,
+        updateIsLoadingListProducts,
+        setIsAddingProd,
       }}
     >
       {children}
