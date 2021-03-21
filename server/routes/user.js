@@ -4,11 +4,6 @@ const UserModel = require("../models/userModel");
 const jwt = require("jsonwebtoken");
 const router = express.Router();
 const authenticate = require("../middlewares/authMiddleware");
-const UserNotificationModel = require("../models/userNotificationsModel");
-const NotificationModel = require("../models/notificationModel");
-const UserListModel = require("../models/userListModel");
-const ListProductModel = require("../models/listProductModel");
-const ProductModel = require("../models/productModel");
 
 const setJwt = (user) => {
   const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
@@ -120,85 +115,6 @@ router.post(
     });
   }
 );
-
-//Get all notifications of a user Id
-router.get("/getAllNotifications/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    //Through the UserNotification Model from below, we'll be able to obtain the
-    //notification_id that is only present on the particular user
-    const userNotification = await UserNotificationModel.findAll({
-      where: { user_id: id },
-    });
-
-    //After getting all the UserNotification Model for the user, we take that model and
-    //use the notification_id inside to make our way through the products information
-    const promiseArr = userNotification.map((userNotif) => {
-      return NotificationModel.findOne({
-        where: { id: userNotif.notification_id },
-      }).then((notif) => {
-        return ProductModel.findOne({ where: { id: notif.productId } }).then(
-          (product) => {
-            return {
-              isRead: userNotif.isRead,
-              id: userNotif.id,
-              product,
-            };
-          }
-        );
-      });
-    });
-
-    const notifications = await Promise.all(promiseArr);
-
-    res.send(notifications);
-  } catch (error) {
-    res.status(500).send({
-      msg: "Server Error",
-      error,
-    });
-  }
-});
-
-//Get all unread using user id
-router.get("/getAllUnreadNotifications/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const userNotification = await UserNotificationModel.findAll({
-      where: { user_id: id, isRead: false },
-    });
-
-    //Using an async/await would later on require me to do a search in
-    //an array to find pairs, to mitigate that process, I had to use .then
-    //which enabled me to use the those pairs without look ups. the pairs
-    //are the userNotif and the product
-    const promiseArr = userNotification.map((userNotif) => {
-      return NotificationModel.findOne({
-        where: { id: userNotif.notification_id },
-      }).then((notif) => {
-        return ProductModel.findOne({ where: { id: notif.productId } }).then(
-          (product) => {
-            return {
-              isRead: userNotif.isRead,
-              id: userNotif.id,
-              product,
-            };
-          }
-        );
-      });
-    });
-
-    const result = await Promise.all(promiseArr);
-
-    res.send(result);
-  } catch (error) {
-    res.status(500).send({
-      msg: "Server Error",
-    });
-  }
-});
 
 //Log out User
 router.get("/signout", (req, res) => {
