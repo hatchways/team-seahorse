@@ -1,26 +1,42 @@
 const authMiddleware = require("../middlewares/authMiddleware");
 const ListProductModel = require("../models/listProductModel");
 const NotificationModel = require("../models/notificationModel");
-const ProductModel = require("../models/productModel");
 const UserListModel = require("../models/userListModel");
-const UserNotificationModel = require("../models/userNotificationsModel");
+const { PRICE } = require("../utils/enums");
 const router = require("express").Router();
+
+const validateOrderQuery = (order, res) => {
+  if (!order) order = "DESC";
+  else order = order.toUpperCase();
+
+  if (order !== "ASC" && order !== "DESC") return false;
+};
 
 //Make the given notification id read
 router.put("/read/:id", authMiddleware, async (req, res) => {
   try {
-    const { id: notificationId } = req.params;
-    const { id: userId } = req.user;
+    const { id } = req.params;
+    const { id: user_id } = req.user;
 
-    if (!notificationId) return res.status(400).send({ msg: "Must have an id parameter" });
-    if (!userId) return res.status(400).send({ msg: "Must be authenticated" });
-
-    const updatedUserNotification = await UserNotificationModel.update(
+    await NotificationModel.update(
       { isRead: true },
-      { where: { id: notificationId, user_id: userId } }
+      {
+        where: {
+          id,
+          user_id,
+        },
+      }
     );
 
-    res.send(updatedUserNotification);
+    //update returns only a 1 or a 0 so we create another query to show the client
+    const newNotification = await NotificationModel.findOne({
+      where: {
+        id,
+        user_id,
+      },
+    });
+
+    res.send(newNotification);
   } catch (error) {
     res.status(500).send({
       msg: "Server Error",
@@ -29,49 +45,120 @@ router.put("/read/:id", authMiddleware, async (req, res) => {
 });
 
 //Create a notification using a product id given inside the body
-router.post("/createNotification", async (req, res) => {
+//Will be used by a service
+router.post("/price", async (req, res) => {
+  const { productId, title, price, previousPrice } = req.body;
+
+  const promiseArr = [];
+
+  //Find all lists associated with this product
+  const listProds = await ListProductModel.findAll({
+    where: {
+      product_id: productId,
+    },
+  });
+
+  let newNotifs = {};
+
+  //Find the owners associated with the list
+  listProds.forEach((listProd) => {
+    promiseArr.push(
+      UserListModel.findOne({
+        where: {
+          id: listProd.list_id,
+        },
+      })
+    );
+  });
+
+  const userLists = await Promise.all(promiseArr);
+
+  userLists.forEach((userList) => {
+    if (!newNotifs[`${userList.user_id}`]) {
+      const data = {
+        title,
+        productId,
+        price,
+        previousPrice,
+        listLocations: [userList.id],
+      };
+
+      newNotifs[`${userList.user_id}`] = {
+        type: "price",
+        data,
+        user_id: userList.user_id,
+        isRead: false,
+      };
+    } else {
+      newNotifs[`${userList.user_id}`].data.listLocations.push(userList.id);
+    }
+  });
+
+  const parsedNotifs = Object.entries(newNotifs);
+
+  const promisedArr2 = [];
+
+  parsedNotifs.forEach((notif) => {
+    promisedArr2.push(NotificationModel.create(notif[1]));
+  });
+
+  const allNewNotifs = await Promise.all(promisedArr2);
+  res.status(201).send(allNewNotifs);
+});
+
+//Find specifically ALL notifications of a user about a price change
+//Accepts "order" as a query. Be default is "DESC" to show latest notifs first
+router.get("/price/all", authMiddleware, async (req, res) => {
+  const { id } = req.user;
+  let { order } = req.query;
+
+  if (!validateOrderQuery(order))
+    return res
+      .status(400)
+      .send({ error: { msg: "Invalid order query", errorCode: 400 } });
+
   try {
-    const { id } = req.body;
-
-    //Create the notification model using the productId which is also is updated by a service
-    const newNotif = await NotificationModel.create({
-      productId: id,
+    const result = await NotificationModel.findAll({
+      where: {
+        type: PRICE,
+        user_id: id,
+      },
+      order: [["createdAt", order]],
     });
 
-    //The plan here is to get the user_id who should get the notification. The said user_id can
-    //be found through ListProductModel => UserListModel.obj.user_id
-
-    //Get all ListProducts that has the same product_id
-    const listProduct = await ListProductModel.findAll({
-      where: { product_id: id },
-    });
-
-    //Asynchronous request for finding all the UserListModel using each list_id
-    let promiseArr = listProduct.map((LP) => {
-      return UserListModel.findOne({ where: { id: LP.list_id } });
-    });
-
-    const userList = await Promise.all(promiseArr);
-
-    //Now simply create the UserNotificationModel using the user_id from the
-    //UserListModel and the NotificationModel.id from the very first code.
-    let userNotifPromiseArr = userList.map((list) => {
-      return UserNotificationModel.create({
-        user_id: list.user_id,
-        notification_id: newNotif.id,
-      });
-    });
-
-    const newUserNotif = await Promise.all(userNotifPromiseArr);
-
-    res.status(201).send({
-      notification: newNotif,
-      userNotification: newUserNotif,
-    });
+    res.send(result);
   } catch (error) {
     res.status(500).send({
       msg: "Server Error",
-      error,
+    });
+  }
+});
+
+//Find specifically ALL UNREAD notifications of a user about a price change
+//Accepts "order" as a query. Be default is "DESC" to show latest notifs first
+router.get("/price/unread", authMiddleware, async (req, res) => {
+  const { id } = req.user;
+  let { order } = req.query;
+
+  if (!validateOrderQuery(order))
+    return res
+      .status(400)
+      .send({ error: { msg: "Invalid order query", errorCode: 400 } });
+
+  try {
+    const result = await NotificationModel.findAll({
+      where: {
+        type: PRICE,
+        user_id: id,
+        isRead: false,
+      },
+      order: [["createdAt", order]],
+    });
+
+    res.send(result);
+  } catch (error) {
+    res.status(500).send({
+      msg: "Server Error",
     });
   }
 });
