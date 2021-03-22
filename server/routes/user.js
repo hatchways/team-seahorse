@@ -152,7 +152,7 @@ router.get("/current-user", authenticate, (req, res) => {
 });
 
 //Get user by id
-router.get("/get-user/:id", async (req, res) => {
+router.get("/:id", async (req, res) => {
   const { id } = req.params;
   try {
     const user = await UserModel.findOne({ where: { id } });
