@@ -9,14 +9,14 @@ const router = require("express").Router();
 router.put("/read/:id", authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
-    const { id: user_id } = req.user;
+    const { id: userId } = req.user;
 
     await NotificationModel.update(
       { isRead: true },
       {
         where: {
           id,
-          user_id,
+          userId,
         },
       }
     );
@@ -25,7 +25,7 @@ router.put("/read/:id", authMiddleware, async (req, res) => {
     const newNotification = await NotificationModel.findOne({
       where: {
         id,
-        user_id,
+        userId,
       },
     });
 
@@ -45,11 +45,7 @@ router.post("/price", async (req, res) => {
   const promiseArr = [];
 
   //Find all lists associated with this product
-  const listProds = await ListProductModel.findAll({
-    where: {
-      product_id: productId,
-    },
-  });
+  const listProds = await ListProductModel.findAll({ where: { productId } });
 
   let newNotifs = {};
 
@@ -58,7 +54,7 @@ router.post("/price", async (req, res) => {
     promiseArr.push(
       UserListModel.findOne({
         where: {
-          id: listProd.list_id,
+          id: listProd.listId,
         },
       })
     );
@@ -67,7 +63,7 @@ router.post("/price", async (req, res) => {
   const userLists = await Promise.all(promiseArr);
 
   userLists.forEach((userList) => {
-    if (!newNotifs[`${userList.user_id}`]) {
+    if (!newNotifs[`${userList.userId}`]) {
       const data = {
         title,
         productId,
@@ -76,14 +72,14 @@ router.post("/price", async (req, res) => {
         listLocations: [userList.id],
       };
 
-      newNotifs[`${userList.user_id}`] = {
+      newNotifs[`${userList.userId}`] = {
         type: "price",
         data,
-        user_id: userList.user_id,
+        userId: userList.userId,
         isRead: false,
       };
     } else {
-      newNotifs[`${userList.user_id}`].data.listLocations.push(userList.id);
+      newNotifs[`${userList.userId}`].data.listLocations.push(userList.id);
     }
   });
 
@@ -118,7 +114,7 @@ router.get("/price/all", authMiddleware, async (req, res) => {
     const result = await NotificationModel.findAll({
       where: {
         type: PRICE,
-        user_id: id,
+        userId: id,
       },
       order: [["createdAt", order]],
     });
@@ -150,7 +146,7 @@ router.get("/price/unread", authMiddleware, async (req, res) => {
     const result = await NotificationModel.findAll({
       where: {
         type: PRICE,
-        user_id: id,
+        userId: id,
         isRead: false,
       },
       order: [["createdAt", order]],

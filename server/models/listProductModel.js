@@ -3,27 +3,38 @@ const UserListModel = require("./userListModel");
 const ProductModel = require("./productModel");
 const db = require("./index");
 
-const ListProductModel = db.define("ListProduct", {
-  id: {
-    type: dt.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
+const ListProductModel = db.define("ListProduct", {});
+
+UserListModel.belongsToMany(ProductModel, {
+  through: ListProductModel,
+  foreignKey: {
+    name: "listId",
+    allowNull: false,
   },
+  onDelete: "CASCADE",
+});
+ProductModel.belongsToMany(UserListModel, {
+  through: ListProductModel,
+  foreignKey: {
+    name: "productId",
+    allowNull: false,
+  },
+  onDelete: "CASCADE",
 });
 
-UserListModel.hasMany(ListProductModel, {
-  foreignKey: {
-    name: "list_id",
-    allowNull: false,
-  },
-  onDelete: "CASCADE",
-});
-ProductModel.hasMany(ListProductModel, {
-  foreignKey: {
-    name: "product_id",
-    allowNull: false,
-  },
-  onDelete: "CASCADE",
-});
+// UserListModel.hasMany(ListProductModel, {
+//   foreignKey: {
+//     name: "listId",
+//     allowNull: false,
+//   },
+//   onDelete: "CASCADE",
+// });
+// ProductModel.hasMany(ListProductModel, {
+//   foreignKey: {
+//     name: "productId",
+//     allowNull: false,
+//   },
+//   onDelete: "CASCADE",
+// });
 
 module.exports = ListProductModel;

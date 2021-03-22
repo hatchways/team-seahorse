@@ -17,13 +17,13 @@ const getProduct = async (req, res) => {
       where: { id: parseInt(req.params.productId) },
       attributes: [
         "id",
-        "current_price",
-        "previous_price",
+        "currentPrice",
+        "previousPrice",
         "name",
-        "image_url",
+        "imageUrl",
         "link",
         "company",
-        "is_still_available",
+        "isStillAvailable",
       ],
     });
     if (result == null) {
@@ -50,16 +50,16 @@ const deleteProduct = async (req, res) => {
     DELETE FROM "ListProducts"
     USING "UserLists"
     WHERE (
-        "ListProducts".list_id = "UserLists".id
-        AND "ListProducts".product_id = ${productId} AND "ListProducts".list_id = ${listId}
-        AND "UserLists".user_id = ${req.user.id}
+        "ListProducts".listId = "UserLists".id
+        AND "ListProducts".productId = ${productId} AND "ListProducts".listId = ${listId}
+        AND "UserLists".userId = ${req.user.id}
     )
   `,
       { transaction }
     );
     const productStillExistsInOtherLists =
       (await ListProductModel.count({
-        where: { product_id: productId },
+        where: { productId },
         transaction,
       })) == 1;
     if (!productStillExistsInOtherLists) {
@@ -82,21 +82,21 @@ const deleteProduct = async (req, res) => {
 const createProduct = async (req, res) => {
   try {
     const {
-      current_price,
+      currentPrice,
       name,
       link,
-      image_url,
+      imageUrl,
       company,
-      is_still_available,
+      isStillAvailable,
     } = req.body;
 
     const newProd = await ProductModel.create({
-      current_price,
+      currentPrice,
       name,
       link,
-      image_url,
+      imageUrl,
       company,
-      is_still_available,
+      isStillAvailable,
     });
 
     res.send(newProd);

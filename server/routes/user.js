@@ -62,13 +62,13 @@ router.post(
 
     const transaction = await db.transaction();
     await UserListModel.create({
-      user_id: newUser.id,
+      userId: newUser.id,
       title: "Shopping",
       imageUrl: "https://image.flaticon.com/icons/png/512/1600/1600225.png",
       transaction,
     });
     await UserListModel.create({
-      user_id: newUser.id,
+      userId: newUser.id,
       title: "Wishlist",
       imageUrl: "https://image.flaticon.com/icons/png/512/1600/1600225.png",
       transaction,

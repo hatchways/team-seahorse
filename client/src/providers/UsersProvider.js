@@ -127,7 +127,7 @@ const UsersProvider = ({ children }) => {
   useEffect(() => {
     getList();
     // eslint-disable-next-line
-  }, []);
+  }, [user]);
 
   return (
     <userContext.Provider
