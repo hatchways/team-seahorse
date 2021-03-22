@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext } from "react";
 import {
   Button,
   makeStyles,
@@ -11,11 +11,11 @@ import { productContext } from "../providers/ProductProvider";
 
 const useStyles = makeStyles(() => ({
   paper: {
-    width: 700,
-    height: 700,
-    position: "fixed",
+    width: 600,
+    height: 600,
+    position: "absolute",
     left: "50%",
-    top: "50%",
+    top: "40%",
     transform: "translate(-50%, -50%)",
     display: "flex",
     justifyContent: "center",
@@ -52,9 +52,7 @@ const ProductConfirmation = ({ setModal }) => {
       bgcolor="rgba(37, 35, 35, 0.541)"
     >
       <Paper className={classes.paper}>
-        {!product.title ? (
-          <CircularProgress />
-        ) : (
+        {product.title ? (
           <Box
             p={5}
             display="flex"
@@ -63,7 +61,7 @@ const ProductConfirmation = ({ setModal }) => {
             justifyContent="space-between"
             height="90%"
           >
-            <Typography variant="h5">
+            <Typography variant="h6">
               {title}
               <Typography>Price: {price}</Typography>
             </Typography>
@@ -77,6 +75,8 @@ const ProductConfirmation = ({ setModal }) => {
               Close
             </Button>
           </Box>
+        ) : (
+          <CircularProgress />
         )}
       </Paper>
     </Box>

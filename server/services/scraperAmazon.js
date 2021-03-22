@@ -10,10 +10,11 @@ function scrapeAmazon(url) {
       const data = await page.evaluate(() => {
         const result = {};
         const title = document.querySelector("#productTitle");
-        const price = document.querySelector("#priceblock_ourprice");
+        const priceOur = document.querySelector("#priceblock_ourprice");
+        const priceSale = document.querySelector("#priceblock_saleprice");
         const imageURL = document.querySelector("#landingImage");
         result.title = title.textContent.trim();
-        result.price = price.textContent;
+        result.price = priceOur ? priceOur.textContent : priceSale.textContent;
         result.imageURL = imageURL.src;
         return result;
       });
