@@ -9,6 +9,7 @@ import {
 import React, { useContext, useState } from "react";
 import { productContext } from "../providers/ProductProvider";
 import { userContext } from "../providers/UsersProvider";
+import ProductConfirmation from "./ProductConfirmation";
 
 const useStyles = makeStyles(() => ({
   title: { paddingBottom: 40 },
@@ -36,12 +37,15 @@ const useStyles = makeStyles(() => ({
 const AddNewItem = () => {
   const classes = useStyles();
   const { lists } = useContext(userContext);
-  const { submitLink, product } = useContext(productContext);
+  const { submitLink } = useContext(productContext);
   const [link, setLink] = useState("");
   const [listId, setListId] = useState("");
+  const [modal, setModal] = useState(false);
 
   const handleSubmit = () => {
     submitLink(listId, link);
+    setModal(true);
+    setLink("");
   };
 
   return (
@@ -88,6 +92,7 @@ const AddNewItem = () => {
           Add
         </Button>
       </Box>
+      {modal && <ProductConfirmation setModal={setModal} />}
     </Box>
   );
 };
