@@ -1,6 +1,7 @@
 const authMiddleware = require("../middlewares/authMiddleware");
 const ListProductModel = require("../models/listProductModel");
 const NotificationModel = require("../models/notificationModel");
+const { sequelize } = require("../models/productModel");
 const ProductModel = require("../models/productModel");
 const UserListModel = require("../models/userListModel");
 const { PRICE } = require("../utils/enums");
@@ -41,98 +42,118 @@ router.put("/read/:id", authMiddleware, async (req, res) => {
 //Create a notification using a product id given inside the body
 //Will be used by a service
 router.post("/price", async (req, res) => {
+  const trans = await sequelize.transaction();
   const { productId, title, price, previousPrice } = req.body;
 
-  //Get the product with the price change
-  const productModel = await ProductModel.findOne({
-    where: {
-      id: productId,
-    },
-  });
-
-  //Find all lists containing this product
-  const listProds = await ListProductModel.findAll({
-    where: {
-      product_id: productId,
-    },
-  });
-
-  //This is the container where the NotificationModel.data is held. The number of notifs
-  //inside the hashmap is equal to number of users who has the particular product in their
-  //list regardless of how many list it is in.
-  //We use a hashmap to provide better look up times since we'll have to update data as we go
-  let newNotifs = {};
-
-  //This is an array of all owners of each of those list. Non duplicating lists but with a
-  //possibility of users owning more than one of those list.
-  const userLists = await UserListModel.findAll({
-    where: {
-      id: listProds.map((listProd) => {
-        return listProd.list_id;
-      }),
-    },
-  });
-
-  //For each of the over all users in the userLists, we build the data object which will be
-  //placed inside the NotificationModel and its other attributes. This iterates for each of the userLists, but conditionals
-  //are placed to only make one per user. If the model a schema has already been made for a user, we instead
-  //make an update to the objects data.listLocations
-  userLists.forEach((userList) => {
-    //If we havent made a data object for the user, make one.
-    if (!newNotifs[`${userList.user_id}`]) {
-      const data = {
-        title,
-        productId,
-        price,
-        previousPrice,
-        listLocations: [userList.id],
-      };
-
-      newNotifs[`${userList.user_id}`] = {
-        type: "price",
-        data,
-        user_id: userList.user_id,
-        isRead: false,
-      };
-
-      //The data object has an array listLocations. This is basically the lists of a user where the
-      //particular product is placed. If a data object is already made, we simply add in the current list
-      //to the listLocations array.
-    } else {
-      newNotifs[`${userList.user_id}`].data.listLocations.push(userList.id);
-    }
-  });
-
-  //This would convert the newNotifs object into an array.
-  //[ [dataObject], [dataObject], ... ]
-  //Inside the data object, the [0] index is the key, while the [0] index is the data object itself.
-  const parsedNotifs = Object.entries(newNotifs);
-
-  const notifPromiseArr = [];
-
-  //This iteration is the main part of creating the notification
-  parsedNotifs.forEach((notif) => {
-    notifPromiseArr.push(NotificationModel.create(notif[1]));
-  });
-
-  //This is the array of all the new notifications made for a user.
-  //May be changed in the future to just [1] for success since no one need to know
-  const allNewNotifs = await Promise.all(notifPromiseArr);
-
-  //Update Product Model
-  await ProductModel.update(
-    {
-      current_price: price,
-      previous_price: productModel.current_price,
-    },
-    {
+  try {
+    //Get the product with the price change
+    const productModel = await ProductModel.findOne({
       where: {
         id: productId,
       },
-    }
-  );
+      transaction: trans,
+    });
 
-  res.status(201).send(allNewNotifs);
+    //Find all lists containing this product
+    const listProds = await ListProductModel.findAll({
+      where: {
+        product_id: productId,
+      },
+      transaction: trans,
+    });
+
+    //This is the container where the NotificationModel.data is held. The number of notifs
+    //inside the hashmap is equal to number of users who has the particular product in their
+    //list regardless of how many list it is in.
+    //We use a hashmap to provide better look up times since we'll have to update data as we go
+    let newNotifs = {};
+
+    //This is an array of all owners of each of those list. Non duplicating lists but with a
+    //possibility of users owning more than one of those list.
+    const userLists = await UserListModel.findAll({
+      where: {
+        id: listProds.map((listProd) => {
+          return listProd.list_id;
+        }),
+      },
+      transaction: trans,
+    });
+
+    //For each of the over all users in the userLists, we build the data object which will be
+    //placed inside the NotificationModel and its other attributes. This iterates for each of the userLists, but conditionals
+    //are placed to only make one per user. If the model a schema has already been made for a user, we instead
+    //make an update to the objects data.listLocations
+    userLists.forEach((userList) => {
+      //If we havent made a data object for the user, make one.
+      if (!newNotifs[`${userList.user_id}`]) {
+        const data = {
+          title,
+          productId,
+          price,
+          previousPrice,
+          listLocations: [userList.id],
+        };
+
+        newNotifs[`${userList.user_id}`] = {
+          type: "price",
+          data,
+          user_id: userList.user_id,
+          isRead: false,
+        };
+
+        //The data object has an array listLocations. This is basically the lists of a user where the
+        //particular product is placed. If a data object is already made, we simply add in the current list
+        //to the listLocations array.
+      } else {
+        newNotifs[`${userList.user_id}`].data.listLocations.push(userList.id);
+      }
+    });
+
+    //This would convert the newNotifs object into an array.
+    //[ [dataObject], [dataObject], ... ]
+    //Inside the data object, the [0] index is the key, while the [0] index is the data object itself.
+    const parsedNotifs = Object.entries(newNotifs);
+
+    const notifPromiseArr = [];
+
+    //This iteration is the main part of creating the notification
+    parsedNotifs.forEach((notif) => {
+      notifPromiseArr.push(
+        NotificationModel.create(notif[1], { transaction: trans })
+      );
+    });
+
+    //This is the array of all the new notifications made for a user.
+    //May be changed in the future to just [1] for success since no one need to know
+    const allNewNotifs = await Promise.all(notifPromiseArr);
+
+    //Update Product Model
+    await ProductModel.update(
+      {
+        current_price: price,
+        previous_price: productModel.current_price,
+      },
+      {
+        where: {
+          id: productId,
+        },
+        transaction: trans,
+      }
+    );
+
+    await trans.commit();
+
+    res.status(201).send(allNewNotifs);
+  } catch (error) {
+    await trans.rollback()
+    console.error(error);
+    res.send({
+      error: {
+        msg: "Server Error while using service",
+        data: error,
+      },
+    });
+  }
 });
 
 //Find specifically ALL notifications of a user about a price change
