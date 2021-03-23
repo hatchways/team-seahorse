@@ -1,6 +1,7 @@
 const authMiddleware = require("../middlewares/authMiddleware");
 const ListProductModel = require("../models/listProductModel");
 const NotificationModel = require("../models/notificationModel");
+const ProductModel = require("../models/productModel");
 const UserListModel = require("../models/userListModel");
 const { PRICE } = require("../utils/enums");
 const router = require("express").Router();
@@ -44,16 +45,20 @@ router.post("/price", async (req, res) => {
 
   const promiseArr = [];
 
-  //Find all lists associated with this product
+  //Find all lists containing this product
   const listProds = await ListProductModel.findAll({
     where: {
       product_id: productId,
     },
   });
 
+  //This is the container where the NotificationModel.data is held. The number of notifs
+  //inside the hashmap is equal to number of users who has the particular product in their
+  //list regardless of how many list it is in.
+  //We use a hashmap to provide better look up times since we'll have to update data as we go
   let newNotifs = {};
 
-  //Find the owners associated with the list
+  //Here we run a foreach to find each of the lists owner through UserList Model.
   listProds.forEach((listProd) => {
     promiseArr.push(
       UserListModel.findOne({
@@ -64,9 +69,16 @@ router.post("/price", async (req, res) => {
     );
   });
 
+  //This is an array of all owners of each of those list. Non duplicating lists but with a
+  //possibility of users owning more than one of those list.
   const userLists = await Promise.all(promiseArr);
 
+  //For each of the over all users in the userLists, we build the data object which will be
+  //placed inside the NotificationModel and its other attributes. This iterates for each of the userLists, but conditionals
+  //are placed to only make one per user. If the model a schema has already been made for a user, we instead
+  //make an update to the objects data.listLocations
   userLists.forEach((userList) => {
+    //If we havent made a data object for the user, make one.
     if (!newNotifs[`${userList.user_id}`]) {
       const data = {
         title,
@@ -82,20 +94,41 @@ router.post("/price", async (req, res) => {
         user_id: userList.user_id,
         isRead: false,
       };
+
+      //The data object has an array listLocations. This is basically the lists of a user where the
+      //particular product is placed. If a data object is already made, we simply add in the current list
+      //to the listLocations array.
     } else {
       newNotifs[`${userList.user_id}`].data.listLocations.push(userList.id);
     }
   });
 
+  //This would convert the newNotifs object into an array.
+  //[ [dataObject], [dataObject], ... ]
+  //Inside the data object, the [0] index is the key, while the [0] index is the data object itself.
   const parsedNotifs = Object.entries(newNotifs);
 
-  const promisedArr2 = [];
+  const notifPromiseArr = [];
 
+  //This iteration is the main part of creating the notification
   parsedNotifs.forEach((notif) => {
-    promisedArr2.push(NotificationModel.create(notif[1]));
+    notifPromiseArr.push(NotificationModel.create(notif[1]));
   });
 
-  const allNewNotifs = await Promise.all(promisedArr2);
+  //This is the array of all the new notifications made for a user.
+  //May be changed in the future to just [1] for success since no one need to know
+  const allNewNotifs = await Promise.all(notifPromiseArr);
+
+  //Update Product model to its new price
+  await ProductModel.update(
+    { current_price: price },
+    {
+      where: {
+        id: productId,
+      },
+    }
+  );
+
   res.status(201).send(allNewNotifs);
 });
 
