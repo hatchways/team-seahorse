@@ -22,19 +22,4 @@ ProductModel.belongsToMany(UserListModel, {
   onDelete: "CASCADE",
 });
 
-// UserListModel.hasMany(ListProductModel, {
-//   foreignKey: {
-//     name: "listId",
-//     allowNull: false,
-//   },
-//   onDelete: "CASCADE",
-// });
-// ProductModel.hasMany(ListProductModel, {
-//   foreignKey: {
-//     name: "productId",
-//     allowNull: false,
-//   },
-//   onDelete: "CASCADE",
-// });
-
 module.exports = ListProductModel;
