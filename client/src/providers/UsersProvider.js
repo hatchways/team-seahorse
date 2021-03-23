@@ -162,7 +162,7 @@ const UsersProvider = ({ children }) => {
       //return the updated list
       return list;
     } catch (err) {
-      console.log(err);
+      console.error(err);
       return {
         error: {
           msg: "Server Error",

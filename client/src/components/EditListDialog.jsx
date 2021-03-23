@@ -63,9 +63,7 @@ const EditListDialog = () => {
   const [titlePlaceholder, setTitlePlaceholder] = useState("");
 
   useEffect(() => {
-    console.log(title);
     setTitlePlaceholder(title);
-    console.log(titlePlaceholder);
   }, []);
 
   return (
@@ -90,8 +88,6 @@ const EditListDialog = () => {
         >
           <CloseIcon />
         </IconButton>
-
-        <button onClick={() => console.log(items)}>zxczxczcx</button>
 
         <Typography variant="h4" className={classes.listTitle}>
           {title}
