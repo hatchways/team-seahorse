@@ -35,7 +35,7 @@ const getList = async (req, res) => {
   //lists belongs to. Only returns products of the specified list, and only if that list belongs to the user.
   try {
     const [results] = await db.query(`
-        SELECT "Products".name, "Products".link, "Products".id FROM "ListProducts" 
+        SELECT "Products".name, "Products".link, "Products".id, "Products".current_price, "Products".previous_Price FROM "ListProducts" 
         JOIN "Products" ON ("ListProducts".product_id = "Products".id)
         JOIN "UserLists" ON ("ListProducts".list_id = "UserLists".id)
         WHERE ( "ListProducts".list_id = ${parseInt(
@@ -47,7 +47,7 @@ const getList = async (req, res) => {
     if (results.length == 0) {
       const listExists =
         (await UserList.count({
-          where: { id: parseInt(req.params.listId), user_id: req.user_id },
+          where: { id: parseInt(req.params.listId), user_id: req.user.id },
         })) == 1;
       if (!listExists) {
         res.status(400).send({ errors: [{ msg: "No list with given ID." }] });
