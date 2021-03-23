@@ -43,7 +43,12 @@ router.put("/read/:id", authMiddleware, async (req, res) => {
 router.post("/price", async (req, res) => {
   const { productId, title, price, previousPrice } = req.body;
 
-  const promiseArr = [];
+  //Get the product with the price change
+  const productModel = await ProductModel.findOne({
+    where: {
+      id: productId,
+    },
+  });
 
   //Find all lists containing this product
   const listProds = await ListProductModel.findAll({
@@ -58,20 +63,15 @@ router.post("/price", async (req, res) => {
   //We use a hashmap to provide better look up times since we'll have to update data as we go
   let newNotifs = {};
 
-  //Here we run a foreach to find each of the lists owner through UserList Model.
-  listProds.forEach((listProd) => {
-    promiseArr.push(
-      UserListModel.findOne({
-        where: {
-          id: listProd.list_id,
-        },
-      })
-    );
-  });
-
   //This is an array of all owners of each of those list. Non duplicating lists but with a
   //possibility of users owning more than one of those list.
-  const userLists = await Promise.all(promiseArr);
+  const userLists = await UserListModel.findAll({
+    where: {
+      id: listProds.map((listProd) => {
+        return listProd.list_id;
+      }),
+    },
+  });
 
   //For each of the over all users in the userLists, we build the data object which will be
   //placed inside the NotificationModel and its other attributes. This iterates for each of the userLists, but conditionals
@@ -119,9 +119,12 @@ router.post("/price", async (req, res) => {
   //May be changed in the future to just [1] for success since no one need to know
   const allNewNotifs = await Promise.all(notifPromiseArr);
 
-  //Update Product model to its new price
+  //Update Product Model
   await ProductModel.update(
-    { current_price: price },
+    {
+      current_price: price,
+      previous_price: productModel.current_price,
+    },
     {
       where: {
         id: productId,
