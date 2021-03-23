@@ -77,7 +77,7 @@ const followUser = async (req, res) => {
     ) {
       res
         .status(400)
-        .send({ errors: [{ msg: "Already following this user." }] });
+        .send({ errors: [{ msg: "Was already following this user." }] });
     }
     giveServerError(res);
   }
@@ -94,7 +94,7 @@ const unfollowUser = async (req, res) => {
       })) == 1;
     if (!wasFollowing) {
       res.status(400).send({
-        errors: [{ msg: "Wasn't alreadyfollowing this user." }],
+        errors: [{ msg: "Wasn't already following this user." }],
       });
       return;
     }
