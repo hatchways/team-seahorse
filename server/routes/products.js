@@ -101,6 +101,7 @@ const createProduct = async (req, res) => {
 
     res.send(newProd);
   } catch (error) {
+    console.log(error)
     res.send(500).send({
       msg: "Server Error",
     });
