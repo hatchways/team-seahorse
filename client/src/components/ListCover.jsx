@@ -27,7 +27,7 @@ const ListCover = ({ list }) => {
 
   const { updateIsListClicked } = userContext;
 
-  const { title, id, items } = list;
+  const { title, id } = list;
 
   const clickHandler = async () => {
     updateIsListClicked(true);
@@ -46,7 +46,6 @@ const ListCover = ({ list }) => {
         <CardContent>
           <Typography align="center">{title}</Typography>
           <Typography variant="subtitle1" align="center">
-            Items: {items}
           </Typography>
         </CardContent>
       </Card>
