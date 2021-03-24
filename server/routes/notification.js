@@ -10,33 +10,33 @@ const router = require("express").Router();
 //Make the given notification id read
 router.put("/read/:id", authMiddleware, async (req, res) => {
   try {
-    const { id } = req.params;
-    const { id: user_id } = req.user;
+    const { id: notificationId } = req.params;
+    const { id: userId } = req.user;
 
-    await NotificationModel.update(
-      { isRead: true },
-      {
-        where: {
-          id,
-          user_id,
-        },
-      }
-    );
-
-    //update returns only a 1 or a 0 so we create another query to show the client
-    const newNotification = await NotificationModel.findOne({
+    const notification = await NotificationModel.findOne({
       where: {
-        id,
-        user_id,
+        id: notificationId,
+        user_id: userId,
       },
     });
 
-    res.send(newNotification);
+    if (!notification)
+      return res.status(400).send({
+        error: {
+          msg: "Notification not found.",
+        },
+      });
+
+    notification.isRead = true;
+
+    const updatedNotification = await notification.save();
+
+    res.send(updatedNotification);
   } catch (error) {
     console.error(error);
     res.status(500).send({
       msg: "Server Error",
-      data: error
+      data: error,
     });
   }
 });
@@ -49,7 +49,7 @@ router.get("/get-notifications", authMiddleware, async (req, res) => {
   let { order, page, maxNotifications } = req.query;
 
   if (!page) page = 1;
-  if(!maxNotifications) maxNotifications = 10
+  if (!maxNotifications) maxNotifications = 10;
 
   if (!order) order = "DESC";
   else order = order.toUpperCase();
@@ -135,7 +135,7 @@ router.post("/price", async (req, res) => {
           listLocations: [userList.id],
         };
 
-        newNotifications[`${userList.user_id}`] = {
+        newNotifications[userList.user_id] = {
           type: "price",
           data,
           user_id: userList.user_id,
@@ -212,10 +212,10 @@ router.get("/price/all", authMiddleware, async (req, res) => {
 
     res.send(result);
   } catch (error) {
-    console.error(error)
+    console.error(error);
     res.status(500).send({
       msg: "Server Error",
-      data: error
+      data: error,
     });
   }
 });
@@ -247,10 +247,10 @@ router.get("/price/unread", authMiddleware, async (req, res) => {
 
     res.send(result);
   } catch (error) {
-    console.error(error)
+    console.error(error);
     res.status(500).send({
       msg: "Server Error",
-      data: error
+      data: error,
     });
   }
 });
