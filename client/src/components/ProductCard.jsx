@@ -47,11 +47,9 @@ const ProductCard = ({ product }) => {
   const classes = useStyles();
   const userContext = useContext(context);
 
-  const { currentList, removeProductInList, getListProducts } = userContext;
+  const { currentList, removeProductInList } = userContext;
   const { id: listId } = currentList;
   const { name, current_price, previous_price, link, id: productId } = product;
-
-  const [isRemoved, setIsRemoved] = useState(false);
 
   return (
     <Card className={classes.card}>
@@ -90,8 +88,6 @@ const ProductCard = ({ product }) => {
         className={classes.removeBtn}
         onClick={() => {
           removeProductInList(listId, productId);
-
-          getListProducts(listId);
         }}
       >
         Remove
