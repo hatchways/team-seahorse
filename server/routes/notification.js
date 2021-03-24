@@ -28,10 +28,28 @@ router.put("/read/:id", authMiddleware, async (req, res) => {
       where: {
         id,
         userId,
+    const { id: notificationId } = req.params;
+    const { id: userId } = req.user;
+
+    const notification = await NotificationModel.findOne({
+      where: {
+        id: notificationId,
+        userId,
       },
     });
 
-    res.send(newNotification);
+    if (!notification)
+      return res.status(400).send({
+        error: {
+          msg: "Notification not found.",
+        },
+      });
+
+    notification.isRead = true;
+
+    const updatedNotification = await notification.save();
+
+    res.send(updatedNotification);
   } catch (error) {
     console.error(error);
     res.status(500).send({
@@ -135,7 +153,7 @@ router.post("/price", async (req, res) => {
           listLocations: [userList.id],
         };
 
-        newNotifications[`${userList.userId}`] = {
+        newNotifications[userList.userId] = {
           type: "price",
           data,
           userId: userList.userId,
