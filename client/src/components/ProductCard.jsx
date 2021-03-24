@@ -4,10 +4,9 @@ import {
   Grid,
   Typography,
   makeStyles,
-  Fade,
 } from "@material-ui/core";
 
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import sample from "../images/productIcon.jpg";
 import { userContext as context } from "../providers/UsersProvider";
 
