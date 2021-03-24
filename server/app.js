@@ -35,7 +35,6 @@ app.use("/products", productsRouter);
 app.use("/upload-image", imageUploadRouter);
 app.use("/followers", followRouter);
 
-
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));
