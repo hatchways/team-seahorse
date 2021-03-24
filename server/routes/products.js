@@ -79,36 +79,7 @@ const deleteProduct = async (req, res) => {
   }
 };
 
-const createProduct = async (req, res) => {
-  try {
-    const {
-      currentPrice,
-      name,
-      link,
-      imageUrl,
-      company,
-      isStillAvailable,
-    } = req.body;
-
-    const newProd = await ProductModel.create({
-      currentPrice,
-      name,
-      link,
-      imageUrl,
-      company,
-      isStillAvailable,
-    });
-
-    res.send(newProd);
-  } catch (error) {
-    res.send(500).send({
-      msg: "Server Error",
-    });
-  }
-};
-
 router.use(authMiddleware);
-router.post("/create", createProduct);
 router.get("/:productId", [productIdCheck, validate, getProduct]);
 router.delete("/:listId/:productId", [
   productIdCheck,
