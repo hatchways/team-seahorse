@@ -10,8 +10,10 @@ import {
   IconButton,
 } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
-import { useState } from "react";
+import { useState, useMemo, useContext } from "react";
 import axios from "axios";
+import { useDropzone } from "react-dropzone";
+import { userContext } from "../providers/UsersProvider";
 
 const useStyles = makeStyles((theme) => ({
   closeButton: {
@@ -30,6 +32,7 @@ const useStyles = makeStyles((theme) => ({
   },
   formItem: {
     margin: "10px 0",
+    textAlign: "center",
   },
   formButton: {
     marginTop: 30,
@@ -42,7 +45,40 @@ const useStyles = makeStyles((theme) => ({
   dialogTitle: {
     marginBottom: 30,
   },
+  cover: {
+    width: 200,
+    borderRadius: 5,
+    margin: 5,
+  },
 }));
+
+const baseStyle = {
+  flex: 1,
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  padding: "20px",
+  borderWidth: 2,
+  borderRadius: 2,
+  borderColor: "#eeeeee",
+  borderStyle: "dashed",
+  backgroundColor: "#fafafa",
+  color: "#bdbdbd",
+  outline: "none",
+  transition: "border .24s ease-in-out",
+};
+
+const activeStyle = {
+  borderColor: "#2196f3",
+};
+
+const acceptStyle = {
+  borderColor: "#00e676",
+};
+
+const rejectStyle = {
+  borderColor: "#ff1744",
+};
 
 const DialogFormTextField = (props) => {
   const classes = useStyles();
@@ -65,6 +101,44 @@ const NewListDialog = ({ isOpen, onClose, onAddList }) => {
   const [title, setTitle] = useState("");
   const [imageUrl, setImageUrl] = useState("http://example.com/image");
   const [awaitingResponse, setAwaitingResponse] = useState(false);
+
+  const { axiosWithAuth } = useContext(userContext);
+
+  const [file, setFile] = useState(null);
+
+  const {
+    //acceptedFiles,
+    getRootProps,
+    getInputProps,
+    isDragActive,
+    isDragAccept,
+    isDragReject,
+  } = useDropzone({
+    accept: "image/*",
+    onDrop: async (acceptedFiles) => {
+      setFile(acceptedFiles[0]);
+      console.log(file);
+      const formData = new FormData();
+      formData.append("image", file);
+      try {
+        const { data } = await axiosWithAuth().post("/upload-image", formData);
+        console.log(data);
+        setImageUrl(data.imageUrl);
+      } catch (error) {
+        console.log(error);
+      }
+    },
+  });
+
+  const style = useMemo(
+    () => ({
+      ...baseStyle,
+      ...(isDragActive ? activeStyle : {}),
+      ...(isDragAccept ? acceptStyle : {}),
+      ...(isDragReject ? rejectStyle : {}),
+    }),
+    [isDragActive, isDragReject, isDragAccept]
+  );
 
   const handleImageUrlChange = (e) => {
     setImageUrl(e.target.value);
@@ -121,15 +195,20 @@ const NewListDialog = ({ isOpen, onClose, onAddList }) => {
             </DialogFormTextField>
           </Grid>
           <Grid item className={classes.formItem}>
-            <DialogFormTextField
-              textProps={{
-                label: "Image URL",
-                defaultValue: "http://example.com/image",
-                onChange: handleImageUrlChange,
-              }}
-            >
+            <Typography variant="h6" paragraph>
               Add a Cover
-            </DialogFormTextField>
+            </Typography>
+            {imageUrl && (
+              <img src={imageUrl} alt="cover" className={classes.cover} />
+            )}
+            <div {...getRootProps({ style })}>
+              <input {...getInputProps()} />
+              {isDragActive ? (
+                <p>Drop the files here ...</p>
+              ) : (
+                <p>Drag 'n' drop some files here, or click to select files</p>
+              )}
+            </div>
           </Grid>
           <Grid item className={classes.formButton}>
             <Button
