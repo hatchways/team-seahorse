@@ -46,9 +46,10 @@ router.put("/read/:id", authMiddleware, async (req, res) => {
 //Accepts "order" as a query. By default is "DESC" to show latest notifs first
 router.get("/get-notifications", authMiddleware, async (req, res) => {
   const { id: userId } = req.user;
-  let { order, page } = req.query;
+  let { order, page, maxNotifications } = req.query;
 
   if (!page) page = 1;
+  if(!maxNotifications) maxNotifications = 10
 
   if (!order) order = "DESC";
   else order = order.toUpperCase();
@@ -58,8 +59,6 @@ router.get("/get-notifications", authMiddleware, async (req, res) => {
       .status(400)
       .send({ error: { msg: "Invalid order query", errorCode: 400 } });
   }
-
-  const maxNotifications = 10;
 
   try {
     const userNotifications = await NotificationModel.findAll({
