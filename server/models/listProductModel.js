@@ -3,24 +3,20 @@ const UserListModel = require("./userListModel");
 const ProductModel = require("./productModel");
 const db = require("./index");
 
-const ListProductModel = db.define("ListProduct", {
-  id: {
-    type: dt.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-  },
-});
+const ListProductModel = db.define("ListProduct", {});
 
-UserListModel.hasMany(ListProductModel, {
+UserListModel.belongsToMany(ProductModel, {
+  through: ListProductModel,
   foreignKey: {
-    name: "list_id",
+    name: "listId",
     allowNull: false,
   },
   onDelete: "CASCADE",
 });
-ProductModel.hasMany(ListProductModel, {
+ProductModel.belongsToMany(UserListModel, {
+  through: ListProductModel,
   foreignKey: {
-    name: "product_id",
+    name: "productId",
     allowNull: false,
   },
   onDelete: "CASCADE",
