@@ -41,6 +41,46 @@ router.put("/read/:id", authMiddleware, async (req, res) => {
   }
 });
 
+//Paginated querying of notifications of a user
+//Accepts "page" as a query. By default will be a 1.
+//Accepts "order" as a query. By default is "DESC" to show latest notifs first
+router.get("/get-notifications", authMiddleware, async (req, res) => {
+  const { id: userId } = req.user;
+  let { order, page } = req.query;
+
+  if (!page) page = 1;
+
+  if (!order) order = "DESC";
+  else order = order.toUpperCase();
+
+  if (order !== "ASC" && order !== "DESC") {
+    return res
+      .status(400)
+      .send({ error: { msg: "Invalid order query", errorCode: 400 } });
+  }
+
+  const maxNotifications = 10;
+
+  try {
+    const userNotifications = await NotificationModel.findAll({
+      where: {
+        user_id: userId,
+      },
+      order: [["createdAt", order]],
+      limit: maxNotifications,
+      offset: (page - 1) * maxNotifications,
+    });
+
+    res.send(userNotifications);
+  } catch (error) {
+    console.error(error);
+    res.send({
+      msg: "Server Error",
+      data: error,
+    });
+  }
+});
+
 //Create a notification using a product id given inside the body
 //Will be used by a service
 router.post("/price", async (req, res) => {
