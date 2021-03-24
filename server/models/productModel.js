@@ -19,7 +19,7 @@ const ProductModel = db.define("Product", {
     allowNull: false,
   },
   link: {
-    type: dt.STRING,
+    type: dt.STRING(512),
     allowNull: false,
     unique: true,
   },

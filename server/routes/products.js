@@ -10,6 +10,9 @@ const {
 } = require("../middlewares/validate");
 const ProductModel = require("../models/productModel");
 const ListProductModel = require("../models/listProductModel");
+const UserList = require("../models/userListModel");
+
+const { scrapeAmazon } = require("../services");
 
 const getProduct = async (req, res) => {
   try {
@@ -79,6 +82,44 @@ const deleteProduct = async (req, res) => {
   }
 };
 
+const addProduct = async (req, res) => {
+  const { url, listId } = req.body;
+
+  try {
+    const productData = await scrapeAmazon(url);
+    const { title, price, imageURL } = productData;
+    const [_, priceNum] = price.split("$");
+
+    const result = await ProductModel.create({
+      current_price: Number(priceNum),
+      name: title,
+      image_url: imageURL,
+      link: url,
+      company: "amazon",
+      is_still_available: true,
+    });
+
+    await ListProductModel.create({
+      list_id: listId,
+      product_id: result.id,
+    });
+
+    const row = await UserList.findOne({
+      where: {
+        id: listId,
+      },
+    });
+
+    row.increment({
+      items: 1,
+    });
+
+    res.status(200).send({ productData });
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 router.use(authMiddleware);
 router.get("/:productId", [productIdCheck, validate, getProduct]);
 router.delete("/:listId/:productId", [
@@ -87,5 +128,6 @@ router.delete("/:listId/:productId", [
   validate,
   deleteProduct,
 ]);
+router.post("/", addProduct);
 
 module.exports = router;
