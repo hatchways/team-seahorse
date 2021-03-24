@@ -12,7 +12,7 @@ const ProductModel = require("../models/productModel");
 const ListProductModel = require("../models/listProductModel");
 const UserList = require("../models/userListModel");
 
-const { scrapeAmazon } = require("../services");
+const { getCompany } = require("../services");
 
 const getProduct = async (req, res) => {
   try {
@@ -84,9 +84,10 @@ const deleteProduct = async (req, res) => {
 
 const addProduct = async (req, res) => {
   const { url, listId } = req.body;
+  const [scraper, company] = getCompany(url);
 
   try {
-    const productData = await scrapeAmazon(url);
+    const productData = await scraper(url);
     const { title, price, imageURL } = productData;
     const [_, priceNum] = price.split("$");
 
@@ -95,7 +96,7 @@ const addProduct = async (req, res) => {
       name: title,
       image_url: imageURL,
       link: url,
-      company: "amazon",
+      company: company,
       is_still_available: true,
     });
 
