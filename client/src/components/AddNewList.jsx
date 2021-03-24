@@ -5,8 +5,9 @@ import {
   makeStyles,
   Typography,
 } from "@material-ui/core";
-import React from "react";
 import AddIcon from "@material-ui/icons/Add";
+import { useState } from "react";
+import NewListDialog from "./NewListDialog";
 
 const useStyles = makeStyles(() => ({
   card: {
@@ -27,18 +28,29 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const AddNewList = () => {
+const AddNewList = ({ onAddList }) => {
   const classes = useStyles();
+  const [newListDialogIsOpen, setNewListDialogIsOpen] = useState(false);
 
   return (
-    <Grid item>
-      <Card className={classes.card} elevation={0}>
-        <CardActionArea className={classes.action}>
-          <AddIcon className={classes.icon} color="primary" />
-          <Typography>ADD NEW LIST</Typography>
-        </CardActionArea>
-      </Card>
-    </Grid>
+    <>
+      <Grid item>
+        <Card className={classes.card} elevation={0}>
+          <CardActionArea
+            className={classes.action}
+            onClick={() => setNewListDialogIsOpen(true)}
+          >
+            <AddIcon className={classes.icon} color="primary" />
+            <Typography>ADD NEW LIST</Typography>
+          </CardActionArea>
+        </Card>
+      </Grid>
+      <NewListDialog
+        isOpen={newListDialogIsOpen}
+        onClose={() => setNewListDialogIsOpen(false)}
+        onAddList={onAddList}
+      />
+    </>
   );
 };
 

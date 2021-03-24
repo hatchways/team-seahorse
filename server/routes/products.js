@@ -6,15 +6,13 @@ const {
   validate,
   listIdCheck,
   productIdCheck,
+  giveServerError,
 } = require("../middlewares/validate");
 const ProductModel = require("../models/productModel");
 const ListProductModel = require("../models/listProductModel");
 const UserList = require("../models/userListModel");
 
 const { scrapeAmazon } = require("../services");
-
-const giveServerError = (res) =>
-  res.status(500).send({ errors: [{ msg: "Server error" }] });
 
 const getProduct = async (req, res) => {
   try {

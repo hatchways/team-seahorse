@@ -7,6 +7,16 @@ const UsersProvider = ({ children }) => {
   const [token, setToken] = useState(Cookies.get("token"));
   const [user, setUser] = useState(null);
   const [lists, setLists] = useState(null);
+  const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("Default Message");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("info");
+
+  //#region  List Related
+  const [isListClicked, setIsListClicked] = useState(false);
+  const [isAddingProd, setIsAddingProd] = useState(false);
+  const [currentListProducts, setCurrentListProducts] = useState([]);
+  const [isLoadingListProducts, setIsLoadingListProducts] = useState(false);
+  //#endregion
 
   const login = async (email, password) => {
     let data = await fetch("/user/signin", {
@@ -45,9 +55,14 @@ const UsersProvider = ({ children }) => {
 
   //This method will only return the parsed value of the token
   const getCurrentUser = async () => {
-    let results = await fetch("/user/currentUser");
-    results = await results.json();
-    return results;
+    try {
+      const userResponse = await fetch("/user/currentUser");
+      const userData = await userResponse.json();
+      return userData;
+    } catch (error) {
+      console.log(error);
+      return error;
+    }
   };
 
   const getUserById = async (id) => {
@@ -96,6 +111,33 @@ const UsersProvider = ({ children }) => {
     }
   };
 
+  //#region List Related
+
+  const updateIsListClicked = (bool) => {
+    setIsListClicked(bool);
+  };
+
+  const updateIsAddingProd = (bool) => {
+    setIsAddingProd(bool);
+  };
+
+  const updateIsLoadingListProducts = (bool) => {
+    setIsLoadingListProducts(bool);
+  };
+
+  //#endregion
+
+  const updateIsSnackbarOpen = (bool) => {
+    setIsSnackbarOpen(bool);
+  };
+
+  //severity can be error, warning, success, info
+  const openSnackbar = (severity = "info", msg) => {
+    setSnackbarMessage(msg);
+    setSnackbarSeverity(severity);
+    setIsSnackbarOpen(true);
+  };
+
   useEffect(() => {
     getList();
     // eslint-disable-next-line
@@ -107,6 +149,14 @@ const UsersProvider = ({ children }) => {
         user,
         token,
         lists,
+        setLists,
+        isListClicked,
+        currentListProducts,
+        isAddingProd,
+        isLoadingListProducts,
+        isSnackbarOpen,
+        snackbarMessage,
+        snackbarSeverity,
         login,
         register,
         getCurrentUser,
@@ -114,6 +164,12 @@ const UsersProvider = ({ children }) => {
         getUserById,
         loadUser,
         axiosWithAuth,
+        updateIsListClicked,
+        updateIsAddingProd,
+        updateIsLoadingListProducts,
+        setIsAddingProd,
+        openSnackbar,
+        updateIsSnackbarOpen,
       }}
     >
       {children}

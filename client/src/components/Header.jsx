@@ -13,6 +13,7 @@ import React, { useContext, useEffect } from "react";
 import { Link, useHistory } from "react-router-dom";
 import logo from "../images/logo.png";
 import { userContext as context } from "../providers/UsersProvider";
+import SnackbarAlert from "./SnackbarAlert";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: {
@@ -66,6 +67,7 @@ const Header = () => {
 
   return (
     <AppBar position="relative" elevation={1}>
+      <SnackbarAlert />
       <Toolbar className={classes.toolbar}>
         <Box
           component="img"
