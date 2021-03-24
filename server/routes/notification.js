@@ -33,8 +33,10 @@ router.put("/read/:id", authMiddleware, async (req, res) => {
 
     res.send(newNotification);
   } catch (error) {
+    console.error(error);
     res.status(500).send({
       msg: "Server Error",
+      data: error
     });
   }
 });
@@ -42,8 +44,8 @@ router.put("/read/:id", authMiddleware, async (req, res) => {
 //Create a notification using a product id given inside the body
 //Will be used by a service
 router.post("/price", async (req, res) => {
-  const trans = await sequelize.transaction();
-  const { productId, title, price, previousPrice } = req.body;
+  const transaction = await sequelize.transaction();
+  const { productId, title, price } = req.body;
 
   try {
     //Get the product with the price change
@@ -51,7 +53,7 @@ router.post("/price", async (req, res) => {
       where: {
         id: productId,
       },
-      transaction: trans,
+      transaction,
     });
 
     //Find all lists containing this product
@@ -59,14 +61,14 @@ router.post("/price", async (req, res) => {
       where: {
         product_id: productId,
       },
-      transaction: trans,
+      transaction,
     });
 
     //This is the container where the NotificationModel.data is held. The number of notifs
     //inside the hashmap is equal to number of users who has the particular product in their
     //list regardless of how many list it is in.
     //We use a hashmap to provide better look up times since we'll have to update data as we go
-    let newNotifs = {};
+    let newNotifications = {};
 
     //This is an array of all owners of each of those list. Non duplicating lists but with a
     //possibility of users owning more than one of those list.
@@ -76,7 +78,7 @@ router.post("/price", async (req, res) => {
           return listProd.list_id;
         }),
       },
-      transaction: trans,
+      transaction,
     });
 
     //For each of the over all users in the userLists, we build the data object which will be
@@ -85,16 +87,16 @@ router.post("/price", async (req, res) => {
     //make an update to the objects data.listLocations
     userLists.forEach((userList) => {
       //If we havent made a data object for the user, make one.
-      if (!newNotifs[`${userList.user_id}`]) {
+      if (!newNotifications[userList.user_id]) {
         const data = {
           title,
           productId,
           price,
-          previousPrice,
+          previousPrice: productModel.current_price,
           listLocations: [userList.id],
         };
 
-        newNotifs[`${userList.user_id}`] = {
+        newNotifications[`${userList.user_id}`] = {
           type: "price",
           data,
           user_id: userList.user_id,
@@ -105,27 +107,16 @@ router.post("/price", async (req, res) => {
         //particular product is placed. If a data object is already made, we simply add in the current list
         //to the listLocations array.
       } else {
-        newNotifs[`${userList.user_id}`].data.listLocations.push(userList.id);
+        newNotifications[userList.user_id].data.listLocations.push(userList.id);
       }
     });
 
-    //This would convert the newNotifs object into an array.
+    //This would convert the newNotifications object into an array.
     //[ [dataObject], [dataObject], ... ]
-    //Inside the data object, the [0] index is the key, while the [0] index is the data object itself.
-    const parsedNotifs = Object.entries(newNotifs);
-
-    const notifPromiseArr = [];
-
-    //This iteration is the main part of creating the notification
-    parsedNotifs.forEach((notif) => {
-      notifPromiseArr.push(
-        NotificationModel.create(notif[1], { transaction: trans })
-      );
-    });
+    const parsedNotifications = Object.values(newNotifications);
 
     //This is the array of all the new notifications made for a user.
-    //May be changed in the future to just [1] for success since no one need to know
-    const allNewNotifs = await Promise.all(notifPromiseArr);
+    await NotificationModel.bulkCreate(parsedNotifications);
 
     //Update Product Model
     await ProductModel.update(
@@ -137,15 +128,15 @@ router.post("/price", async (req, res) => {
         where: {
           id: productId,
         },
-        transaction: trans,
+        transaction,
       }
     );
 
-    await trans.commit();
+    await transaction.commit();
 
-    res.status(201).send(allNewNotifs);
+    res.status(201).send({ msg: "Success" });
   } catch (error) {
-    await trans.rollback()
+    await transaction.rollback();
     console.error(error);
     res.send({
       error: {
@@ -157,7 +148,7 @@ router.post("/price", async (req, res) => {
 });
 
 //Find specifically ALL notifications of a user about a price change
-//Accepts "order" as a query. Be default is "DESC" to show latest notifs first
+//Accepts "order" as a query. By default is "DESC" to show latest notifs first
 router.get("/price/all", authMiddleware, async (req, res) => {
   const { id } = req.user;
   let { order } = req.query;
@@ -182,14 +173,16 @@ router.get("/price/all", authMiddleware, async (req, res) => {
 
     res.send(result);
   } catch (error) {
+    console.error(error)
     res.status(500).send({
       msg: "Server Error",
+      data: error
     });
   }
 });
 
 //Find specifically ALL UNREAD notifications of a user about a price change
-//Accepts "order" as a query. Be default is "DESC" to show latest notifs first
+//Accepts "order" as a query. By default is "DESC" to show latest notifs first
 router.get("/price/unread", authMiddleware, async (req, res) => {
   const { id } = req.user;
   let { order } = req.query;
@@ -215,8 +208,10 @@ router.get("/price/unread", authMiddleware, async (req, res) => {
 
     res.send(result);
   } catch (error) {
+    console.error(error)
     res.status(500).send({
       msg: "Server Error",
+      data: error
     });
   }
 });
