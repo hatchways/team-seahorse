@@ -111,7 +111,6 @@ const Users = (
 ) => {
   const classes = useStyles();
   if (hidden) return <></>;
-  //TODO: Implement error view
   return (
     <>
       {!isLoading && users != null && (
@@ -126,7 +125,13 @@ const Users = (
           ))}
         </Paper>
       )}
-      {!isLoading && users === null && "error"}
+      {!isLoading && users === null && (
+        <div className={classes.userGroupContainer}>
+          <Typography color="error" variant="h4">
+            Sorry, something went wrong on our side.
+          </Typography>
+        </div>
+      )}
       {isLoading && (
         <div className={classes.userGroupContainer}>
           <CircularProgress className={classes.userGroupLoading} />
