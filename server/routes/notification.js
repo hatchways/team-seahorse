@@ -36,7 +36,7 @@ router.put("/read/:id", authMiddleware, async (req, res) => {
     console.error(error);
     res.status(500).send({
       msg: "Server Error",
-      data: error
+      data: error,
     });
   }
 });
@@ -49,7 +49,7 @@ router.get("/get-notifications", authMiddleware, async (req, res) => {
   let { order, page, maxNotifications } = req.query;
 
   if (!page) page = 1;
-  if(!maxNotifications) maxNotifications = 10
+  if (!maxNotifications) maxNotifications = 10;
 
   if (!order) order = "DESC";
   else order = order.toUpperCase();
@@ -63,7 +63,7 @@ router.get("/get-notifications", authMiddleware, async (req, res) => {
   try {
     const userNotifications = await NotificationModel.findAll({
       where: {
-        user_id: userId,
+        userId,
       },
       order: [["createdAt", order]],
       limit: maxNotifications,
@@ -98,7 +98,7 @@ router.post("/price", async (req, res) => {
     //Find all lists containing this product
     const listProds = await ListProductModel.findAll({
       where: {
-        product_id: productId,
+        productId,
       },
       transaction,
     });
@@ -114,7 +114,7 @@ router.post("/price", async (req, res) => {
     const userLists = await UserListModel.findAll({
       where: {
         id: listProds.map((listProd) => {
-          return listProd.list_id;
+          return listProd.listId;
         }),
       },
       transaction,
@@ -126,19 +126,19 @@ router.post("/price", async (req, res) => {
     //make an update to the objects data.listLocations
     userLists.forEach((userList) => {
       //If we havent made a data object for the user, make one.
-      if (!newNotifications[userList.user_id]) {
+      if (!newNotifications[userList.userId]) {
         const data = {
           title,
           productId,
           price,
-          previousPrice: productModel.current_price,
+          previousPrice: productModel.currentPrice,
           listLocations: [userList.id],
         };
 
-        newNotifications[`${userList.user_id}`] = {
+        newNotifications[`${userList.userId}`] = {
           type: "price",
           data,
-          user_id: userList.user_id,
+          userId: userList.userId,
           isRead: false,
         };
 
@@ -146,7 +146,7 @@ router.post("/price", async (req, res) => {
         //particular product is placed. If a data object is already made, we simply add in the current list
         //to the listLocations array.
       } else {
-        newNotifications[userList.user_id].data.listLocations.push(userList.id);
+        newNotifications[userList.userId].data.listLocations.push(userList.id);
       }
     });
 
@@ -160,8 +160,8 @@ router.post("/price", async (req, res) => {
     //Update Product Model
     await ProductModel.update(
       {
-        current_price: price,
-        previous_price: productModel.current_price,
+        currentPrice: price,
+        previousPrice: productModel.currentPrice,
       },
       {
         where: {
@@ -212,10 +212,10 @@ router.get("/price/all", authMiddleware, async (req, res) => {
 
     res.send(result);
   } catch (error) {
-    console.error(error)
+    console.error(error);
     res.status(500).send({
       msg: "Server Error",
-      data: error
+      data: error,
     });
   }
 });
@@ -247,10 +247,10 @@ router.get("/price/unread", authMiddleware, async (req, res) => {
 
     res.send(result);
   } catch (error) {
-    console.error(error)
+    console.error(error);
     res.status(500).send({
       msg: "Server Error",
-      data: error
+      data: error,
     });
   }
 });
