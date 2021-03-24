@@ -7,6 +7,9 @@ const UsersProvider = ({ children }) => {
   const [token, setToken] = useState(Cookies.get("token"));
   const [user, setUser] = useState(null);
   const [lists, setLists] = useState(null);
+  const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("Default Message");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("info");
 
   //#region  List Related
   const [currentList, setCurrentList] = useState({});
@@ -174,6 +177,17 @@ const UsersProvider = ({ children }) => {
 
   //#endregion
 
+  const updateIsSnackbarOpen = (bool) => {
+    setIsSnackbarOpen(bool);
+  };
+
+  //severity can be error, warning, success, info
+  const openSnackbar = (severity = "info", msg) => {
+    setSnackbarMessage(msg);
+    setSnackbarSeverity(severity);
+    setIsSnackbarOpen(true);
+  };
+
   useEffect(() => {
     getList();
     // eslint-disable-next-line
@@ -195,6 +209,9 @@ const UsersProvider = ({ children }) => {
         updateCurrentListProducts,
         updateCurrentList,
         setLists,
+        isSnackbarOpen,
+        snackbarMessage,
+        snackbarSeverity,
         login,
         register,
         getCurrentUser,
@@ -205,6 +222,8 @@ const UsersProvider = ({ children }) => {
         updateIsAddingProd,
         updateIsLoadingListProducts,
         setIsAddingProd,
+        openSnackbar,
+        updateIsSnackbarOpen,
       }}
     >
       {children}

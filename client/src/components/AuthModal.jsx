@@ -85,7 +85,7 @@ const AuthModal = ({ isAuthPage }) => {
   const userContext = useContext(context);
 
   const { pathname } = location;
-  const { login, register, getCurrentUser, temp } = userContext;
+  const { login, register, getCurrentUser, openSnackbar } = userContext;
 
   useEffect(() => {
     checkCurrentUser();
@@ -102,25 +102,19 @@ const AuthModal = ({ isAuthPage }) => {
     }
   };
 
-  const openErrorAlert = (msg) => {
-    setIsError(true);
-    setTimeout(() => {
-      setIsError(false);
-    }, 5000);
-    setAlertMessage(msg);
-  };
-
   const submitHandler = async (e) => {
     e.preventDefault();
 
-    if (password.length < 7) {
-      openErrorAlert("Password must be greater than 6");
-      return;
-    }
+    if (pathname === "/signup") {
+      if (password.length < 7) {
+        openSnackbar("error", "Password must be greater than 6");
+        return;
+      }
 
-    if (name.trim().length === 0 && pathname === "/signup") {
-      openErrorAlert("Name must not be just spaces");
-      return;
+      if (name.trim().length === 0) {
+        openSnackbar("error", "Name must not be just spaces");
+        return;
+      }
     }
 
     try {
@@ -130,7 +124,7 @@ const AuthModal = ({ isAuthPage }) => {
         let result = await register(name, email, password);
 
         if (result.error) {
-          openErrorAlert(result.error.msg);
+          openSnackbar("error", result.error.msg);
           error = true;
         }
 
@@ -143,7 +137,7 @@ const AuthModal = ({ isAuthPage }) => {
         const result = await login(email, password);
 
         if (result.error) {
-          openErrorAlert(result.error.msg);
+          openSnackbar("error", result.error.msg);
           error = true;
         }
 
@@ -158,7 +152,7 @@ const AuthModal = ({ isAuthPage }) => {
         history.push("/dashboard");
       }
     } catch (error) {
-      openErrorAlert("Something went wrong on our part, sorry!");
+      openSnackbar("error", "Something went wrong on our part, sorry!");
       console.error(error);
     }
   };
