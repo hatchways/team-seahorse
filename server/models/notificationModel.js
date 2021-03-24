@@ -24,7 +24,7 @@ const NotificationModel = db.define("Notification", {
 
 UserModel.hasMany(NotificationModel, {
   foreignKey: {
-    name: "user_id",
+    name: "userId",
     allowNull: false,
   },
   onDelete: "CASCADE",

@@ -7,11 +7,11 @@ const ProductModel = db.define("Product", {
     primaryKey: true,
     autoIncrement: true,
   },
-  current_price: {
+  currentPrice: {
     type: dt.DECIMAL(10, 2),
     allowNull: false,
   },
-  previous_price: {
+  previousPrice: {
     type: dt.DECIMAL(10, 2),
   },
   name: {
@@ -23,7 +23,7 @@ const ProductModel = db.define("Product", {
     allowNull: false,
     unique: true,
   },
-  image_url: {
+  imageUrl: {
     type: dt.STRING,
     allowNull: false,
   },
@@ -31,7 +31,7 @@ const ProductModel = db.define("Product", {
     type: dt.STRING,
     allowNull: false,
   },
-  is_still_available: {
+  isStillAvailable: {
     type: dt.BOOLEAN,
     allowNull: false,
   },

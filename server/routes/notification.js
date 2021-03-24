@@ -10,13 +10,31 @@ const router = require("express").Router();
 //Make the given notification id read
 router.put("/read/:id", authMiddleware, async (req, res) => {
   try {
+    const { id } = req.params;
+    const { id: userId } = req.user;
+
+    await NotificationModel.update(
+      { isRead: true },
+      {
+        where: {
+          id,
+          userId,
+        },
+      }
+    );
+
+    //update returns only a 1 or a 0 so we create another query to show the client
+    const newNotification = await NotificationModel.findOne({
+      where: {
+        id,
+        userId,
     const { id: notificationId } = req.params;
     const { id: userId } = req.user;
 
     const notification = await NotificationModel.findOne({
       where: {
         id: notificationId,
-        user_id: userId,
+        userId,
       },
     });
 
@@ -63,7 +81,7 @@ router.get("/get-notifications", authMiddleware, async (req, res) => {
   try {
     const userNotifications = await NotificationModel.findAll({
       where: {
-        user_id: userId,
+        userId,
       },
       order: [["createdAt", order]],
       limit: maxNotifications,
@@ -98,7 +116,7 @@ router.post("/price", async (req, res) => {
     //Find all lists containing this product
     const listProds = await ListProductModel.findAll({
       where: {
-        product_id: productId,
+        productId,
       },
       transaction,
     });
@@ -114,7 +132,7 @@ router.post("/price", async (req, res) => {
     const userLists = await UserListModel.findAll({
       where: {
         id: listProds.map((listProd) => {
-          return listProd.list_id;
+          return listProd.listId;
         }),
       },
       transaction,
@@ -126,19 +144,19 @@ router.post("/price", async (req, res) => {
     //make an update to the objects data.listLocations
     userLists.forEach((userList) => {
       //If we havent made a data object for the user, make one.
-      if (!newNotifications[userList.user_id]) {
+      if (!newNotifications[userList.userId]) {
         const data = {
           title,
           productId,
           price,
-          previousPrice: productModel.current_price,
+          previousPrice: productModel.currentPrice,
           listLocations: [userList.id],
         };
 
-        newNotifications[userList.user_id] = {
+        newNotifications[userList.userId] = {
           type: "price",
           data,
-          user_id: userList.user_id,
+          userId: userList.userId,
           isRead: false,
         };
 
@@ -146,7 +164,7 @@ router.post("/price", async (req, res) => {
         //particular product is placed. If a data object is already made, we simply add in the current list
         //to the listLocations array.
       } else {
-        newNotifications[userList.user_id].data.listLocations.push(userList.id);
+        newNotifications[userList.userId].data.listLocations.push(userList.id);
       }
     });
 
@@ -160,8 +178,8 @@ router.post("/price", async (req, res) => {
     //Update Product Model
     await ProductModel.update(
       {
-        current_price: price,
-        previous_price: productModel.current_price,
+        currentPrice: price,
+        previousPrice: productModel.currentPrice,
       },
       {
         where: {
@@ -205,7 +223,7 @@ router.get("/price/all", authMiddleware, async (req, res) => {
     const result = await NotificationModel.findAll({
       where: {
         type: PRICE,
-        user_id: id,
+        userId: id,
       },
       order: [["createdAt", order]],
     });
@@ -239,7 +257,7 @@ router.get("/price/unread", authMiddleware, async (req, res) => {
     const result = await NotificationModel.findAll({
       where: {
         type: PRICE,
-        user_id: id,
+        userId: id,
         isRead: false,
       },
       order: [["createdAt", order]],

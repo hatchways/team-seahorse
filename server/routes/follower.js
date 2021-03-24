@@ -45,14 +45,20 @@ const getSuggestions = async (req, res) => {
 
 const getFollowedUsers = async (req, res) => {
   try {
-    const followedUsers = await UserModel.findAll({
-      where: {
-        "$FollowedUser.id$": req.user.id,
-      },
-      include: {
-        association: "FollowedUser",
-      },
-      attributes: ["id", "name"],
+    const followedUsers = (
+      await UserModel.findAll({
+        where: {
+          "$FollowedUser.id$": req.user.id,
+        },
+        include: {
+          association: "FollowedUser",
+        },
+        attributes: ["id", "name"],
+      })
+    ).map((user) => {
+      //removes FollowerUser property
+      const { id, name } = user;
+      return { id, name };
     });
     res.status(200).send(followedUsers);
   } catch (error) {

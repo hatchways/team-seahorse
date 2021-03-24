@@ -33,7 +33,7 @@ const tokenOptions = {
 //TODO: Wrap in try/catch in case db calls fail.
 //Sign Up User
 router.post(
-  "/signup",
+  "/sign-up",
   [
     check("name", "Name must not be empty").notEmpty(),
     check("password", "Must be at least 6 characters long").isLength({
@@ -62,13 +62,13 @@ router.post(
 
     const transaction = await db.transaction();
     await UserListModel.create({
-      user_id: newUser.id,
+      userId: newUser.id,
       title: "Shopping",
       imageUrl: "https://image.flaticon.com/icons/png/512/1600/1600225.png",
       transaction,
     });
     await UserListModel.create({
-      user_id: newUser.id,
+      userId: newUser.id,
       title: "Wishlist",
       imageUrl: "https://image.flaticon.com/icons/png/512/1600/1600225.png",
       transaction,
@@ -92,7 +92,7 @@ router.post(
 
 //Sign In User
 router.post(
-  "/signin",
+  "/sign-in",
   [
     check("email", "Must be an Email").isEmail(),
     check("password", "Must not be empty").notEmpty(),
@@ -136,7 +136,7 @@ router.post(
 );
 
 //Log out User
-router.get("/signout", (req, res) => {
+router.get("/sign-out", (req, res) => {
   res.clearCookie("token");
 
   res.send({
@@ -145,7 +145,7 @@ router.get("/signout", (req, res) => {
 });
 
 //Get currently logged in user obj
-router.get("/currentUser", authenticate, (req, res) => {
+router.get("/current-user", authenticate, (req, res) => {
   res.send({
     user: req.user,
   });
