@@ -4,6 +4,7 @@ import {
   Button,
   Card,
   CardContent,
+  CircularProgress,
   Grid,
   makeStyles,
   Paper,
@@ -18,7 +19,7 @@ const useStyles = makeStyles(() => ({
   followButton: {
     height: 40,
     borderRadius: 28,
-    width: 120,
+    minWidth: "10%",
     marginLeft: "auto",
   },
   pfpPlaceholder: {
@@ -27,14 +28,26 @@ const useStyles = makeStyles(() => ({
   },
   //TODO: Needs better name
   followersPageItem: {
-    width: 750,
+    minWidth: "70%",
+  },
+  userGroupLoading: {
+    marginTop: 20,
+  },
+  userGroupContainer: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+    height: "60vh",
   },
 }));
 
-//TODO: Consider having one list of users and adding an `isFollowing` property. Probably less overhead that way.
-//TODO: Add some more comments
-
 //Toggles the state of a user to be following or suggested, and makes the appropriate API call.
+//`setFollowing` and `setSuggested` are set at the page level, because that's where those setters are created.
+//`isFollowing` is set at the Users level, because Users can either show users being followed or users not being
+//followed.
+//`user` is set at the UserCard level, because the UserCard is what describes a particular user.
 //NOTE: isFollowing refers to if the user being toggled is currently being followed by our user, not to if the user will be
 //toggled to following.
 const toggleUserGroup___ = (setFollowing, setSuggested) => (isFollowing) => {
@@ -43,27 +56,26 @@ const toggleUserGroup___ = (setFollowing, setSuggested) => (isFollowing) => {
   //Sets the group of user which the user will be moving to.
   const setToGroup = isFollowing ? setSuggested : setFollowing;
   return (user) => async () => {
-    try {
-      await axios
-        .create({ withCredentials: true })
-        .post(`/followers/${isFollowing ? "unfollow" : "follow"}/${user.id}`);
-      //Removes user from the "from group" of users.
-      setFromGroup((fromGroup) => {
-        let userIndex = fromGroup.indexOf(user);
-        if (userIndex !== -1)
-          return fromGroup
-            .slice(0, userIndex)
-            .concat(fromGroup.slice(userIndex + 1));
-        else return fromGroup;
-      });
-      //Adds user to the "to group" of users
-      setToGroup((toGroup) => toGroup.concat(user));
-    } catch (error) {}
+    await axios
+      .create({ withCredentials: true })
+      .post(`/followers/${isFollowing ? "unfollow" : "follow"}/${user.id}`);
+    //Removes user from the "from group" of users.
+    setFromGroup((fromGroup) => {
+      let userIndex = fromGroup.indexOf(user);
+      return fromGroup
+        .slice(0, userIndex)
+        .concat(fromGroup.slice(userIndex + 1));
+    });
+    //Adds user to the "to group" of users
+    setToGroup((toGroup) => toGroup.concat(user));
   };
 };
 
 const UserCard = ({ user, isFollowing, toggleUserGroup_ }) => {
   const classes = useStyles();
+
+  const [userIsBeingToggled, setUserIsBeingToggled] = useState(false);
+  const toggleUserGroup = toggleUserGroup_(user);
   return (
     <Card>
       <CardContent>
@@ -74,7 +86,16 @@ const UserCard = ({ user, isFollowing, toggleUserGroup_ }) => {
             variant="contained"
             color="primary"
             className={classes.followButton}
-            onClick={toggleUserGroup_(user)}
+            disabled={userIsBeingToggled}
+            onClick={async () => {
+              try {
+                setUserIsBeingToggled(true);
+                await toggleUserGroup();
+              } catch (error) {
+                console.error(error);
+                setUserIsBeingToggled(false);
+              }
+            }}
           >
             {isFollowing ? "Unfollow" : "Follow"}
           </Button>
@@ -84,11 +105,13 @@ const UserCard = ({ user, isFollowing, toggleUserGroup_ }) => {
   );
 };
 
+//TODO: Should probably have a better name. (Update documentation when name is changed)
 const Users = (
   { users, isLoading, type, toggleUserGroup__, hidden } = { hidden: false }
 ) => {
+  const classes = useStyles();
   if (hidden) return <></>;
-  //TODO: Implement error view and loading view
+  //TODO: Implement error view
   return (
     <>
       {!isLoading && users != null && (
@@ -104,7 +127,11 @@ const Users = (
         </Paper>
       )}
       {!isLoading && users === null && "error"}
-      {isLoading && "please wait"}
+      {isLoading && (
+        <div className={classes.userGroupContainer}>
+          <CircularProgress className={classes.userGroupLoading} />
+        </div>
+      )}
     </>
   );
 };
