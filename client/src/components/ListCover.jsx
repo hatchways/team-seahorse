@@ -27,7 +27,7 @@ const ListCover = ({ list }) => {
 
   const { updateIsListClicked } = userContext;
 
-  const { title, id, items } = list;
+  const { title, id, items, imageUrl } = list;
 
   const clickHandler = async () => {
     updateIsListClicked(true);
@@ -42,7 +42,7 @@ const ListCover = ({ list }) => {
         elevation={0}
         onClick={() => clickHandler()}
       >
-        <CardMedia className={classes.image} image={sample} />
+        <CardMedia className={classes.image} image={imageUrl} />
         <CardContent>
           <Typography align="center">{title}</Typography>
           <Typography variant="subtitle1" align="center">

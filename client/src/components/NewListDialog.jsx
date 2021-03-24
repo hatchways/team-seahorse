@@ -99,12 +99,9 @@ const NewListDialog = ({ isOpen, onClose, onAddList }) => {
   const classes = useStyles();
 
   const [title, setTitle] = useState("");
-  const [imageUrl, setImageUrl] = useState("http://example.com/image");
+  const [imageUrl, setImageUrl] = useState("");
   const [awaitingResponse, setAwaitingResponse] = useState(false);
-
   const { axiosWithAuth } = useContext(userContext);
-
-  const [file, setFile] = useState(null);
 
   const {
     //acceptedFiles,
@@ -116,16 +113,18 @@ const NewListDialog = ({ isOpen, onClose, onAddList }) => {
   } = useDropzone({
     accept: "image/*",
     onDrop: async (acceptedFiles) => {
-      setFile(acceptedFiles[0]);
-      console.log(file);
-      const formData = new FormData();
-      formData.append("image", file);
-      try {
-        const { data } = await axiosWithAuth().post("/upload-image", formData);
-        console.log(data);
-        setImageUrl(data.imageUrl);
-      } catch (error) {
-        console.log(error);
+      if (acceptedFiles.length > 0) {
+        const formData = new FormData();
+        formData.append("image", acceptedFiles[0]);
+        try {
+          const { data } = await axiosWithAuth().post(
+            "/upload-image",
+            formData
+          );
+          setImageUrl(data.imageUrl);
+        } catch (error) {
+          console.error(error);
+        }
       }
     },
   });
@@ -140,9 +139,6 @@ const NewListDialog = ({ isOpen, onClose, onAddList }) => {
     [isDragActive, isDragReject, isDragAccept]
   );
 
-  const handleImageUrlChange = (e) => {
-    setImageUrl(e.target.value);
-  };
   const handleTitleChange = (e) => {
     setTitle(e.target.value);
   };
@@ -153,7 +149,7 @@ const NewListDialog = ({ isOpen, onClose, onAddList }) => {
         .create({ withCredentials: true })
         .post("/lists", { title, imageUrl });
       onClose();
-      onAddList({ id: result.data.id, title });
+      onAddList({ id: result.data.id, title, imageUrl, items: 0 });
       setAwaitingResponse(false);
     } catch (error) {
       //TODO: Error handling
