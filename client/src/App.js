@@ -21,8 +21,8 @@ function App() {
             <Header />
             <Switch>
               <ProtectedRoute path="/dashboard" component={Dashboard} />
-              <Route path="/signup" component={Signup} />
-              <Route path="/signin" component={Signin} />
+              <Route path="/sign-up" component={Signup} />
+              <Route path="/sign-in" component={Signin} />
               <Route exact path="/" component={null} />
               <Route render={() => <Redirect to="/404" />} />
             </Switch>

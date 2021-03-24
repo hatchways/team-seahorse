@@ -58,7 +58,7 @@ const Header = () => {
   const signoutHandler = async () => {
     handleClose();
     await logout();
-    history.push("/signin");
+    history.push("/sign-in");
   };
 
   const acquireUser = async () => {
