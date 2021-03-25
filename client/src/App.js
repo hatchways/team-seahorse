@@ -22,6 +22,7 @@ function App() {
             <Header />
             <Switch>
               <ProtectedRoute path="/dashboard" component={Dashboard} />
+              <ProtectedRoute path="/followers" component={Followers} />
               <Route path="/sign-up" component={Signup} />
               <Route path="/sign-in" component={Signin} />
               <Route exact path="/" component={null} />
