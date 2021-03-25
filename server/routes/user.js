@@ -116,7 +116,10 @@ router.post(
     // check given password
     if (!existingUser.isPasswordCorrect(password)) {
       res.status(400).send({
-        msg: "Invalid Credential",
+        error: {
+          msg: "Invalid Credentials",
+          errorCode: "400",
+        },
       });
     }
 
@@ -167,10 +170,13 @@ router.get("/:id", async (req, res) => {
     res.send({
       user,
     });
-  } catch (error) {
+  } catch (err) {
     res.status(500).send({
-      msg: "Server Error",
-    });
+      error : {
+        msg: "Server Error",
+        data: err
+      }}
+    );
   }
 });
 

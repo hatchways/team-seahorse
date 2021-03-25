@@ -5,7 +5,6 @@ const UserModel = require("./userModel");
 const ProductModel = require("./productModel");
 const UserListModel = require("./userListModel");
 const ListProductModel = require("./listProductModel");
-const NotificationModel = require("./notificationModel");
 const UserFollowerModel = require("./userFollowerModel");
 
 //Creates tables for each model if the table doesn't already exist.
@@ -15,7 +14,6 @@ module.exports = {
   UserModel,
   ProductModel,
   UserListModel,
-  NotificationModel,
   ListProductModel,
   UserFollowerModel,
 };
