@@ -136,13 +136,11 @@ const UsersProvider = ({ children }) => {
 
   const getListProducts = async (listId) => {
     try {
-      const results = await fetch(`/lists/${listId}`);
+      const { data } = await axiosWithAuth().get(`/lists/${listId}`);
 
-      const parsedresults = await results.json();
+      updateCurrentListProducts(data);
 
-      updateCurrentListProducts(parsedresults);
-
-      return parsedresults;
+      return data;
     } catch (err) {
       console.error(err);
       return {
@@ -156,9 +154,7 @@ const UsersProvider = ({ children }) => {
 
   const removeProductInList = async (listId, productId) => {
     try {
-      await fetch(`/products/${listId}/${productId}`, {
-        method: "DELETE",
-      });
+      await axiosWithAuth().delete(`/products/${listId}/${productId}`);
 
       const list = await getListProducts(listId);
 
