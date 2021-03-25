@@ -32,11 +32,13 @@ router.put("/read/:id", authMiddleware, async (req, res) => {
     const updatedNotification = await notification.save();
 
     res.send(updatedNotification);
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error(err);
     res.status(500).send({
-      msg: "Server Error",
-      data: error,
+      error: {
+        msg: "Server Error",
+        data: err,
+      },
     });
   }
 });
@@ -71,11 +73,13 @@ router.get("/get-notifications", authMiddleware, async (req, res) => {
     });
 
     res.send(userNotifications);
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error(err);
     res.send({
-      msg: "Server Error",
-      data: error,
+      error: {
+        msg: "Server Error",
+        data: err,
+      },
     });
   }
 });
@@ -211,11 +215,13 @@ router.get("/price/all", authMiddleware, async (req, res) => {
     });
 
     res.send(result);
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error(err);
     res.status(500).send({
-      msg: "Server Error",
-      data: error,
+      error: {
+        msg: "Server Error",
+        data: err,
+      },
     });
   }
 });
@@ -246,11 +252,13 @@ router.get("/price/unread", authMiddleware, async (req, res) => {
     });
 
     res.send(result);
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error(err);
     res.status(500).send({
-      msg: "Server Error",
-      data: error,
+      error: {
+        msg: "Server Error",
+        data: err,
+      },
     });
   }
 });
