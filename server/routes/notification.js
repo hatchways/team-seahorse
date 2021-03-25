@@ -4,7 +4,7 @@ const NotificationModel = require("../models/notificationModel");
 const { sequelize } = require("../models/productModel");
 const ProductModel = require("../models/productModel");
 const UserListModel = require("../models/userListModel");
-const { PRICE } = require("../utils/enums");
+const { PRICE, ALL_TYPES_OBJECT } = require("../utils/enums");
 const router = require("express").Router();
 
 //Make the given notification id read
@@ -16,7 +16,7 @@ router.put("/read/:id", authMiddleware, async (req, res) => {
     const notification = await NotificationModel.findOne({
       where: {
         id: notificationId,
-        user_id: userId,
+        userId: userId,
       },
     });
 
@@ -46,12 +46,47 @@ router.put("/read/:id", authMiddleware, async (req, res) => {
 //Paginated querying of notifications of a user
 //Accepts "page" as a query. By default will be a 1.
 //Accepts "order" as a query. By default is "DESC" to show latest notifs first
+//Accepts "type" as a query. By default is an array of all types to show all types of notifications
+//Accepts "isRead" as a query. By default is false to show only unread notifs
+//Accepts "maxNotifications" as a query. By default is 10
 router.get("/get-notifications", authMiddleware, async (req, res) => {
   const { id: userId } = req.user;
-  let { order, page, maxNotifications } = req.query;
+  let { order, page, maxNotifications, type, isRead } = req.query;
 
-  if (!page) page = 1;
-  if (!maxNotifications) maxNotifications = 10;
+  const typesArray = Object.values(ALL_TYPES_OBJECT);
+
+  //#region Query Validation
+
+  if (!type) {
+    type = typesArray;
+  } else {
+    type = type.toLowerCase();
+    if (!ALL_TYPES_OBJECT[type.toUpperCase()]) {
+      return res
+        .status(400)
+        .send({ error: { msg: "Invalid type query", errorCode: 400 } });
+    }
+  }
+
+  if (!page) {
+    page = 1;
+  } else {
+    if (isNaN(parseInt(page))) {
+      return res
+        .status(400)
+        .send({ error: { msg: "Invalid page query", errorCode: 400 } });
+    }
+  }
+
+  if (!maxNotifications) {
+    maxNotifications = 10;
+  } else {
+    if (isNaN(parseInt(maxNotifications))) {
+      return res.status(400).send({
+        error: { msg: "Invalid maxNotifications query", errorCode: 400 },
+      });
+    }
+  }
 
   if (!order) order = "DESC";
   else order = order.toUpperCase();
@@ -62,10 +97,26 @@ router.get("/get-notifications", authMiddleware, async (req, res) => {
       .send({ error: { msg: "Invalid order query", errorCode: 400 } });
   }
 
+  if (!isRead) {
+    isRead = false;
+  } else {
+    if (isRead === "true") {
+      isRead = true;
+    } else if (isRead === "false") isRead = false;
+    else
+      return res
+        .status(400)
+        .send({ error: { msg: "Invalid isRead query", errorCode: 400 } });
+  }
+
+  //#endregion
+
   try {
     const userNotifications = await NotificationModel.findAll({
       where: {
-        user_id: userId,
+        userId,
+        type,
+        isRead,
       },
       order: [["createdAt", order]],
       limit: maxNotifications,
@@ -102,7 +153,7 @@ router.post("/price", async (req, res) => {
     //Find all lists containing this product
     const listProds = await ListProductModel.findAll({
       where: {
-        product_id: productId,
+        productId,
       },
       transaction,
     });
@@ -118,7 +169,7 @@ router.post("/price", async (req, res) => {
     const userLists = await UserListModel.findAll({
       where: {
         id: listProds.map((listProd) => {
-          return listProd.list_id;
+          return listProd.listId;
         }),
       },
       transaction,
@@ -130,19 +181,19 @@ router.post("/price", async (req, res) => {
     //make an update to the objects data.listLocations
     userLists.forEach((userList) => {
       //If we havent made a data object for the user, make one.
-      if (!newNotifications[userList.user_id]) {
+      if (!newNotifications[userList.userId]) {
         const data = {
           title,
           productId,
           price,
-          previousPrice: productModel.current_price,
+          previousPrice: productModel.currentPrice,
           listLocations: [userList.id],
         };
 
-        newNotifications[userList.user_id] = {
+        newNotifications[userList.userId] = {
           type: "price",
           data,
-          user_id: userList.user_id,
+          userId: userList.userId,
           isRead: false,
         };
 
@@ -150,7 +201,7 @@ router.post("/price", async (req, res) => {
         //particular product is placed. If a data object is already made, we simply add in the current list
         //to the listLocations array.
       } else {
-        newNotifications[userList.user_id].data.listLocations.push(userList.id);
+        newNotifications[userList.userId].data.listLocations.push(userList.id);
       }
     });
 
@@ -164,8 +215,8 @@ router.post("/price", async (req, res) => {
     //Update Product Model
     await ProductModel.update(
       {
-        current_price: price,
-        previous_price: productModel.current_price,
+        currentPrice: price,
+        previousPrice: productModel.currentPrice,
       },
       {
         where: {
@@ -185,79 +236,6 @@ router.post("/price", async (req, res) => {
       error: {
         msg: "Server Error while using service",
         data: error,
-      },
-    });
-  }
-});
-
-//Find specifically ALL notifications of a user about a price change
-//Accepts "order" as a query. By default is "DESC" to show latest notifs first
-router.get("/price/all", authMiddleware, async (req, res) => {
-  const { id } = req.user;
-  let { order } = req.query;
-
-  if (!order) order = "DESC";
-  else order = order.toUpperCase();
-
-  if (order !== "ASC" && order !== "DESC") {
-    return res
-      .status(400)
-      .send({ error: { msg: "Invalid order query", errorCode: 400 } });
-  }
-
-  try {
-    const result = await NotificationModel.findAll({
-      where: {
-        type: PRICE,
-        user_id: id,
-      },
-      order: [["createdAt", order]],
-    });
-
-    res.send(result);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send({
-      error: {
-        msg: "Server Error",
-        data: err,
-      },
-    });
-  }
-});
-
-//Find specifically ALL UNREAD notifications of a user about a price change
-//Accepts "order" as a query. By default is "DESC" to show latest notifs first
-router.get("/price/unread", authMiddleware, async (req, res) => {
-  const { id } = req.user;
-  let { order } = req.query;
-
-  if (!order) order = "DESC";
-  else order = order.toUpperCase();
-
-  if (order !== "ASC" && order !== "DESC") {
-    return res
-      .status(400)
-      .send({ error: { msg: "Invalid order query", errorCode: 400 } });
-  }
-
-  try {
-    const result = await NotificationModel.findAll({
-      where: {
-        type: PRICE,
-        user_id: id,
-        isRead: false,
-      },
-      order: [["createdAt", order]],
-    });
-
-    res.send(result);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send({
-      error: {
-        msg: "Server Error",
-        data: err,
       },
     });
   }
