@@ -120,7 +120,7 @@ const AuthModal = ({ isAuthPage }) => {
     try {
       let error = false;
 
-      if (pathname === "/signup") {
+      if (pathname === "/sign-up") {
         let result = await register(name, email, password);
 
         if (result.error) {
@@ -163,7 +163,7 @@ const AuthModal = ({ isAuthPage }) => {
         <Modal open={!signedIn} hideBackdrop={isAuthPage}>
           <Paper id="auth-paper" className={classes.paper} elevation={3}>
             <Typography variant="h4" className={classes.h4}>
-              {pathname === "/signup" ? "Sign Up" : "Sign In"}
+              {pathname === "/sign-up" ? "Sign Up" : "Sign In"}
             </Typography>
 
             <form onSubmit={submitHandler} style={{ display: "block" }}>
@@ -175,7 +175,7 @@ const AuthModal = ({ isAuthPage }) => {
               >
                 <ErrorAlert message={alertMessage} visible={isError} />
 
-                {pathname === "/signup" && (
+                {pathname === "/sign-up" && (
                   <Grid item md={"auto"} className={classes.box}>
                     <Typography variant="h6" className={classes.typography}>
                       Your Name:{" "}
@@ -243,7 +243,7 @@ const AuthModal = ({ isAuthPage }) => {
                     variant="contained"
                     type="submit"
                   >
-                    {pathname === "/signup" ? "Register" : "Login"}
+                    {pathname === "/sign-up" ? "Register" : "Login"}
                   </Button>
                 </Grid>
 
@@ -251,12 +251,14 @@ const AuthModal = ({ isAuthPage }) => {
 
                 <Grid item className={classes.footer}>
                   <Typography variant="subtitle2">
-                    {pathname === "/signup"
+                    {pathname === "/sign-up"
                       ? "Already a Member?"
                       : "Not a member?"}
                     <Typography className={classes.hyperlink}>
-                      <Link to={pathname === "/signup" ? "/signin" : "/signup"}>
-                        {pathname === "/signup" ? " Sign In" : " Sign Up"}
+                      <Link
+                        to={pathname === "/sign-up" ? "/sign-in" : "/sign-up"}
+                      >
+                        {pathname === "/sign-up" ? " Sign In" : " Sign Up"}
                       </Link>
                     </Typography>
                   </Typography>

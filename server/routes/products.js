@@ -10,6 +10,9 @@ const {
 } = require("../middlewares/validate");
 const ProductModel = require("../models/productModel");
 const ListProductModel = require("../models/listProductModel");
+const UserList = require("../models/userListModel");
+
+const { scrapeAmazon } = require("../services");
 
 const getProduct = async (req, res) => {
   try {
@@ -17,13 +20,13 @@ const getProduct = async (req, res) => {
       where: { id: parseInt(req.params.productId) },
       attributes: [
         "id",
-        "current_price",
-        "previous_price",
+        "currentPrice",
+        "previousPrice",
         "name",
-        "image_url",
+        "imageUrl",
         "link",
         "company",
-        "is_still_available",
+        "isStillAvailable",
       ],
     });
     if (result == null) {
@@ -50,16 +53,16 @@ const deleteProduct = async (req, res) => {
     DELETE FROM "ListProducts"
     USING "UserLists"
     WHERE (
-        "ListProducts".list_id = "UserLists".id
-        AND "ListProducts".product_id = ${productId} AND "ListProducts".list_id = ${listId}
-        AND "UserLists".user_id = ${req.user.id}
+        "ListProducts".listId = "UserLists".id
+        AND "ListProducts".productId = ${productId} AND "ListProducts".listId = ${listId}
+        AND "UserLists".userId = ${req.user.id}
     )
   `,
       { transaction }
     );
     const productStillExistsInOtherLists =
       (await ListProductModel.count({
-        where: { product_id: productId },
+        where: { productId },
         transaction,
       })) == 1;
     if (!productStillExistsInOtherLists) {
@@ -79,6 +82,44 @@ const deleteProduct = async (req, res) => {
   }
 };
 
+const addProduct = async (req, res) => {
+  const { url, listId } = req.body;
+
+  try {
+    const productData = await scrapeAmazon(url);
+    const { title, price, imageURL } = productData;
+    const [_, priceNum] = price.split("$");
+
+    const result = await ProductModel.create({
+      currentPrice: Number(priceNum),
+      name: title,
+      imageUrl: imageURL,
+      link: url,
+      company: "amazon",
+      isStillAvailable: true,
+    });
+
+    await ListProductModel.create({
+      listId,
+      productId: result.id,
+    });
+
+    const row = await UserList.findOne({
+      where: {
+        id: listId,
+      },
+    });
+
+    row.increment({
+      items: 1,
+    });
+
+    res.status(200).send({ productData });
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 router.use(authMiddleware);
 router.get("/:productId", [productIdCheck, validate, getProduct]);
 router.delete("/:listId/:productId", [
@@ -87,5 +128,6 @@ router.delete("/:listId/:productId", [
   validate,
   deleteProduct,
 ]);
+router.post("/", addProduct);
 
 module.exports = router;

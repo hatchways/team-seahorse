@@ -10,22 +10,25 @@ import Signin from "./pages/Signin";
 import Signup from "./pages/Signup";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Header from "./components/Header";
+import ProductProvider from "./providers/ProductProvider";
 
 function App() {
   return (
     <UsersProvider>
-      <MuiThemeProvider theme={theme}>
-        <BrowserRouter>
-          <Header />
-          <Switch>
-            <ProtectedRoute path="/dashboard" component={Dashboard} />
-            <Route path="/signup" component={Signup} />
-            <Route path="/signin" component={Signin} />
-            <Route exact path="/" component={null} />
-            <Route render={() => <Redirect to="/404" />} />
-          </Switch>
-        </BrowserRouter>
-      </MuiThemeProvider>
+      <ProductProvider>
+        <MuiThemeProvider theme={theme}>
+          <BrowserRouter>
+            <Header />
+            <Switch>
+              <ProtectedRoute path="/dashboard" component={Dashboard} />
+              <Route path="/sign-up" component={Signup} />
+              <Route path="/sign-in" component={Signin} />
+              <Route exact path="/" component={null} />
+              <Route render={() => <Redirect to="/404" />} />
+            </Switch>
+          </BrowserRouter>
+        </MuiThemeProvider>
+      </ProductProvider>
     </UsersProvider>
   );
 }

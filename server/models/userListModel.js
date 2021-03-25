@@ -25,7 +25,7 @@ const UserListModel = db.define("UserList", {
 
 UserModel.hasMany(UserListModel, {
   foreignKey: {
-    name: "user_id",
+    name: "userId",
     allowNull: false,
     unique: "uniqueTitleForUser",
   },

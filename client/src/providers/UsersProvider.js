@@ -20,7 +20,7 @@ const UsersProvider = ({ children }) => {
   //#endregion
 
   const login = async (email, password) => {
-    let data = await fetch("/user/signin", {
+    let data = await fetch("/user/sign-in", {
       method: "POST",
       headers: { "Content-type": "application/json" },
       body: JSON.stringify({
@@ -37,7 +37,7 @@ const UsersProvider = ({ children }) => {
   };
 
   const register = async (name, email, password) => {
-    let data = await fetch("/user/signup", {
+    let data = await fetch("/user/sign-up", {
       method: "POST",
       headers: { "Content-type": "application/json" },
       body: JSON.stringify({
@@ -57,7 +57,7 @@ const UsersProvider = ({ children }) => {
   //This method will only return the parsed value of the token
   const getCurrentUser = async () => {
     try {
-      const userResponse = await fetch("/user/currentUser");
+      const userResponse = await fetch("/user/current-user");
       const userData = await userResponse.json();
       return userData;
     } catch (error) {
@@ -73,7 +73,7 @@ const UsersProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    await fetch("/user/signout");
+    await fetch("/user/sign-out");
     setUser(null);
     setToken(null);
   };
@@ -187,7 +187,7 @@ const UsersProvider = ({ children }) => {
   useEffect(() => {
     getList();
     // eslint-disable-next-line
-  }, []);
+  }, [user]);
 
   return (
     <userContext.Provider
@@ -214,6 +214,7 @@ const UsersProvider = ({ children }) => {
         logout,
         getUserById,
         loadUser,
+        axiosWithAuth,
         updateIsListClicked,
         updateIsAddingProd,
         updateIsLoadingListProducts,
