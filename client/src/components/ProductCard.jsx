@@ -48,7 +48,7 @@ const ProductCard = ({ product }) => {
 
   const { currentList, removeProductInList } = userContext;
   const { id: listId } = currentList;
-  const { name, current_price, previous_price, link, id: productId } = product;
+  const { name, currentPrice, previousPrice, link, id: productId } = product;
 
   return (
     <Card className={classes.card}>
@@ -74,11 +74,11 @@ const ProductCard = ({ product }) => {
         </Grid>
         <Grid item>
           <Typography variant="h5">
-            <span hidden={!previous_price} className={classes.previousPrice}>
-              {current_price}
+            <span hidden={!previousPrice} className={classes.previousPrice}>
+              {currentPrice}
             </span>{" "}
             <span className={classes.newPrice}>
-              {previous_price ? previous_price : current_price}
+              {previousPrice ? previousPrice : currentPrice}
             </span>
           </Typography>
         </Grid>
