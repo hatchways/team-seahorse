@@ -1,7 +1,7 @@
 const authMiddleware = require("../middlewares/authMiddleware");
 const ListProductModel = require("../models/listProductModel");
 const NotificationModel = require("../models/notificationModel");
-const { sequelize } = require("../models/productModel");
+const db = require("../models/");
 const ProductModel = require("../models/productModel");
 const UserListModel = require("../models/userListModel");
 const { ALL_TYPES_OBJECT } = require("../utils/enums");
@@ -104,8 +104,8 @@ router.get("/get-notifications", authMiddleware, async (req, res) => {
 //Create a notification using a product id given inside the body
 //Will be used by a service
 router.post("/price", async (req, res) => {
-  const transaction = await sequelize.transaction();
-  const { productId, title, price } = req.body;
+  const transaction = await db.transaction();
+  const { id: productId, name, newPrice:price, currentPrice } = req.body;
 
   try {
     //Get the product with the price change
@@ -149,10 +149,10 @@ router.post("/price", async (req, res) => {
       //If we havent made a data object for the user, make one.
       if (!newNotifications[userList.userId]) {
         const data = {
-          title,
+          name,
           productId,
           price,
-          previousPrice: productModel.currentPrice,
+          previousPrice: currentPrice,
           listLocations: [userList.id],
         };
 
@@ -195,13 +195,13 @@ router.post("/price", async (req, res) => {
     await transaction.commit();
 
     res.status(201).send({ msg: "Success" });
-  } catch (error) {
+  } catch (err) {
     await transaction.rollback();
-    console.error(error);
+    console.error(err);
     res.send({
       error: {
         msg: "Server Error while using service",
-        data: error,
+        data: err,
       },
     });
   }
