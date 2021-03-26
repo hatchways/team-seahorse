@@ -75,6 +75,7 @@ const createList = async (req, res) => {
     //TODO: Currently throws error if a server error happens since error.error[0] might not exist
     //If title is not unique
     if (
+      "errors" in error &&
       error.errors[0].type == "unique violation" &&
       error.errors[0].path == "title"
     ) {
