@@ -16,6 +16,11 @@ import AccountCircleIcon from "@material-ui/icons/AccountCircle";
 import axios from "axios";
 
 const useStyles = makeStyles(() => ({
+  root: {
+    "& div": {
+      minWidth: "70%",
+    },
+  },
   followButton: {
     height: 40,
     borderRadius: 28,
@@ -25,10 +30,6 @@ const useStyles = makeStyles(() => ({
   pfpPlaceholder: {
     fontSize: 50,
     marginRight: 10,
-  },
-  //TODO: Needs better name
-  followersPageItem: {
-    minWidth: "70%",
   },
   userGroupLoading: {
     marginTop: 20,
@@ -45,8 +46,8 @@ const useStyles = makeStyles(() => ({
 
 //Toggles the state of a user to be following or suggested, and makes the appropriate API call.
 //`setFollowing` and `setSuggested` are set at the page level, because that's where those setters are created.
-//`isFollowing` is set at the Users level, because Users can either show users being followed or users not being
-//followed.
+//`isFollowing` is set at the UserGroup level, because a UserGroup can either show users being followed or users not
+//being followed.
 //`user` is set at the UserCard level, because the UserCard is what describes a particular user.
 //NOTE: isFollowing refers to if the user being toggled is currently being followed by our user, not to if the user will be
 //toggled to following.
@@ -106,7 +107,7 @@ const UserCard = ({ user, isFollowing, toggleUserGroup_ }) => {
 };
 
 //TODO: Should probably have a better name. (Update documentation when name is changed)
-const Users = (
+const UserGroup = (
   { users, isLoading, type, toggleUserGroup__, hidden } = { hidden: false }
 ) => {
   const classes = useStyles();
@@ -183,29 +184,34 @@ const FollowersPage = () => {
   const classes = useStyles();
   const toggleUserGroup__ = toggleUserGroup___(setFollowing, setSuggested);
   return (
-    <Grid container direction="column" alignItems="center">
-      <Grid item className={classes.followersPageItem}>
+    <Grid
+      container
+      direction="column"
+      alignItems="center"
+      className={classes.root}
+    >
+      <Grid item>
         <Box p={6}>
           <Typography variant="h4" align="center">
             Friends
           </Typography>
         </Box>
       </Grid>
-      <Grid item className={classes.followersPageItem}>
+      <Grid item>
         <Tabs value={index} variant="fullWidth" onChange={handleChange}>
           <Tab label="FOLLOWING" />
           <Tab label="SUGGESTED" />
         </Tabs>
       </Grid>
-      <Grid item className={classes.followersPageItem}>
-        <Users
+      <Grid item>
+        <UserGroup
           users={following}
           isLoading={isLoadingFollowedUsers}
           type={"following"}
           toggleUserGroup__={toggleUserGroup__}
           hidden={index !== 0}
         />
-        <Users
+        <UserGroup
           users={suggested}
           isLoading={isLoadingSuggestedUsers}
           type={"suggested"}
