@@ -25,14 +25,14 @@ const ListCover = ({ list }) => {
   const classes = useStyles();
   const userContext = useContext(context);
 
-  const { updateIsListClicked } = userContext;
+  const { updateIsListClicked, updateCurrentList,getListProducts } = userContext;
 
   const { title, id } = list;
 
   const clickHandler = async () => {
+    updateCurrentList(list)
+    getListProducts(id)
     updateIsListClicked(true);
-
-    //Use a function that will load list products
   };
 
   return (
