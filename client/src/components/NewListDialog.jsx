@@ -151,7 +151,7 @@ const NewListDialog = ({ isOpen, onClose, onAddList }) => {
       onClose();
       onAddList({ id: result.data.id, title, imageUrl, items: 0 });
       setAwaitingResponse(false);
-      setImageUrl(data.imageUrl);
+      setImageUrl("");
     } catch (error) {
       //TODO: Error handling
       setAwaitingResponse(false);
