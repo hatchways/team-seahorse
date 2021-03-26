@@ -36,7 +36,7 @@ const ListCover = ({ list }) => {
   const classes = useStyles();
   const userContext = useContext(context);
 
-  const { updateIsListClicked, axiosWithAuth } = userContext;
+  const { updateIsListClicked, axiosWithAuth, openSnackbar } = userContext;
 
   const { title, id, items, imageUrl, isPrivate } = list;
 
@@ -48,11 +48,15 @@ const ListCover = ({ list }) => {
     //Use a function that will load list products
   };
 
-  const toggleHandler = async () => {
+  const toggleHandler = () => {
     setToggle((toggle) => !toggle);
+    axiosWithAuth()
+      .put(`/lists/${id}`, { isPrivate: toggle })
+      .then((res) => {
+        openSnackbar("success", res.data.message);
+      })
+      .catch((err) => console.error(err));
   };
-
-  useEffect(() => {}, [toggle]);
 
   return (
     <Grid item>

@@ -104,7 +104,7 @@ const changeList = async (req, res) => {
       res.status(400).send({ errors: [{ msg: "No list with given ID." }] });
       return;
     }
-    res.status(201).send();
+    res.status(201).send({ message: "list updated successfully" });
   } catch (error) {
     console.error(error);
     //If title is not unique
