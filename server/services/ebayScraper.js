@@ -5,7 +5,6 @@ const scrapeEbay = async (url) => {
     const [el] = await page.$x(XPath);
     const data = await el.getProperty(property);
     const parsedData = await data.jsonValue();
-
     return parsedData;
   };
 
@@ -13,24 +12,53 @@ const scrapeEbay = async (url) => {
   const page = await browser.newPage();
   await page.goto(url);
 
-  let imgUrl;
+  let imageURL;
   let title;
   let price;
 
+  //Update for the edge case of discounted items
+  //*[@id="mm-saleDscPrc"]
   try {
-    imgUrl = await getValue('//*[@id="icImg"]', "src");
+    imageURL = await getValue('//*[@id="icImg"]', "src");
     title = await getValue('//*[@id="itemTitle"]/text()', "textContent");
     price = await getValue('//*[@id="prcIsum"]', "textContent");
-  } catch (error) {
-    return {
-      msg: `Error getting values on product link. Please check if product is still available: ${url}`,
-      error,
-    };
-  }
 
+    price = parsePrice(price);
+  } catch (error) {
+    return Error;
+  }
   browser.close();
 
-  return { imgUrl, title, price };
+  return { imageURL, title, price };
 };
+
+const parsePrice = (str) => {
+  let priceString = "";
+  let decimalFound = false;
+  for (let i = 0; i < str.length; i++) {
+    if (isCharNumber(str[i])) {
+      for (let x = i; x < str.length; x++) {
+        if (isCharNumber(str[x])) {
+          priceString += str[x];
+        } else {
+          if (!decimalFound) {
+            priceString += ".";
+            decimalFound = true;
+          } else {
+            return parseFloat(priceString);
+          }
+        }
+      }
+
+      return parseFloat(priceString);
+    }
+  }
+
+  return { msg: "No Number found" };
+};
+
+function isCharNumber(c) {
+  return c >= "0" && c <= "9";
+}
 
 module.exports = scrapeEbay;
