@@ -12,15 +12,15 @@ const router = express.Router();
 const authMiddleware = require("../middlewares/authMiddleware");
 const db = require("../models");
 const ListProductModel = require("../models/listProductModel");
-const UserList = require("../models/userListModel");
+const UserListModel = require("../models/userListModel");
 const ProductModel = require("../models/productModel");
 
 //Returns id of each list belonging to the user.
 const getLists = async (req, res) => {
   try {
-    const results = await UserList.findAll({
+    const results = await UserListModel.findAll({
       attributes: ["id", "title", "items", "imageUrl"],
-      where: { user_id: req.user.id },
+      where: { userId: req.user.id },
     });
     res.status(200).send(results);
   } catch (error) {
@@ -35,19 +35,19 @@ const getList = async (req, res) => {
   //lists belongs to. Only returns products of the specified list, and only if that list belongs to the user.
   try {
     const [results] = await db.query(`
-        SELECT "Products".name, "Products".link, "Products".id FROM "ListProducts" 
-        JOIN "Products" ON ("ListProducts".product_id = "Products".id)
-        JOIN "UserLists" ON ("ListProducts".list_id = "UserLists".id)
-        WHERE ( "ListProducts".list_id = ${parseInt(
+        SELECT "Products".name, "Products".link, "Products".id, "Products"."currentPrice", "Products"."previousPrice" FROM "ListProducts" 
+        JOIN "Products" ON ("ListProducts"."productId" = "Products".id)
+        JOIN "UserLists" ON ("ListProducts"."listId" = "UserLists".id)
+        WHERE ( "ListProducts"."listId" = ${parseInt(
           req.params.listId
-        )} AND "UserLists".user_id = ${req.user.id} )
+        )} AND "UserLists"."userId" = ${req.user.id} )
     `);
     //If no products are found, we check if the list even exists as belonging to the user (since we get the same result
     //if the list is empty). If the list doesn't exist as belonging to the user, we return a 400 error.
     if (results.length == 0) {
       const listExists =
-        (await UserList.count({
-          where: { id: parseInt(req.params.listId), user_id: req.user_id },
+        (await UserListModel.count({
+          where: { id: parseInt(req.params.listId), userId: req.user.id },
         })) == 1;
       if (!listExists) {
         res.status(400).send({ errors: [{ msg: "No list with given ID." }] });
@@ -64,8 +64,8 @@ const getList = async (req, res) => {
 //Creates a list belonging to the user.
 const createList = async (req, res) => {
   try {
-    const result = await UserList.create({
-      user_id: req.user.id,
+    const result = await UserListModel.create({
+      userId: req.user.id,
       title: req.body.title,
       imageUrl: req.body.imageUrl,
     });
@@ -87,12 +87,12 @@ const createList = async (req, res) => {
 //Change title and cover image url in list belonging to the user.
 const changeList = async (req, res) => {
   try {
-    const [affectedRows] = await UserList.update(
+    const [affectedRows] = await UserListModel.update(
       { title: req.body.title, imageUrl: req.body.imageUrl },
       {
         where: {
           id: parseInt(req.params.listId),
-          user_id: req.user.id,
+          userId: req.user.id,
         },
       }
     );
@@ -120,10 +120,10 @@ const deleteList = async (req, res) => {
   try {
     transaction = await db.transaction();
     //Deletes the list.
-    const affectedRows = await UserList.destroy({
+    const affectedRows = await UserListModel.destroy({
       where: {
         id: parseInt(req.params.listId),
-        user_id: req.user.id,
+        userId: req.user.id,
       },
       transaction,
     });
@@ -136,11 +136,13 @@ const deleteList = async (req, res) => {
     const listlessProductIds = (
       await ProductModel.findAll({
         where: {
-          "$ListProducts.product_id$": {
+          "$UserLists.id$": {
             [Op.is]: null,
           },
         },
-        include: [ListProductModel],
+        include: {
+          model: UserListModel,
+        },
         transaction,
       })
     ).map((productObj) => productObj.id);

@@ -12,6 +12,7 @@ const UsersProvider = ({ children }) => {
   const [snackbarSeverity, setSnackbarSeverity] = useState("info");
 
   //#region  List Related
+  const [currentList, setCurrentList] = useState({});
   const [isListClicked, setIsListClicked] = useState(false);
   const [isAddingProd, setIsAddingProd] = useState(false);
   const [currentListProducts, setCurrentListProducts] = useState([]);
@@ -19,7 +20,7 @@ const UsersProvider = ({ children }) => {
   //#endregion
 
   const login = async (email, password) => {
-    let data = await fetch("/user/signin", {
+    let data = await fetch("/user/sign-in", {
       method: "POST",
       headers: { "Content-type": "application/json" },
       body: JSON.stringify({
@@ -36,7 +37,7 @@ const UsersProvider = ({ children }) => {
   };
 
   const register = async (name, email, password) => {
-    let data = await fetch("/user/signup", {
+    let data = await fetch("/user/sign-up", {
       method: "POST",
       headers: { "Content-type": "application/json" },
       body: JSON.stringify({
@@ -56,7 +57,7 @@ const UsersProvider = ({ children }) => {
   //This method will only return the parsed value of the token
   const getCurrentUser = async () => {
     try {
-      const userResponse = await fetch("/user/currentUser");
+      const userResponse = await fetch("/user/current-user");
       const userData = await userResponse.json();
       return userData;
     } catch (error) {
@@ -72,7 +73,7 @@ const UsersProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    await fetch("/user/signout");
+    await fetch("/user/sign-out");
     setUser(null);
     setToken(null);
   };
@@ -125,6 +126,51 @@ const UsersProvider = ({ children }) => {
     setIsLoadingListProducts(bool);
   };
 
+  const updateCurrentList = (obj) => {
+    setCurrentList(obj);
+  };
+
+  const updateCurrentListProducts = (obj) => {
+    setCurrentListProducts(obj);
+  };
+
+  const getListProducts = async (listId) => {
+    try {
+      const { data } = await axiosWithAuth().get(`/lists/${listId}`);
+
+      updateCurrentListProducts(data);
+
+      return data;
+    } catch (err) {
+      console.error(err);
+      return {
+        error: {
+          msg: "Something went wrong on our part. Sorry",
+          data: err,
+        },
+      };
+    }
+  };
+
+  const removeProductInList = async (listId, productId) => {
+    try {
+      await axiosWithAuth().delete(`/products/${listId}/${productId}`);
+
+      const list = await getListProducts(listId);
+
+      //return the updated list
+      return list;
+    } catch (err) {
+      console.error(err);
+      return {
+        error: {
+          msg: "Server Error",
+          data: err,
+        },
+      };
+    }
+  };
+
   //#endregion
 
   const updateIsSnackbarOpen = (bool) => {
@@ -149,11 +195,16 @@ const UsersProvider = ({ children }) => {
         user,
         token,
         lists,
-        setLists,
         isListClicked,
         currentListProducts,
         isAddingProd,
         isLoadingListProducts,
+        currentList,
+        removeProductInList,
+        getListProducts,
+        updateCurrentListProducts,
+        updateCurrentList,
+        setLists,
         isSnackbarOpen,
         snackbarMessage,
         snackbarSeverity,

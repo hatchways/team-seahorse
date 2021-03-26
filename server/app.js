@@ -11,6 +11,7 @@ const listsRouter = require("./routes/lists");
 const productsRouter = require("./routes/products");
 const imageUploadRouter = require("./routes/imageUpload");
 const followRouter = require("./routes/follower");
+const notificationRouter = require("./routes/notification")
 
 const { json, urlencoded } = express;
 
@@ -34,7 +35,7 @@ app.use("/lists", listsRouter);
 app.use("/products", productsRouter);
 app.use("/upload-image", imageUploadRouter);
 app.use("/followers", followRouter);
-
+app.use("/notification", notificationRouter)
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
