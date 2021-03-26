@@ -115,7 +115,9 @@ const addProduct = async (req, res) => {
       items: 1,
     })
 
-    res.status(200).send({ productData })
+    res.status(200).send({
+      productData,
+    })
   } catch (error) {
     console.error(error)
   }
