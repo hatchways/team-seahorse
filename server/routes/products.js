@@ -1,18 +1,18 @@
-const db = require("../models");
-const express = require("express");
-const router = express.Router();
-const authMiddleware = require("../middlewares/authMiddleware");
+const db = require("../models")
+const express = require("express")
+const router = express.Router()
+const authMiddleware = require("../middlewares/authMiddleware")
 const {
   validate,
   listIdCheck,
   productIdCheck,
   giveServerError,
-} = require("../middlewares/validate");
-const ProductModel = require("../models/productModel");
-const ListProductModel = require("../models/listProductModel");
-const UserList = require("../models/userListModel");
+} = require("../middlewares/validate")
+const ProductModel = require("../models/productModel")
+const ListProductModel = require("../models/listProductModel")
+const UserList = require("../models/userListModel")
 
-const { scrapeAmazon } = require("../services");
+const { getCompany } = require("../services")
 
 const getProduct = async (req, res) => {
   try {
@@ -20,114 +20,117 @@ const getProduct = async (req, res) => {
       where: { id: parseInt(req.params.productId) },
       attributes: [
         "id",
-        "current_price",
-        "previous_price",
+        "currentPrice",
+        "previousPrice",
         "name",
-        "image_url",
+        "imageUrl",
         "link",
         "company",
-        "is_still_available",
+        "isStillAvailable",
       ],
-    });
+    })
     if (result == null) {
-      res.status(400).send({ errors: [{ msg: "No product with given ID." }] });
-      return;
+      res.status(400).send({ errors: [{ msg: "No product with given ID." }] })
+      return
     }
-    res.status(200).send(result);
+    res.status(200).send(result)
   } catch (error) {
-    console.error(error);
-    giveServerError(res);
+    console.error(error)
+    giveServerError(res)
   }
-};
+}
 
 //Removes product, then checks to see if the product still exists in other lists. If it doesn't, the product is removed
 //from the database.
 const deleteProduct = async (req, res) => {
-  let transaction = null;
-  const productId = parseInt(req.params.productId);
-  const listId = parseInt(req.params.listId);
+  let transaction = null
+  const productId = parseInt(req.params.productId)
+  const listId = parseInt(req.params.listId)
   try {
-    transaction = await db.transaction();
+    transaction = await db.transaction()
     await db.query(
       `
     DELETE FROM "ListProducts"
     USING "UserLists"
     WHERE (
-        "ListProducts".list_id = "UserLists".id
-        AND "ListProducts".product_id = ${productId} AND "ListProducts".list_id = ${listId}
-        AND "UserLists".user_id = ${req.user.id}
+        "ListProducts".listId = "UserLists".id
+        AND "ListProducts".productId = ${productId} AND "ListProducts".listId = ${listId}
+        AND "UserLists".userId = ${req.user.id}
     )
   `,
       { transaction }
-    );
+    )
     const productStillExistsInOtherLists =
       (await ListProductModel.count({
-        where: { product_id: productId },
+        where: { productId },
         transaction,
-      })) == 1;
+      })) == 1
     if (!productStillExistsInOtherLists) {
       await ProductModel.destroy({
         where: { id: productId },
         transaction,
-      });
+      })
     }
-    transaction.commit();
-    res.status(200).send();
+    transaction.commit()
+    res.status(200).send()
   } catch (error) {
-    console.error(error);
-    giveServerError(res);
+    console.error(error)
+    giveServerError(res)
     if (transaction != null) {
-      transaction.rollback();
+      transaction.rollback()
     }
   }
-};
+}
 
 const addProduct = async (req, res) => {
-  const { url, listId } = req.body;
+  const { url, listId } = req.body
+  const [scraper, company] = getCompany(url)
 
   try {
-    const productData = await scrapeAmazon(url);
-    const { title, price, imageURL } = productData;
-    const [_, priceNum] = price.split("$");
+    const productData = await scraper(url)
+    const { title, price, imageURL } = productData
+    const [_, priceNum] = price.split("$")
 
     const result = await ProductModel.create({
-      current_price: Number(priceNum),
+      currentPrice: Number(priceNum),
       name: title,
-      image_url: imageURL,
+      imageUrl: imageURL,
       link: url,
-      company: "amazon",
-      is_still_available: true,
-    });
+      company: company,
+      isStillAvailable: true,
+    })
 
     await ListProductModel.create({
-      list_id: listId,
-      product_id: result.id,
-    });
+      listId,
+      productId: result.id,
+    })
 
     const row = await UserList.findOne({
       where: {
         id: listId,
       },
-    });
+    })
 
     row.increment({
       items: 1,
-    });
+    })
 
-    res.status(200).send({ productData });
+    res.status(200).send({
+      productData,
+    })
   } catch (error) {
-    console.error(error);
+    console.error(error)
   }
-};
+}
 
-router.use(authMiddleware);
-router.get("/:productId", [productIdCheck, validate, getProduct]);
+router.use(authMiddleware)
+router.get("/:productId", [productIdCheck, validate, getProduct])
 router.delete("/:listId/:productId", [
   productIdCheck,
   listIdCheck,
   validate,
   deleteProduct,
-]);
-router.post("/", addProduct);
+])
+router.post("/", addProduct)
 
-module.exports = router;
+module.exports = router

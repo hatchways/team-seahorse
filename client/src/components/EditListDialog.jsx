@@ -1,22 +1,16 @@
 import {
   Button,
-  Card,
   Dialog,
   DialogContent,
   Grid,
   IconButton,
   makeStyles,
-  Paper,
-  Slide,
-  TextField,
   Typography,
 } from "@material-ui/core";
 import React, { useContext, useEffect, useState } from "react";
-import PropTypes from "prop-types";
 import CloseIcon from "@material-ui/icons/Close";
-import sample from "../images/productIcon.jpg";
-import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import { userContext as context } from "../providers/UsersProvider";
+import ProductCard from "./ProductCard";
 
 const useStyles = makeStyles(() => ({
   paper: {
@@ -41,35 +35,6 @@ const useStyles = makeStyles(() => ({
     fontStyle: "italic",
     marginBottom: "15px",
   },
-  card: {
-    display: "flex",
-    margin: "0 20px 20px 20px",
-    height: "fit-content",
-    width: "100%",
-  },
-  img: {
-    borderRadius: "7px",
-    margin: "15px",
-    maxWidth: "100px",
-  },
-  previousPrice: {
-    textDecoration: "line-through",
-    fontSize: "20px",
-  },
-  newPrice: {
-    fontWeight: "bold",
-    color: "red",
-    fontSize: "30px",
-  },
-  removeBtn: {
-    marginRight: "20px",
-    height: "50px",
-    width: "150px",
-    display: "block",
-    margin: "auto 20px auto 0",
-    borderRadius: "50px",
-    background: "#fafafa",
-  },
   addBtn: {
     display: "block",
     margin: "50px auto 20px auto",
@@ -87,10 +52,18 @@ const EditListDialog = () => {
     updateIsListClicked,
     isListClicked,
     updateIsAddingProd,
+    currentList,
+    currentListProducts,
+    updateCurrentList,
+    updateCurrentListProducts,
   } = userContext;
 
+  const { title, items } = currentList;
+
+  const [titlePlaceholder, setTitlePlaceholder] = useState("");
+
   useEffect(() => {
-    //Get the products of the list then setLoading(false)
+    setTitlePlaceholder(title);
   }, []);
 
   return (
@@ -98,6 +71,11 @@ const EditListDialog = () => {
       open={isListClicked}
       onBackdropClick={() => updateIsListClicked(false)}
       maxWidth="md"
+      onExit={() => {
+        updateCurrentList({});
+        updateCurrentListProducts([]);
+      }}
+      onEntering={() => {}}
     >
       <DialogContent className={classes.paper}>
         <IconButton
@@ -112,45 +90,22 @@ const EditListDialog = () => {
         </IconButton>
 
         <Typography variant="h4" className={classes.listTitle}>
-          List Title
+          {title}
         </Typography>
-        <Typography className={classes.listLength}>List.length</Typography>
 
-        {/* Change true to isLoading when doing integration */}
-        {true && (
-          <Grid container style={{ height: "450px", overflow: "scroll" }}>
-            <Card className={classes.card}>
-              <img src={sample} className={classes.img} />
+        <Typography className={classes.listLength}>
+          {items >= 0 ? ` You have ${items} items in the list. ` : ""}
+        </Typography>
 
-              <Grid container direction="column" style={{ marginTop: "15px" }}>
-                <Grid item>
-                  <Typography variant="h6" style={{ lineHeight: "20px" }}>
-                    Product title
-                  </Typography>
-                </Grid>
-                <Grid item>
-                  <Typography
-                    style={{
-                      color: "gray",
-                      fontStyle: "italic",
-                      cursor: "pointer",
-                      fontWeight: "lighter",
-                    }}
-                  >
-                    Clickable link ...
-                  </Typography>
-                </Grid>
-                <Grid item>
-                  <Typography variant="h5">
-                    <span className={classes.previousPrice}>$50</span>{" "}
-                    <span className={classes.newPrice}>$30</span>
-                  </Typography>
-                </Grid>
-              </Grid>
-              <Button className={classes.removeBtn}>Remove</Button>
-            </Card>
-          </Grid>
-        )}
+        <Grid
+          container
+          style={{ height: "450px", overflow: "scroll", display: "block" }}
+        >
+          {currentListProducts.length > 0 &&
+            currentListProducts.map((product) => {
+              return <ProductCard product={product} />;
+            })}
+        </Grid>
 
         <Button
           className={classes.addBtn}

@@ -13,12 +13,12 @@ const scrapeEbay = async (url) => {
   const page = await browser.newPage();
   await page.goto(url);
 
-  let imgUrl;
+  let imageURL;
   let title;
   let price;
 
   try {
-    imgUrl = await getValue('//*[@id="icImg"]', "src");
+    imageURL = await getValue('//*[@id="icImg"]', "src");
     title = await getValue('//*[@id="itemTitle"]/text()', "textContent");
     price = await getValue('//*[@id="prcIsum"]', "textContent");
   } catch (error) {
@@ -30,7 +30,7 @@ const scrapeEbay = async (url) => {
 
   browser.close();
 
-  return { imgUrl, title, price };
+  return { imageURL, title, price };
 };
 
 module.exports = scrapeEbay;
