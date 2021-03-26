@@ -4,7 +4,7 @@ const NotificationModel = require("../models/notificationModel");
 const { sequelize } = require("../models/productModel");
 const ProductModel = require("../models/productModel");
 const UserListModel = require("../models/userListModel");
-const { PRICE, ALL_TYPES_OBJECT } = require("../utils/enums");
+const { ALL_TYPES_OBJECT } = require("../utils/enums");
 const router = require("express").Router();
 
 //Make the given notification id read
@@ -53,63 +53,29 @@ router.get("/get-notifications", authMiddleware, async (req, res) => {
   const { id: userId } = req.user;
   let { order, page, maxNotifications, type, isRead } = req.query;
 
-  const typesArray = Object.values(ALL_TYPES_OBJECT);
+  const validQueries = validateQueryParams(
+    page,
+    order,
+    type,
+    isRead,
+    maxNotifications
+  );
 
-  //#region Query Validation
+  console.log(validQueries)
 
-  if (!type) {
-    type = typesArray;
+  if (validQueries === false) {
+    return res.status(400).send({
+      error: {
+        msg: "Invalid query paramter value detected",
+      },
+    });
   } else {
-    type = type.toLowerCase();
-    if (!ALL_TYPES_OBJECT[type.toUpperCase()]) {
-      return res
-        .status(400)
-        .send({ error: { msg: "Invalid type query", errorCode: 400 } });
-    }
+    isRead = validQueries.isRead;
+    order = validQueries.order;
+    page = validQueries.page;
+    maxNotifications = validQueries.maxNotifications;
+    type = validQueries.type;
   }
-
-  if (!page) {
-    page = 1;
-  } else {
-    if (isNaN(parseInt(page))) {
-      return res
-        .status(400)
-        .send({ error: { msg: "Invalid page query", errorCode: 400 } });
-    }
-  }
-
-  if (!maxNotifications) {
-    maxNotifications = 10;
-  } else {
-    if (isNaN(parseInt(maxNotifications))) {
-      return res.status(400).send({
-        error: { msg: "Invalid maxNotifications query", errorCode: 400 },
-      });
-    }
-  }
-
-  if (!order) order = "DESC";
-  else order = order.toUpperCase();
-
-  if (order !== "ASC" && order !== "DESC") {
-    return res
-      .status(400)
-      .send({ error: { msg: "Invalid order query", errorCode: 400 } });
-  }
-
-  if (!isRead) {
-    isRead = false;
-  } else {
-    if (isRead === "true") {
-      isRead = true;
-    } else if (isRead === "false") isRead = false;
-    else
-      return res
-        .status(400)
-        .send({ error: { msg: "Invalid isRead query", errorCode: 400 } });
-  }
-
-  //#endregion
 
   try {
     const userNotifications = await NotificationModel.findAll({
@@ -240,5 +206,53 @@ router.post("/price", async (req, res) => {
     });
   }
 });
+
+const validateQueryParams = (page, order, type, isRead, maxNotifications) => {
+  const typesArray = Object.values(ALL_TYPES_OBJECT);
+
+  if (!type) {
+    type = typesArray;
+  } else {
+    type = type.toLowerCase();
+    if (!ALL_TYPES_OBJECT[type.toUpperCase()]) {
+      return false;
+    }
+  }
+
+  if (!page) {
+    page = 1;
+  } else {
+    if (isNaN(page)) {
+      console.log('object')
+      return false;
+    }
+  }
+
+  if (!maxNotifications) {
+    maxNotifications = 10;
+  } else {
+    if (isNaN(maxNotifications)) {
+      return false;
+    }
+  }
+
+  if (!order) order = "DESC";
+  else order = order.toUpperCase();
+
+  if (order !== "ASC" && order !== "DESC") {
+    return false;
+  }
+
+  if (!isRead) {
+    isRead = false;
+  } else {
+    if (isRead === "true") {
+      isRead = true;
+    } else if (isRead === "false") isRead = false;
+    else return false;
+  }
+
+  return { page, order, type, isRead, maxNotifications };
+};
 
 module.exports = router;
