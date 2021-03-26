@@ -19,7 +19,7 @@ const ProductModel = require("../models/productModel");
 const getLists = async (req, res) => {
   try {
     const results = await UserListModel.findAll({
-      attributes: ["id", "title", "items", "imageUrl"],
+      attributes: ["id", "title", "items", "imageUrl", "isPrivate"],
       where: { userId: req.user.id },
     });
     res.status(200).send(results);
@@ -88,7 +88,11 @@ const createList = async (req, res) => {
 const changeList = async (req, res) => {
   try {
     const [affectedRows] = await UserListModel.update(
-      { title: req.body.title, imageUrl: req.body.imageUrl },
+      {
+        title: req.body.title,
+        imageUrl: req.body.imageUrl,
+        isPrivate: req.body.isPrivate,
+      },
       {
         where: {
           id: parseInt(req.params.listId),
