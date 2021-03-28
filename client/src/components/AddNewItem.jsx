@@ -75,7 +75,7 @@ const AddNewItem = () => {
       >
         <InputBase
           className={classes.textInput}
-          placeholder={loading ? <CircularProgress /> : "Paste your link here"}
+          placeholder="Paste your link here"
           value={link}
           onChange={(e) => setLink(e.target.value)}
         />
