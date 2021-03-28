@@ -35,7 +35,7 @@ const getList = async (req, res) => {
   //lists belongs to. Only returns products of the specified list, and only if that list belongs to the user.
   try {
     const [results] = await db.query(`
-        SELECT "Products".name, "Products".link, "Products".id FROM "ListProducts" 
+        SELECT "Products".name, "Products".link, "Products".id, "Products"."currentPrice", "Products"."previousPrice" FROM "ListProducts" 
         JOIN "Products" ON ("ListProducts"."productId" = "Products".id)
         JOIN "UserLists" ON ("ListProducts"."listId" = "UserLists".id)
         WHERE ( "ListProducts"."listId" = ${parseInt(
@@ -75,6 +75,7 @@ const createList = async (req, res) => {
     //TODO: Currently throws error if a server error happens since error.error[0] might not exist
     //If title is not unique
     if (
+      "errors" in error &&
       error.errors[0].type == "unique violation" &&
       error.errors[0].path == "title"
     ) {

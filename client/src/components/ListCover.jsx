@@ -43,9 +43,9 @@ const ListCover = ({ list }) => {
   const [toggle, setToggle] = useState(isPrivate);
 
   const clickHandler = async () => {
+    updateCurrentList(list);
+    getListProducts(id);
     updateIsListClicked(true);
-
-    //Use a function that will load list products
   };
 
   const toggleHandler = () => {
