@@ -104,7 +104,7 @@ const addProduct = async (req, res) => {
       } else {
         //add item
         const result = await ProductModel.create({
-          currentPrice: Number(priceNum),
+          currentPrice: Number(priceNum.replace(",", "")),
           name: title,
           imageUrl: imageURL,
           link: url,
