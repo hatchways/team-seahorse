@@ -9,8 +9,7 @@ import {
   Switch,
   Typography,
 } from "@material-ui/core";
-import React, { useContext, useEffect, useState } from "react";
-import sample from "../images/sample.jpg";
+import React, { useContext, useState } from "react";
 import { userContext as context } from "../providers/UsersProvider";
 
 const useStyles = makeStyles(() => ({
