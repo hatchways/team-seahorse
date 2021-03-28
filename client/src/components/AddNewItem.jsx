@@ -42,9 +42,9 @@ const AddNewItem = () => {
   const [listId, setListId] = useState("");
   const [modal, setModal] = useState(false);
 
-  const handleSubmit = () => {
-    submitLink(listId, link);
-    setModal(true);
+  const handleSubmit = async () => {
+    const modalOpen = await submitLink(listId, link);
+    setModal(modalOpen);
     setLink("");
   };
 

@@ -9,18 +9,23 @@ const productInit = {
 };
 
 const ProductProvider = ({ children }) => {
-  const { axiosWithAuth } = useContext(userContext);
+  const { axiosWithAuth, openSnackbar } = useContext(userContext);
 
   const [product, setProduct] = useState(productInit);
 
   const submitLink = async (listId, url) => {
     const requestBody = { url: url, listId: listId };
-
     try {
       const { data } = await axiosWithAuth().post(`/products`, requestBody);
-      setProduct(data.productData);
+      if (data.productData) {
+        setProduct(data.productData);
+        return true;
+      } else if (data.message) {
+        openSnackbar("warning", data.message);
+        return false;
+      }
     } catch (error) {
-      console.error(error);
+      console.log(error);
     }
   };
 
