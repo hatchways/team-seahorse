@@ -36,7 +36,13 @@ const ListCover = ({ list }) => {
   const classes = useStyles();
   const userContext = useContext(context);
 
-  const { updateIsListClicked, axiosWithAuth, openSnackbar } = userContext;
+  const {
+    updateIsListClicked,
+    axiosWithAuth,
+    openSnackbar,
+    updateCurrentList,
+    getListProducts,
+  } = userContext;
 
   const { title, id, items, imageUrl, isPrivate } = list;
 
