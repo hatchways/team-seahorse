@@ -13,9 +13,6 @@ import React, { useContext, useEffect, useState } from "react";
 import sample from "../images/sample.jpg";
 import { userContext as context } from "../providers/UsersProvider";
 
-import VisibilityOutlinedIcon from "@material-ui/icons/VisibilityOutlined";
-import VisibilityOffOutlinedIcon from "@material-ui/icons/VisibilityOffOutlined";
-
 const useStyles = makeStyles(() => ({
   cardContainer: {
     position: "relative",
@@ -27,9 +24,8 @@ const useStyles = makeStyles(() => ({
     position: "relative",
   },
   image: {
-    height: 260,
+    height: 280,
   },
-  content: {},
 }));
 
 const ListCover = ({ list }) => {
@@ -72,26 +68,32 @@ const ListCover = ({ list }) => {
           className={classes.card}
           elevation={0}
         >
-          <CardMedia className={classes.image} image={sample} />
-          <CardContent className={classes.content}>
+          <CardMedia className={classes.image} image={imageUrl} />
+          <CardContent>
             <Typography align="center">{title}</Typography>
             <Typography variant="subtitle1" align="center">
-              {items}
+              items: {items}
             </Typography>
           </CardContent>
         </CardActionArea>
-        <Box
-          position="absolute"
-          bottom="0"
-          left="0"
-          p={1}
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-        >
-          {toggle ? <VisibilityOffOutlinedIcon /> : <VisibilityOutlinedIcon />}
-          <Switch color="primary" checked={!toggle} onChange={toggleHandler} />
-        </Box>
+        <CardContent>
+          <Box
+            position="absolute"
+            bottom="0"
+            right="0"
+            p={1}
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+          >
+            <Switch color="primary" checked={toggle} onChange={toggleHandler} />
+            {toggle ? (
+              <Typography>Public</Typography>
+            ) : (
+              <Typography>Private</Typography>
+            )}
+          </Box>
+        </CardContent>
       </Card>
     </Grid>
   );
