@@ -2,7 +2,6 @@ const createError = require("http-errors");
 const http = require("http");
 const express = require("express");
 const socketIo = require("socket.io");
-const jwt = require("jsonwebtoken");
 const { join } = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
@@ -14,8 +13,8 @@ const listsRouter = require("./routes/lists");
 const productsRouter = require("./routes/products");
 const imageUploadRouter = require("./routes/imageUpload");
 const followRouter = require("./routes/follower");
-const notificationRouter = require("./routes/notification")
 const authorizeSocket = require("./middlewares/sockets/auth");
+const notificationRouter = require("./routes/notification");
 
 const { json, urlencoded } = express;
 
@@ -39,7 +38,7 @@ app.use("/lists", listsRouter);
 app.use("/products", productsRouter);
 app.use("/upload-image", imageUploadRouter);
 app.use("/followers", followRouter);
-app.use("/notification", notificationRouter)
+app.use("/notification", notificationRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -65,17 +64,26 @@ app.use(function (err, req, res, next) {
 const userSockets = {
   connections: {},
   addConnection: function (socket) {
-    if (socket.req.user.id in this.connections) {
-      this.connections[socket.req.user.id].push(socket);
-    } else this.connections[socket.req.user.id] = [socket];
+    const userId = socket.request.user.id;
+    if (userId in this.connections) {
+      this.connections[userId].push(socket);
+    } else this.connections[userId] = [socket];
+  },
+  removeConnection: function (socket) {
+    const userId = socket.request.user.id;
+    const connections = this.connections[userId];
+    connections.splice(connections.indexOf(socket), 1);
+    if (connections.length == 0) delete this.connections[userId];
   },
 };
 
 //Sets up websocket server.
 const httpServer = http.createServer(app);
 const io = socketIo(httpServer, {
+  //TODO: Might need to implement a CSRF token in case origin is forged.
   cors: {
     origin: [process.env.FRONTEND_DOMAIN],
+    credentials: true,
   },
   cookie: {
     name: "token",
@@ -90,6 +98,9 @@ io.on("connection", (socket) => {
     return;
   }
   userSockets.addConnection(socket);
+  socket.on("disconnect", () => {
+    userSockets.removeConnection(socket);
+  });
 });
 httpServer.listen(3002);
 

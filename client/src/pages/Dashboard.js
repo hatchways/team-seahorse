@@ -3,7 +3,6 @@ import React, { useContext } from "react";
 import AddNewItem from "../components/AddNewItem";
 import Lists from "../components/Lists";
 import { userContext as context } from "../providers/UsersProvider";
-import { socketContext } from "../providers/SocketProvider";
 
 const useStyles = makeStyles(() => ({
   root: {

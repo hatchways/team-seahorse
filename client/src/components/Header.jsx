@@ -103,10 +103,10 @@ const Header = () => {
               <Typography
                 className={classes.navItem}
                 component={Link}
-                to="/friends"
+                to="/followers"
                 color="textPrimary"
               >
-                Friends
+                Followers
               </Typography>
 
               <Badge badgeContent={notificationCount} color="primary">

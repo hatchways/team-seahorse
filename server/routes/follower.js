@@ -83,9 +83,31 @@ const followUser = async (req, res) => {
     ) {
       res
         .status(400)
-        .send({ errors: [{ msg: "Already following this user." }] });
+        .send({ errors: [{ msg: "Was already following this user." }] });
     }
     giveServerError(res);
+  }
+};
+
+const unfollowUser = async (req, res) => {
+  try {
+    const wasFollowing =
+      (await UserFollowerModel.destroy({
+        where: {
+          followerId: req.user.id,
+          followedId: req.params.userId,
+        },
+      })) == 1;
+    if (!wasFollowing) {
+      res.status(400).send({
+        errors: [{ msg: "Wasn't already following this user." }],
+      });
+      return;
+    }
+    res.status(201).send();
+  } catch (error) {
+    console.error(error);
+    giveServerError(error);
   }
 };
 
@@ -93,5 +115,6 @@ router.use(authMiddleware);
 router.get("/suggestions", getSuggestions);
 router.get("/following", getFollowedUsers);
 router.post("/follow/:userId", [followerIdCheck, validate, followUser]);
+router.post("/unfollow/:userId", [followerIdCheck, validate, unfollowUser]);
 
 module.exports = router;

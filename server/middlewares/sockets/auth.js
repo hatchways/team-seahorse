@@ -1,14 +1,17 @@
+const jwt = require("jsonwebtoken");
+const cookie = require("cookie");
+
 const authorize = (socket, next) => {
-  if (!("auth" in socket.handshake) || !("token" in socket.handshake.auth)) {
+  const token = socket.request.headers.cookie
+    ? cookie.parse(socket.request.headers.cookie).token
+    : undefined;
+  if (!token) {
     socket.request.error = "No token. Authorization denied.";
     next();
     return;
   }
   try {
-    const userObj = jwt.verify(
-      socket.handshake.auth.token,
-      process.env.JWT_SECRET
-    );
+    const userObj = jwt.verify(token, process.env.JWT_SECRET);
     socket.request.user = userObj;
   } catch (error) {
     console.error(error);
