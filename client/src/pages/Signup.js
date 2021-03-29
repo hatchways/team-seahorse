@@ -1,12 +1,12 @@
-import React from 'react'
+import React from "react";
 import AuthModal from "../components/AuthModal";
 
 const Signup = () => {
-    return (
-        <>
-            <AuthModal isAuthPage={true} />
-        </>
-    )
-}
+  return (
+    <>
+      <AuthModal isAuthPage={true} />
+    </>
+  );
+};
 
-export default Signup
+export default Signup;
