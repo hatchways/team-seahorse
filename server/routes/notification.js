@@ -43,11 +43,38 @@ router.put("/read/:id", authMiddleware, async (req, res) => {
   }
 });
 
+router.put("/read-all", authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.user;
+
+    const result = await NotificationModel.update(
+      { isRead: true },
+      {
+        where: {
+          userId: id,
+          isRead: false,
+        },
+        returning: true,
+      }
+    );
+
+    res.send({ result });
+  } catch (err) {
+    console.error(err);
+    res.send({
+      error: {
+        msg: "Server Error ",
+        data: err,
+      },
+    });
+  }
+});
+
 //Paginated querying of notifications of a user
 //Accepts "page" as a query. By default will be a 1.
 //Accepts "order" as a query. By default is "DESC" to show latest notifs first
 //Accepts "type" as a query. By default is an array of all types to show all types of notifications
-//Accepts "isRead" as a query. By default is false to show only unread notifs
+//Accepts "isRead" as a query. By default is [true, false] all regardles if read or not
 //Accepts "maxNotifications" as a query. By default is 10
 router.get("/get-notifications", authMiddleware, async (req, res) => {
   const { id: userId } = req.user;
@@ -60,8 +87,6 @@ router.get("/get-notifications", authMiddleware, async (req, res) => {
     isRead,
     maxNotifications
   );
-
-  console.log(validQueries)
 
   if (validQueries === false) {
     return res.status(400).send({
@@ -154,6 +179,7 @@ router.post("/price", async (req, res) => {
           price,
           previousPrice: productModel.currentPrice,
           listLocations: [userList.id],
+          imageUrl: productModel.imageUrl,
         };
 
         newNotifications[userList.userId] = {
@@ -207,6 +233,29 @@ router.post("/price", async (req, res) => {
   }
 });
 
+router.get("/get-count", authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.user;
+
+    const notificationCount = await NotificationModel.count({
+      where: {
+        isRead: false,
+        userId: id,
+      },
+    });
+
+    res.send({ length: notificationCount });
+  } catch (err) {
+    console.error(err);
+    res.send({
+      error: {
+        msg: "Server Error while using service",
+        data: err,
+      },
+    });
+  }
+});
+
 const validateQueryParams = (page, order, type, isRead, maxNotifications) => {
   const typesArray = Object.values(ALL_TYPES_OBJECT);
 
@@ -223,7 +272,6 @@ const validateQueryParams = (page, order, type, isRead, maxNotifications) => {
     page = 1;
   } else {
     if (isNaN(page)) {
-      console.log('object')
       return false;
     }
   }
@@ -243,14 +291,12 @@ const validateQueryParams = (page, order, type, isRead, maxNotifications) => {
     return false;
   }
 
-  if (!isRead) {
-    isRead = false;
-  } else {
-    if (isRead === "true") {
-      isRead = true;
-    } else if (isRead === "false") isRead = false;
-    else return false;
-  }
+  if (isRead === "true") {
+    isRead = true;
+  } else if (isRead === "false") isRead = false;
+  else if (isRead) return false;
+
+  isRead = [true, false];
 
   return { page, order, type, isRead, maxNotifications };
 };
