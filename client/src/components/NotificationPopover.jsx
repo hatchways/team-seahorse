@@ -18,19 +18,7 @@ const NotificationPopover = ({
 }) => {
   const classes = useStyles();
 
-  const { notifications, localReadAllNotification, token } = useContext(
-    userContext
-  );
-
-  const useForceUpdate = () => {
-    const [, forceUpdate] = React.useState();
-
-    return React.useCallback(() => {
-      forceUpdate((s) => !s);
-    }, []);
-  };
-
-  const forceRender = useForceUpdate();
+  const { notifications, localReadAllNotification } = useContext(userContext);
 
   return (
     <Popover
@@ -48,17 +36,10 @@ const NotificationPopover = ({
     >
       <Grid container direction="column" style={{}}>
         <Box className={classes.topBar}>
-          <Button
-            onClick={() => {
-              console.log(token);
-            }}
-          >
-            View All Notification
-          </Button>
+          <Button>View All Notification</Button>
           <Button
             onClick={() => {
               localReadAllNotification();
-              forceRender();
             }}
           >
             Mark as Read All

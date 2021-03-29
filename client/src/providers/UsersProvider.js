@@ -13,13 +13,15 @@ const UsersProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
   const [notificationCount, setNotificationCount] = useState(0);
 
-  //#region  List Related
+  //#region  List Related Variables
   const [currentList, setCurrentList] = useState({});
   const [isListClicked, setIsListClicked] = useState(false);
   const [isAddingProd, setIsAddingProd] = useState(false);
   const [currentListProducts, setCurrentListProducts] = useState([]);
   const [isLoadingListProducts, setIsLoadingListProducts] = useState(false);
   //#endregion
+
+  //#region User Related Functions
 
   const login = async (email, password) => {
     let data = await fetch("/user/sign-in", {
@@ -98,6 +100,8 @@ const UsersProvider = ({ children }) => {
     return { msg: "Error on obtaining user by id " };
   };
 
+  //#endregion
+
   const axiosWithAuth = () => {
     return axios.create({
       baseURL: process.env.REACT_APP_BACKEND,
@@ -114,7 +118,7 @@ const UsersProvider = ({ children }) => {
     }
   };
 
-  //#region List Related
+  //#region List Related Functions
 
   const updateIsListClicked = (bool) => {
     setIsListClicked(bool);
@@ -186,6 +190,8 @@ const UsersProvider = ({ children }) => {
     setIsSnackbarOpen(true);
   };
 
+  //#region Notification Realted Functions
+
   const getNotificationCount = async () => {
     const { data } = await axiosWithAuth().get("/notification/get-count");
 
@@ -202,7 +208,7 @@ const UsersProvider = ({ children }) => {
       setNotifications(data);
     } catch (err) {
       console.error(err);
-      openSnackbar("error", "There\'s a problem on our side, sorry!");
+      openSnackbar("error", "There's a problem on our side, sorry!");
     }
   };
 
@@ -216,7 +222,7 @@ const UsersProvider = ({ children }) => {
       return data;
     } catch (err) {
       console.error(err);
-      openSnackbar("error", "There\'s a problem on our side, sorry!");
+      openSnackbar("error", "There's a problem on our side, sorry!");
     }
   };
 
@@ -235,9 +241,11 @@ const UsersProvider = ({ children }) => {
       await axiosWithAuth().put("/notification/read-all");
     } catch (err) {
       console.error(err);
-      openSnackbar("error", "There\'s a problem on our side, sorry!");
+      openSnackbar("error", "There's a problem on our side, sorry!");
     }
   };
+
+  //#endregion
 
   const hoursDifference = (dt2, dt1) => {
     var diff = (dt2.getTime() - dt1.getTime()) / 1000;

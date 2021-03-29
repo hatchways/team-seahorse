@@ -85,15 +85,10 @@ const FollowedNotification = ({ notification, index }) => {
 
   const { readNotification, getTimeDifference } = useContext(userContext);
 
-  useEffect(() => {}, []);
-
   return (
     <Grid container className={classes.gridContainer}>
       <ButtonBase
         style={{ width: "400px", height: "100%" }}
-        onClick={() => {
-          console.log(Cookies.get("token"));
-        }}
         disableTouchRipple={isPaperDisabled}
       >
         <Paper
