@@ -2,7 +2,6 @@ const createError = require("http-errors");
 const http = require("http");
 const express = require("express");
 const socketIo = require("socket.io");
-const jwt = require("jsonwebtoken");
 const { join } = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
@@ -81,8 +80,10 @@ const userSockets = {
 //Sets up websocket server.
 const httpServer = http.createServer(app);
 const io = socketIo(httpServer, {
+  //TODO: Might need to implement a CSRF token in case origin is forged.
   cors: {
     origin: [process.env.FRONTEND_DOMAIN],
+    credentials: true,
   },
   cookie: {
     name: "token",
@@ -96,9 +97,7 @@ io.on("connection", (socket) => {
     socket.disconnect(true);
     return;
   }
-  console.log(socket.request.user);
   userSockets.addConnection(socket);
-  socket.send("test");
   socket.on("disconnect", () => {
     userSockets.removeConnection(socket);
   });
