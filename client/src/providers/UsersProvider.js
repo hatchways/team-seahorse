@@ -230,6 +230,7 @@ const UsersProvider = ({ children }) => {
         notification.isRead = true;
       });
       setNotifications(notifications);
+      setNotificationCount(0)
 
       await axiosWithAuth().put("/notification/read-all");
     } catch (err) {
