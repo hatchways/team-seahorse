@@ -8,27 +8,32 @@ import "./App.css";
 import Dashboard from "./pages/Dashboard";
 import Signin from "./pages/Signin";
 import Signup from "./pages/Signup";
+import Followers from "./pages/Followers";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Header from "./components/Header";
 import ProductProvider from "./providers/ProductProvider";
+import SocketProvider from "./providers/SocketProvider";
 
 function App() {
   return (
     <UsersProvider>
-      <ProductProvider>
-        <MuiThemeProvider theme={theme}>
-          <BrowserRouter>
-            <Header />
-            <Switch>
-              <ProtectedRoute path="/dashboard" component={Dashboard} />
-              <Route path="/sign-up" component={Signup} />
-              <Route path="/sign-in" component={Signin} />
-              <Route exact path="/" component={null} />
-              <Route render={() => <Redirect to="/404" />} />
-            </Switch>
-          </BrowserRouter>
-        </MuiThemeProvider>
-      </ProductProvider>
+      <SocketProvider>
+        <ProductProvider>
+          <MuiThemeProvider theme={theme}>
+            <BrowserRouter>
+              <Header />
+              <Switch>
+                <ProtectedRoute path="/dashboard" component={Dashboard} />
+                <ProtectedRoute path="/followers" component={Followers} />
+                <Route path="/sign-up" component={Signup} />
+                <Route path="/sign-in" component={Signin} />
+                <Route exact path="/" component={null} />
+                <Route render={() => <Redirect to="/404" />} />
+              </Switch>
+            </BrowserRouter>
+          </MuiThemeProvider>
+        </ProductProvider>
+      </SocketProvider>
     </UsersProvider>
   );
 }

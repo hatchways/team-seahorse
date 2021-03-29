@@ -91,10 +91,10 @@ const Header = () => {
               <Typography
                 className={classes.navItem}
                 component={Link}
-                to="/friends"
+                to="/followers"
                 color="textPrimary"
               >
-                Friends
+                Followers
               </Typography>
               <Typography color="textPrimary">Notifications</Typography>
             </Box>
