@@ -202,7 +202,7 @@ const UsersProvider = ({ children }) => {
       setNotifications(data);
     } catch (err) {
       console.error(err);
-      openSnackbar("error", "There's a proble1");
+      openSnackbar("error", "There\'s a problem on our side, sorry!");
     }
   };
 
@@ -216,7 +216,7 @@ const UsersProvider = ({ children }) => {
       return data;
     } catch (err) {
       console.error(err);
-      openSnackbar("error", "There's a prob2 sorry!");
+      openSnackbar("error", "There\'s a problem on our side, sorry!");
     }
   };
 
@@ -234,7 +234,7 @@ const UsersProvider = ({ children }) => {
       await axiosWithAuth().put("/notification/read-all");
     } catch (err) {
       console.error(err);
-      openSnackbar("error", "There'3y!");
+      openSnackbar("error", "There\'s a problem on our side, sorry!");
     }
   };
 
