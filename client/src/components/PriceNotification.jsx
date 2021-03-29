@@ -27,9 +27,9 @@ const useStyles = makeStyles((theme) => ({
   img: {
     borderRadius: "7px",
     maxWidth: "50px",
-    maxHeigh: '50px',
-    width: '50px',
-    height:'50px'
+    maxHeigh: "50px",
+    width: "50px",
+    height: "50px",
   },
   readIcon: {
     position: "absolute",
@@ -133,7 +133,9 @@ const PriceNotification = ({ notification, index }) => {
               </Typography>
 
               <span className={classes.time}>
-                {getTimeDifference(createdAt)} Hours ago
+                {getTimeDifference(createdAt) > 1
+                  ? `${getTimeDifference(createdAt)} Hours ago`
+                  : `${getTimeDifference(createdAt)} Hour ago`}
               </span>
             </Grid>
 

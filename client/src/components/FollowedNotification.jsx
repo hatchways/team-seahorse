@@ -122,7 +122,9 @@ const FollowedNotification = ({ notification, index }) => {
               </Typography>
 
               <span className={classes.time}>
-                {getTimeDifference(createdAt)} Hours ago
+                {getTimeDifference(createdAt) > 1
+                  ? `${getTimeDifference(createdAt)} Hours ago`
+                  : `${getTimeDifference(createdAt)} Hour ago`}
               </span>
             </Grid>
           </Grid>
