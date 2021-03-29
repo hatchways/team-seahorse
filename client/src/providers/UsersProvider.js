@@ -10,6 +10,8 @@ const UsersProvider = ({ children }) => {
   const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("Default Message");
   const [snackbarSeverity, setSnackbarSeverity] = useState("info");
+  const [notifications, setNotifications] = useState([]);
+  const [notificationCount, setNotificationCount] = useState(0);
 
   //#region  List Related
   const [currentList, setCurrentList] = useState({});
@@ -184,8 +186,75 @@ const UsersProvider = ({ children }) => {
     setIsSnackbarOpen(true);
   };
 
+  const getNotificationCount = async () => {
+    const { data } = await axiosWithAuth().get("/notification/get-count");
+
+    setNotificationCount(data.length);
+  };
+
+  const getNotifications = async () => {
+    try {
+      if (!user) return;
+
+      const { data } = await axiosWithAuth().get(
+        "/notification/get-notifications"
+      );
+      setNotifications(data);
+    } catch (err) {
+      console.error(err);
+      openSnackbar("error", "There's a proble1");
+    }
+  };
+
+  const readNotification = async (id, index) => {
+    try {
+      const { data } = await axiosWithAuth().put(`/notification/read/${id}`);
+
+      setNotificationCount(notificationCount - 1);
+      localReadNotification(index);
+
+      return data;
+    } catch (err) {
+      console.error(err);
+      openSnackbar("error", "There's a prob2 sorry!");
+    }
+  };
+
+  const localReadNotification = (index) => {
+    notifications[index].isRead = true;
+  };
+
+  const localReadAllNotification = async () => {
+    try {
+      notifications.forEach((notification) => {
+        notification.isRead = true;
+      });
+      setNotifications(notifications);
+
+      await axiosWithAuth().put("/notification/read-all");
+    } catch (err) {
+      console.error(err);
+      openSnackbar("error", "There'3y!");
+    }
+  };
+
+  const hoursDifference = (dt2, dt1) => {
+    var diff = (dt2.getTime() - dt1.getTime()) / 1000;
+    diff /= 60 * 60;
+    return Math.abs(Math.round(diff));
+  };
+
+  const getTimeDifference = (previousTime) => {
+    const currentTime = new Date();
+    const parsedInitialDate = new Date(previousTime);
+
+    return hoursDifference(currentTime, parsedInitialDate);
+  };
+
   useEffect(() => {
     getList();
+    getNotifications();
+    getNotificationCount();
     // eslint-disable-next-line
   }, [user]);
 
@@ -200,14 +269,16 @@ const UsersProvider = ({ children }) => {
         isAddingProd,
         isLoadingListProducts,
         currentList,
+        isSnackbarOpen,
+        snackbarMessage,
+        snackbarSeverity,
+        notifications,
+        notificationCount,
         removeProductInList,
         getListProducts,
         updateCurrentListProducts,
         updateCurrentList,
         setLists,
-        isSnackbarOpen,
-        snackbarMessage,
-        snackbarSeverity,
         login,
         register,
         getCurrentUser,
@@ -221,6 +292,9 @@ const UsersProvider = ({ children }) => {
         setIsAddingProd,
         openSnackbar,
         updateIsSnackbarOpen,
+        readNotification,
+        localReadAllNotification,
+        getTimeDifference,
       }}
     >
       {children}
