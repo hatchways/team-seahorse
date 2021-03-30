@@ -27,7 +27,7 @@ const imageUrlCheck = body("imageUrl")
 
 const isPrivateCheck = body("isPrivate")
   .isBoolean()
-  .withMessage("isPrivate must be a boolean");
+  .withMessage("isPrivate must be a boolean.");
 
 const titleOrImageUrlCheck = oneOf(
   [titleCheck, imageUrlCheck, isPrivateCheck],
