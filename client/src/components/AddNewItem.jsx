@@ -5,6 +5,7 @@ import {
   TextField,
   Button,
   InputBase,
+  CircularProgress,
 } from "@material-ui/core";
 import React, { useContext, useState } from "react";
 import { productContext } from "../providers/ProductProvider";
@@ -36,16 +37,23 @@ const useStyles = makeStyles(() => ({
 
 const AddNewItem = () => {
   const classes = useStyles();
-  const { lists } = useContext(userContext);
+  const { lists, openSnackbar } = useContext(userContext);
   const { submitLink } = useContext(productContext);
   const [link, setLink] = useState("");
   const [listId, setListId] = useState("");
   const [modal, setModal] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = () => {
-    submitLink(listId, link);
-    setModal(true);
-    setLink("");
+  const handleSubmit = async () => {
+    if (link && listId) {
+      setLoading(true);
+      const modalOpen = await submitLink(listId, link);
+      setModal(modalOpen);
+      setLink("");
+      setLoading(false);
+    } else {
+      openSnackbar("warning", "Link or list does not exist");
+    }
   };
 
   return (
@@ -89,7 +97,7 @@ const AddNewItem = () => {
           variant="contained"
           onClick={handleSubmit}
         >
-          Add
+          {loading ? <CircularProgress color="secondary" /> : "Add"}
         </Button>
       </Box>
       {modal && <ProductConfirmation setModal={setModal} />}

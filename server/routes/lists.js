@@ -19,8 +19,9 @@ const ProductModel = require("../models/productModel");
 const getLists = async (req, res) => {
   try {
     const results = await UserListModel.findAll({
-      attributes: ["id", "title", "items", "imageUrl"],
+      attributes: ["id", "title", "items", "imageUrl", "isPrivate"],
       where: { userId: req.user.id },
+      order: ["id"],
     });
     res.status(200).send(results);
   } catch (error) {
@@ -89,7 +90,11 @@ const createList = async (req, res) => {
 const changeList = async (req, res) => {
   try {
     const [affectedRows] = await UserListModel.update(
-      { title: req.body.title, imageUrl: req.body.imageUrl },
+      {
+        title: req.body.title,
+        imageUrl: req.body.imageUrl,
+        isPrivate: req.body.isPrivate,
+      },
       {
         where: {
           id: parseInt(req.params.listId),
@@ -101,7 +106,7 @@ const changeList = async (req, res) => {
       res.status(400).send({ errors: [{ msg: "No list with given ID." }] });
       return;
     }
-    res.status(201).send();
+    res.status(201).send({ message: "list updated successfully" });
   } catch (error) {
     console.error(error);
     //If title is not unique
