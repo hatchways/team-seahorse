@@ -4,10 +4,11 @@ const UserListModel = require("../models/userListModel");
 const db = require("../models");
 
 const getLists = async (req, res) => {
+  const userId = req.params.userId;
   try {
     const results = await UserListModel.findAll({
-      attributes: ["id", "title", "items", "imageUrl", "isPrivate"],
-      where: { isPrivate: false },
+      attributes: ["id", "title", "items", "imageUrl", "isPrivate", "userId"],
+      where: { userId: userId, isPrivate: false },
       order: ["id"],
     });
     res.status(200).send(results);
@@ -17,12 +18,14 @@ const getLists = async (req, res) => {
 };
 
 const getProductsofList = async (req, res) => {
+  const userId = req.params.userId;
   const listId = req.params.listId;
   try {
     const listFound = await UserListModel.findOne({
       where: {
         id: listId,
         isPrivate: false,
+        userId: userId,
       },
     });
 
@@ -34,11 +37,15 @@ const getProductsofList = async (req, res) => {
         WHERE ( "ListProducts"."listId" = ${parseInt(listId)} )
     `);
       res.status(200).send(products);
+    } else {
+      res.status(400).send({ error: { message: "You do not have access" } });
     }
-  } catch (error) {}
+  } catch (error) {
+    console.error(error);
+  }
 };
 
-router.get("/", getLists);
-router.get("/:listId", getProductsofList);
+router.get("/:userId", getLists);
+router.get("/:userId/:listId", getProductsofList);
 
 module.exports = router;
