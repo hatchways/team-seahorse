@@ -189,6 +189,25 @@ const UsersProvider = ({ children }) => {
     // eslint-disable-next-line
   }, [user]);
 
+  //handle toggle isPrivate
+  const updateIsPrivate = async (listId, isPrivate) => {
+    try {
+      const { data } = await axiosWithAuth().put(`/lists/${listId}`, {
+        isPrivate: !isPrivate,
+      });
+      openSnackbar("success", data.message);
+      const updatedLists = lists.map((list) => {
+        if (list.id === listId) {
+          return { ...list, isPrivate: !list.isPrivate };
+        }
+        return list;
+      });
+      setLists(updatedLists);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <userContext.Provider
       value={{
@@ -221,6 +240,7 @@ const UsersProvider = ({ children }) => {
         setIsAddingProd,
         openSnackbar,
         updateIsSnackbarOpen,
+        updateIsPrivate,
       }}
     >
       {children}

@@ -9,7 +9,7 @@ import {
   Switch,
   Typography,
 } from "@material-ui/core";
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import { userContext as context } from "../providers/UsersProvider";
 
 const useStyles = makeStyles(() => ({
@@ -33,30 +33,17 @@ const ListCover = ({ list }) => {
 
   const {
     updateIsListClicked,
-    axiosWithAuth,
-    openSnackbar,
     updateCurrentList,
     getListProducts,
+    updateIsPrivate,
   } = userContext;
 
   const { title, id, items, imageUrl, isPrivate } = list;
-
-  const [toggle, setToggle] = useState(isPrivate);
 
   const clickHandler = async () => {
     updateCurrentList(list);
     getListProducts(id);
     updateIsListClicked(true);
-  };
-
-  const toggleHandler = () => {
-    setToggle((toggle) => !toggle);
-    axiosWithAuth()
-      .put(`/lists/${id}`, { isPrivate: toggle })
-      .then((res) => {
-        openSnackbar("success", res.data.message);
-      })
-      .catch((err) => console.error(err));
   };
 
   return (
@@ -85,8 +72,12 @@ const ListCover = ({ list }) => {
             justifyContent="center"
             alignItems="center"
           >
-            <Switch color="primary" checked={toggle} onChange={toggleHandler} />
-            {toggle ? (
+            <Switch
+              color="primary"
+              checked={!isPrivate}
+              onChange={() => updateIsPrivate(id, isPrivate)}
+            />
+            {!isPrivate ? (
               <Typography>Public</Typography>
             ) : (
               <Typography>Private</Typography>

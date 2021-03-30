@@ -8,6 +8,8 @@ import {
   Button,
   TextField,
   IconButton,
+  FormControlLabel,
+  Checkbox,
 } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
 import { useState, useMemo, useContext } from "react";
@@ -49,6 +51,9 @@ const useStyles = makeStyles((theme) => ({
     width: 200,
     borderRadius: 5,
     margin: 5,
+  },
+  checkbox: {
+    paddingTop: 10,
   },
 }));
 
@@ -100,6 +105,7 @@ const NewListDialog = ({ isOpen, onClose, onAddList }) => {
 
   const [title, setTitle] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [isPrivate, setIsPrivate] = useState(true);
   const [awaitingResponse, setAwaitingResponse] = useState(false);
   const { axiosWithAuth } = useContext(userContext);
 
@@ -147,11 +153,18 @@ const NewListDialog = ({ isOpen, onClose, onAddList }) => {
       setAwaitingResponse(true);
       const result = await axios
         .create({ withCredentials: true })
-        .post("/lists", { title, imageUrl });
+        .post("/lists", { title, imageUrl, isPrivate });
       onClose();
-      onAddList({ id: result.data.id, title, imageUrl, items: 0 });
+      onAddList({
+        id: result.data.id,
+        title,
+        imageUrl,
+        items: 0,
+        isPrivate: isPrivate,
+      });
       setAwaitingResponse(false);
       setImageUrl("");
+      setIsPrivate(true);
     } catch (error) {
       //TODO: Error handling
       setAwaitingResponse(false);
@@ -206,6 +219,18 @@ const NewListDialog = ({ isOpen, onClose, onAddList }) => {
                 <p>Drag 'n' drop some files here, or click to select files</p>
               )}
             </div>
+            <FormControlLabel
+              className={classes.checkbox}
+              control={
+                <Checkbox
+                  checked={isPrivate}
+                  onChange={() => setIsPrivate((isPrivate) => !isPrivate)}
+                  name="isPrivate"
+                  color="primary"
+                />
+              }
+              label="Private"
+            />
           </Grid>
           <Grid item className={classes.formButton}>
             <Button
