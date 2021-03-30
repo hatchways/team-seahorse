@@ -21,6 +21,7 @@ const getLists = async (req, res) => {
     const results = await UserListModel.findAll({
       attributes: ["id", "title", "items", "imageUrl", "isPrivate"],
       where: { userId: req.user.id },
+      order: ["id"],
     });
     res.status(200).send(results);
   } catch (error) {
