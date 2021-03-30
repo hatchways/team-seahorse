@@ -23,42 +23,14 @@ const scrapeEbay = async (url) => {
     title = await getValue('//*[@id="itemTitle"]/text()', "textContent");
     price = await getValue('//*[@id="prcIsum"]', "textContent");
 
-    price = parsePrice(price);
+    price = parseFloat(price.split("$")[1].replace(",", ""));
   } catch (error) {
+    console.error(error);
     return Error;
   }
   browser.close();
 
   return { imageURL, title, price };
 };
-
-const parsePrice = (str) => {
-  let priceString = "";
-  let decimalFound = false;
-  for (let i = 0; i < str.length; i++) {
-    if (isCharNumber(str[i])) {
-      for (let x = i; x < str.length; x++) {
-        if (isCharNumber(str[x])) {
-          priceString += str[x];
-        } else {
-          if (!decimalFound) {
-            priceString += ".";
-            decimalFound = true;
-          } else {
-            return parseFloat(priceString);
-          }
-        }
-      }
-
-      return parseFloat(priceString);
-    }
-  }
-
-  return { msg: "No Number found" };
-};
-
-function isCharNumber(c) {
-  return c >= "0" && c <= "9";
-}
 
 module.exports = scrapeEbay;
