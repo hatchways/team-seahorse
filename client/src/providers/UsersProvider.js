@@ -76,6 +76,8 @@ const UsersProvider = ({ children }) => {
     await fetch("/user/sign-out");
     setUser(null);
     setToken(null);
+    setCurrentList({})
+    
   };
 
   const updateUser = (userData) => {
