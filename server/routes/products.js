@@ -85,48 +85,82 @@ const deleteProduct = async (req, res) => {
 const addProduct = async (req, res) => {
   const { url, listId } = req.body;
   const [scraper, company] = getCompany(url);
+  //query existing product list
+  const productFound = await ProductModel.findOne({
+    where: { link: url },
+  });
+  //if no existing product
+  if (!productFound) {
+    try {
+      const productData = await scraper(url);
+      const { title, price, imageURL } = productData;
+      const [_, priceNum] = price.split("$");
 
-  try {
-    const productData = await scraper(url);
-    const { title, price, imageURL } = productData;
-    const [_, priceNum] = price.split("$");
+      //check the if the price is 0 (scaper return 0 when the item is not avaliabe)
+      if (Number(priceNum) === 0) {
+        res
+          .status(200)
+          .send({ message: "Item is not available or not for sale" });
+      } else {
+        //add item
+        const result = await ProductModel.create({
+          currentPrice: Number(priceNum.replace(",", "")),
+          name: title,
+          imageUrl: imageURL,
+          link: url,
+          company: company,
+          isStillAvailable: true,
+        });
 
-    const result = await ProductModel.create({
-      currentPrice: Number(priceNum),
-      name: title,
-      imageUrl: imageURL,
-      link: url,
-      company: company,
-      isStillAvailable: true,
+        await ListProductModel.create({
+          listId,
+          productId: result.id,
+        });
+
+        const row = await UserList.findOne({ where: { id: listId } });
+
+        row.increment({ items: 1 });
+        res.status(200).send({ productData });
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  //if item is already existed in the products
+  if (productFound) {
+    //check if the item is already in the list
+    const productInList = await ListProductModel.findOne({
+      where: { listId: listId, productId: productFound.id },
     });
+    if (!productInList) {
+      try {
+        await ListProductModel.create({
+          listId,
+          productId: productFound.id,
+        });
+        const row = await UserList.findOne({ where: { id: listId } });
 
-    await ListProductModel.create({
-      listId,
-      productId: result.id,
-    });
-
-    const row = await UserList.findOne({
-      where: {
-        id: listId,
-      },
-    });
-
-    row.increment({
-      items: 1,
-    });
-
-    res.status(200).send({
-      productData,
-    });
-  } catch (error) {
-    console.error(error);
+        row.increment({ items: 1 });
+        const {
+          name: title,
+          currentPrice: price,
+          imageUrl: imageURL,
+        } = productFound;
+        res.status(200).send({ productData: { title, price, imageURL } });
+      } catch (error) {
+        console.error(error);
+      }
+    } else {
+      res.status(200).send({ message: "product is already in the list" });
+    }
   }
 };
 
 router.get("/get-all", async (req, res) => {
-  const {password} = req.headers
+  const { password } = req.headers;
 
-  if (password !== 'password') return res.status(401).send({msg: "Unauthorized Access"})
+  if (password !== "password")
+    return res.status(401).send({ msg: "Unauthorized Access" });
 
   const data = await ProductModel.findAll();
 

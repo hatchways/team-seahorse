@@ -1,12 +1,5 @@
 import React, { useContext } from "react";
-import {
-  Button,
-  makeStyles,
-  Paper,
-  Typography,
-  Box,
-  CircularProgress,
-} from "@material-ui/core";
+import { Button, makeStyles, Paper, Typography, Box } from "@material-ui/core";
 import { productContext } from "../providers/ProductProvider";
 
 const useStyles = makeStyles(() => ({
@@ -50,34 +43,31 @@ const ProductConfirmation = ({ setModal }) => {
       left="0"
       top="0"
       bgcolor="rgba(37, 35, 35, 0.541)"
+      zIndex="10"
     >
       <Paper className={classes.paper}>
-        {product.title ? (
-          <Box
-            p={5}
-            display="flex"
-            flexDirection="column"
-            alignItems="center"
-            justifyContent="space-between"
-            height="90%"
+        <Box
+          p={5}
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="space-between"
+          height="90%"
+        >
+          <Typography variant="h6">
+            {title}
+            <Typography>Price: {price}</Typography>
+          </Typography>
+          <img className={classes.image} src={imageURL} alt={title}></img>
+          <Button
+            className={classes.button}
+            color="primary"
+            variant="contained"
+            onClick={handleClose}
           >
-            <Typography variant="h6">
-              {title}
-              <Typography>Price: {price}</Typography>
-            </Typography>
-            <img className={classes.image} src={imageURL} alt={title}></img>
-            <Button
-              className={classes.button}
-              color="primary"
-              variant="contained"
-              onClick={handleClose}
-            >
-              Close
-            </Button>
-          </Box>
-        ) : (
-          <CircularProgress />
-        )}
+            Close
+          </Button>
+        </Box>
       </Paper>
     </Box>
   );
