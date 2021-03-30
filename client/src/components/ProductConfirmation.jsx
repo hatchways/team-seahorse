@@ -6,10 +6,12 @@ import {
   Typography,
   Box,
   CircularProgress,
+  IconButton,
 } from "@material-ui/core";
+import CloseIcon from "@material-ui/icons/Close";
 import { productContext } from "../providers/ProductProvider";
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   paper: {
     width: 600,
     height: 600,
@@ -30,12 +32,48 @@ const useStyles = makeStyles(() => ({
     borderRadius: 28,
     width: 142,
   },
+  closeButton: {
+    position: "absolute",
+    right: theme.spacing(1),
+    top: theme.spacing(1),
+    color: theme.palette.grey[500],
+  },
 }));
+
+const ProductConfirmationBody = ({ title, price, imageURL, handleClose }) => {
+  const classes = useStyles();
+  return (
+    <Box
+      p={5}
+      display="flex"
+      flexDirection="column"
+      alignItems="center"
+      justifyContent="space-between"
+      height="90%"
+    >
+      <Typography variant="h6">
+        {title}
+        <Typography>Price: {price}</Typography>
+      </Typography>
+      <img className={classes.image} src={imageURL} alt={title}></img>
+      <Button
+        className={classes.button}
+        color="primary"
+        variant="contained"
+        onClick={handleClose}
+      >
+        Close
+      </Button>
+    </Box>
+  );
+};
 
 const ProductConfirmation = ({ setModal }) => {
   const classes = useStyles();
-  const { product, clearProduct } = useContext(productContext);
-  const { title, price, imageURL } = product;
+  const {
+    product: { title, price, imageURL },
+    clearProduct,
+  } = useContext(productContext);
 
   const handleClose = () => {
     setModal((modal) => !modal);
@@ -52,35 +90,18 @@ const ProductConfirmation = ({ setModal }) => {
       bgcolor="rgba(37, 35, 35, 0.541)"
     >
       <Paper className={classes.paper}>
-        {product.title ? (
-          <Box
-            p={5}
-            display="flex"
-            flexDirection="column"
-            alignItems="center"
-            justifyContent="space-between"
-            height="90%"
-          >
-            <Typography variant="h6">
-              {title}
-              <Typography>Price: {price}</Typography>
-            </Typography>
-            <img className={classes.image} src={imageURL} alt={title}></img>
-            <Button
-              className={classes.button}
-              color="primary"
-              variant="contained"
-              onClick={handleClose}
-            >
-              Close
-            </Button>
-          </Box>
-        ) : (
-          <CircularProgress />
-        )}
+        <IconButton
+          className={classes.closeButton}
+          edge="start"
+          onClick={handleClose}
+          aria-label="close"
+        >
+          <CloseIcon />
+        </IconButton>
       </Paper>
     </Box>
   );
 };
 
 export default ProductConfirmation;
+export { ProductConfirmationBody };

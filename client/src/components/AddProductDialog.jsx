@@ -9,12 +9,12 @@ import {
   TextField,
   Typography,
 } from "@material-ui/core";
-import React, { useContext, useEffect, useState, forwardRef } from "react";
-import ProductConfirmation from "./ProductConfirmation";
+import React, { useContext, useEffect, useState } from "react";
+import { ProductConfirmationBody } from "./ProductConfirmation";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
-import { userContext as context } from "../providers/UsersProvider";
+import { userContext } from "../providers/UsersProvider";
+import { productContext } from "../providers/ProductProvider";
 import EditListDialog from "./EditListDialog";
-import axios from "axios";
 
 const useStyles = makeStyles(() => ({
   paper: {
@@ -70,17 +70,33 @@ const AddProductDialog = () => {
   const classes = useStyles();
   const [productUrl, setProductUrl] = useState("");
   const [isConfirming, setIsConfirming] = useState(false);
-  const { updateIsAddingProd, isAddingProd, currentList } = useContext(context);
+  const {
+    updateIsAddingProd,
+    isAddingProd,
+    currentList,
+    updateCurrentList,
+    updateIsListClicked,
+  } = useContext(userContext);
+  const {
+    product: { title, price, imageURL },
+    clearProduct,
+    submitLink,
+  } = useContext(productContext);
 
   useEffect(() => {
     //Get the products of the list then setLoading(false)
   }, []);
 
+  //TODO: Use submitLink function in `ProductProvider`
   const submitHandler = async () => {
-    await axios.create({ withCredentials: true }).post("/products/", {
-      url: productUrl,
-      listId: currentList.id,
-    });
+    await submitLink(currentList.id, productUrl);
+    setIsConfirming(true);
+  };
+  const handleClose = () => {
+    clearProduct();
+    updateIsAddingProd(false);
+    updateIsListClicked(false);
+    updateCurrentList({});
   };
   return (
     <>
@@ -92,7 +108,7 @@ const AddProductDialog = () => {
         hideBackdrop={true}
         maxWidth="md"
       >
-        <Slide direction="left" in={isAddingProd} mountOnEnter>
+        <Slide direction="left" in={isAddingProd && !isConfirming} mountOnEnter>
           <Paper className={classes.paper}>
             <IconButton
               className={classes.iconButton}
@@ -156,7 +172,7 @@ const AddProductDialog = () => {
                 className={classes.button}
                 color="primary"
                 variant="contained"
-                onClick={() => setIsConfirming(true)}
+                onClick={submitHandler}
               >
                 Add Item
               </Button>
@@ -165,7 +181,12 @@ const AddProductDialog = () => {
         </Slide>
         <Slide direction="left" in={isConfirming} mountOnEnter>
           <div>
-            <ProductConfirmation setModal={setIsConfirming} />
+            <ProductConfirmationBody
+              title={title}
+              price={price}
+              imageURL={imageURL}
+              handleClose={handleClose}
+            />
           </div>
         </Slide>
       </Dialog>
