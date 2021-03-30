@@ -45,7 +45,7 @@ ebayQueue.process(async (job) => {
     console.log(
       `Process finish at ${parseInt(
         new Date().getTime() / 1000 - seconds
-      )} seconds`
+      )} seconds\n`
     );
 
     await job.moveToCompleted();
@@ -76,7 +76,7 @@ ebayQueue2.process(async (job) => {
     console.log(
       `Process finish at ${parseInt(
         new Date().getTime() / 1000 - seconds
-      )} seconds`
+      )} seconds\n`
     );
 
     await job.moveToCompleted();
@@ -108,7 +108,7 @@ amazonQueue.process(async (job) => {
     console.log(
       `Process finish at ${parseInt(
         new Date().getTime() / 1000 - seconds
-      )} seconds`
+      )} seconds\n`
     );
 
     await job.moveToCompleted();
@@ -140,7 +140,7 @@ amazonQueue2.process(async (job) => {
     console.log(
       `Process finish at ${parseInt(
         new Date().getTime() / 1000 - seconds
-      )} seconds`
+      )} seconds\n`
     );
 
     await job.moveToCompleted();
@@ -171,7 +171,7 @@ craigslistQueue.process(async (job) => {
     console.log(
       `Process finish at ${parseInt(
         new Date().getTime() / 1000 - seconds
-      )} seconds`
+      )} seconds\n`
     );
 
     await job.moveToCompleted();
@@ -202,7 +202,7 @@ craigslistQueue2.process(async (job) => {
     console.log(
       `Process finish at ${parseInt(
         new Date().getTime() / 1000 - seconds
-      )} seconds`
+      )} seconds\n`
     );
 
     await job.moveToCompleted();
