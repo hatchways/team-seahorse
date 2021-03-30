@@ -50,6 +50,7 @@ const ProductConfirmation = ({ setModal }) => {
       left="0"
       top="0"
       bgcolor="rgba(37, 35, 35, 0.541)"
+      zIndex="10"
     >
       <Paper className={classes.paper}>
         {product.title ? (

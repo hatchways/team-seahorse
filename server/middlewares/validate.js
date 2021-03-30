@@ -24,9 +24,14 @@ const titleCheck = body("title")
 const imageUrlCheck = body("imageUrl")
   .isURL()
   .withMessage("imageUrl must be a URL.");
+
+const isPrivateCheck = body("isPrivate")
+  .isBoolean()
+  .withMessage("isPrivate must be a boolean");
+
 const titleOrImageUrlCheck = oneOf(
-  [titleCheck, imageUrlCheck],
-  "either title or imageUrl must be present."
+  [titleCheck, imageUrlCheck, isPrivateCheck],
+  "either title or imageUrl or isPrivate must be present."
 );
 const followerIdCheck = param("userId")
   .isNumeric()
