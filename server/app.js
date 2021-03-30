@@ -15,6 +15,7 @@ const imageUploadRouter = require("./routes/imageUpload");
 const followRouter = require("./routes/follower");
 const authorizeSocket = require("./middlewares/sockets/auth");
 const notificationRouter = require("./routes/notification");
+const publicListsRouter = require("./routes/publicLists");
 
 const { json, urlencoded } = express;
 
@@ -39,6 +40,7 @@ app.use("/products", productsRouter);
 app.use("/upload-image", imageUploadRouter);
 app.use("/followers", followRouter);
 app.use("/notification", notificationRouter);
+app.use("/publicLists", publicListsRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -85,9 +87,9 @@ const io = socketIo(httpServer, {
     origin: [process.env.FRONTEND_DOMAIN],
     credentials: true,
   },
-  cookie: {
-    name: "token",
-  },
+  // cookie: {
+  //   name: "token",
+  // },
 });
 io.use(authorizeSocket);
 io.on("connection", (socket) => {
