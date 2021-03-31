@@ -20,8 +20,8 @@ const useStyles = makeStyles(() => ({
   img: {
     borderRadius: "7px",
     margin: "15px",
-    maxWidth: "100px",
-    maxHeight: "100px",
+    width: "100px",
+    height: "100px",
   },
   previousPrice: {
     textDecoration: "line-through",
