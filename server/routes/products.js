@@ -157,14 +157,18 @@ const addProduct = async (req, res) => {
 };
 
 router.get("/get-all", async (req, res) => {
-  const { password } = req.headers;
+  try {
+    const { password } = req.headers;
 
-  if (password !== "password")
-    return res.status(401).send({ msg: "Unauthorized Access" });
+    if (password !== process.env.SCRAPER_PASSWORD)
+      return res.status(401).send({ msg: "Unauthorized Access" });
 
-  const data = await ProductModel.findAll();
-
-  res.send(data);
+    const data = await ProductModel.findAll();
+    res.send(data);
+  } catch (error) {
+    console.error(error);
+    giveServerError(res);
+  }
 });
 
 router.use(authMiddleware);

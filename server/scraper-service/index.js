@@ -32,7 +32,7 @@ ebayQueue.process(async (job) => {
   console.log(`Ebay 1 : Job Starting: ${id}`);
 
   try {
-    var seconds = new Date().getTime() / 1000;
+    let seconds = new Date().getTime() / 1000;
     const results = await scrapeEbayProduct(link, id, 1);
     const { data } = await checkPriceThenUpdateDb(
       currentPrice,
@@ -63,7 +63,7 @@ ebayQueue2.process(async (job) => {
   console.log(`Ebay 2 : Job Starting: ${id}`);
 
   try {
-    var seconds = new Date().getTime() / 1000;
+    let seconds = new Date().getTime() / 1000;
     const results = await scrapeEbayProduct(link, id, 1);
     const { data } = await checkPriceThenUpdateDb(
       currentPrice,
@@ -95,7 +95,7 @@ amazonQueue.process(async (job) => {
   console.log(`Amazon 1 : Job Starting: ${id}`);
 
   try {
-    var seconds = new Date().getTime() / 1000;
+    let seconds = new Date().getTime() / 1000;
     const results = await scrapeAmazonProduct(link, id, 2);
     const { data } = await checkPriceThenUpdateDb(
       currentPrice,
@@ -127,7 +127,7 @@ amazonQueue2.process(async (job) => {
   console.log(`Amazon 2  : Job Starting: ${id}`);
 
   try {
-    var seconds = new Date().getTime() / 1000;
+    let seconds = new Date().getTime() / 1000;
     const results = await scrapeAmazonProduct(link, id, 2);
     const { data } = await checkPriceThenUpdateDb(
       currentPrice,
@@ -158,7 +158,7 @@ craigslistQueue.process(async (job) => {
   console.log(`Craigslist 1 : Job Starting: ${id}`);
 
   try {
-    var seconds = new Date().getTime() / 1000;
+    let seconds = new Date().getTime() / 1000;
     const results = await scrapeCraigslistProduct(link, id, 1);
     const { data } = await checkPriceThenUpdateDb(
       currentPrice,
@@ -189,7 +189,7 @@ craigslistQueue2.process(async (job) => {
   console.log(`Craigslist 2 : Job Starting: ${id}`);
 
   try {
-    var seconds = new Date().getTime() / 1000;
+    let seconds = new Date().getTime() / 1000;
     const results = await scrapeCraigslistProduct(link, id, 2);
     const { data } = await checkPriceThenUpdateDb(
       currentPrice,
