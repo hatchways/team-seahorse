@@ -206,6 +206,7 @@ const UsersProvider = ({ children }) => {
         "/notification/get-notifications"
       );
       setNotifications(data);
+      getNotificationCount()
     } catch (err) {
       console.error(err);
       openSnackbar("error", "There's a problem on our side, sorry!");
@@ -324,6 +325,7 @@ const UsersProvider = ({ children }) => {
         localReadAllNotification,
         getTimeDifference,
         updateIsPrivate,
+        getNotifications,
       }}
     >
       {children}
