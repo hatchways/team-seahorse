@@ -108,84 +108,91 @@ const AddProductDialog = () => {
         hideBackdrop={true}
         maxWidth="md"
       >
-        <Slide direction="left" in={isAddingProd && !isConfirming} mountOnEnter>
-          <Paper className={classes.paper}>
-            <IconButton className={classes.iconButton} onClick={handleClose}>
-              <ArrowBackIcon fontSize="large" />
-            </IconButton>
+        <Paper className={classes.paper}>
+          <Slide
+            direction="left"
+            in={isAddingProd && !isConfirming}
+            mountOnEnter
+            unmountOnExit
+          >
+            <div>
+              <IconButton className={classes.iconButton} onClick={handleClose}>
+                <ArrowBackIcon fontSize="large" />
+              </IconButton>
 
-            <Grid container direction="column">
-              <Grid item>
-                <Typography variant="h4" className={classes.newItem}>
-                  Add new item:
-                </Typography>
+              <Grid container direction="column">
+                <Grid item>
+                  <Typography variant="h4" className={classes.newItem}>
+                    Add new item:
+                  </Typography>
+                </Grid>
+
+                <Grid item>
+                  <Typography variant="h5" className={classes.linkToItem}>
+                    Paste link to item:
+                  </Typography>
+                </Grid>
+
+                <Grid item className={classes.grid}>
+                  <TextField
+                    className={classes.textField}
+                    placeholder="Product Link"
+                    InputProps={{
+                      disableUnderline: true,
+                    }}
+                    onChange={(e) => setProductUrl(e.target.value)}
+                  ></TextField>
+                </Grid>
+                {!currentList && (
+                  <>
+                    <Grid item>
+                      <Typography
+                        variant="h5"
+                        className={classes.selectListHeader}
+                      >
+                        Select List
+                      </Typography>
+                    </Grid>
+
+                    <Grid item className={classes.grid}>
+                      <TextField
+                        select
+                        InputProps={{
+                          disableUnderline: true,
+                        }}
+                        label="Select List"
+                        style={{
+                          width: "250px",
+                          backgroundColor: "white",
+                          borderRadius: "7px",
+                        }}
+                      ></TextField>
+                    </Grid>
+                  </>
+                )}
+
+                <Button
+                  className={classes.button}
+                  color="primary"
+                  variant="contained"
+                  onClick={submitHandler}
+                >
+                  Add Item
+                </Button>
               </Grid>
-
-              <Grid item>
-                <Typography variant="h5" className={classes.linkToItem}>
-                  Paste link to item:
-                </Typography>
-              </Grid>
-
-              <Grid item className={classes.grid}>
-                <TextField
-                  className={classes.textField}
-                  placeholder="Product Link"
-                  InputProps={{
-                    disableUnderline: true,
-                  }}
-                  onChange={(e) => setProductUrl(e.target.value)}
-                ></TextField>
-              </Grid>
-              {!currentList && (
-                <>
-                  <Grid item>
-                    <Typography
-                      variant="h5"
-                      className={classes.selectListHeader}
-                    >
-                      Select List
-                    </Typography>
-                  </Grid>
-
-                  <Grid item className={classes.grid}>
-                    <TextField
-                      select
-                      InputProps={{
-                        disableUnderline: true,
-                      }}
-                      label="Select List"
-                      style={{
-                        width: "250px",
-                        backgroundColor: "white",
-                        borderRadius: "7px",
-                      }}
-                    ></TextField>
-                  </Grid>
-                </>
-              )}
-
-              <Button
-                className={classes.button}
-                color="primary"
-                variant="contained"
-                onClick={submitHandler}
-              >
-                Add Item
-              </Button>
-            </Grid>
-          </Paper>
-        </Slide>
-        <Slide direction="left" in={isConfirming} mountOnEnter>
-          <div>
-            <ProductConfirmationBody
-              title={title}
-              price={price}
-              imageURL={imageURL}
-              handleClose={handleClose}
-            />
-          </div>
-        </Slide>
+            </div>
+          </Slide>
+          <Slide direction="left" in={isConfirming} mountOnEnter>
+            <div>
+              <ProductConfirmationBody
+                title={title}
+                price={price}
+                imageURL={imageURL}
+                handleClose={handleClose}
+              />
+            </div>
+          </Slide>
+        </Paper>
       </Dialog>
     </>
   );
