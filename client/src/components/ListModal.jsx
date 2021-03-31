@@ -10,8 +10,6 @@ const ListModal = () => {
 
   return (
     <>
-      <EditListDialog />
-
       <AddProductDialog />
     </>
   );

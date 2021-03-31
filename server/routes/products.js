@@ -99,7 +99,7 @@ const addProduct = async (req, res) => {
       //check the if the price is 0 (scaper return 0 when the item is not avaliabe)
       if (Number(priceNum) === 0) {
         res
-          .status(200)
+          .status(400)
           .send({ message: "Item is not available or not for sale" });
       } else {
         //add item
@@ -120,10 +120,11 @@ const addProduct = async (req, res) => {
         const row = await UserList.findOne({ where: { id: listId } });
 
         row.increment({ items: 1 });
-        res.status(200).send({ productData });
+        res.status(201).send({ productData });
       }
     } catch (error) {
       console.error(error);
+      giveServerError(res);
     }
   }
   //if item is already existed in the products
@@ -149,6 +150,7 @@ const addProduct = async (req, res) => {
         res.status(200).send({ productData: { title, price, imageURL } });
       } catch (error) {
         console.error(error);
+        giveServerError(res);
       }
     } else {
       res.status(200).send({ message: "product is already in the list" });
