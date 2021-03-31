@@ -2,7 +2,6 @@ import { Grid, makeStyles } from "@material-ui/core";
 import React, { useContext } from "react";
 import AddNewItem from "../components/AddNewItem";
 import Lists from "../components/Lists";
-import { userContext as context } from "../providers/UsersProvider";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -16,31 +15,24 @@ const useStyles = makeStyles(() => ({
 
 const Dashboard = () => {
   const classes = useStyles();
-  const userContext = useContext(context);
-
-  const { user } = userContext;
 
   return (
-    <>
-      {!user ? null : (
-        <Grid container className={classes.root} direction="column">
-          <Grid
-            item
-            container
-            className={classes.bodyContainer}
-            alignItems="center"
-            direction="column"
-          >
-            <Grid item>
-              <AddNewItem />
-            </Grid>
-            <Grid item>
-              <Lists />
-            </Grid>
-          </Grid>
+    <Grid container className={classes.root} direction="column">
+      <Grid
+        item
+        container
+        className={classes.bodyContainer}
+        alignItems="center"
+        direction="column"
+      >
+        <Grid item>
+          <AddNewItem />
         </Grid>
-      )}
-    </>
+        <Grid item>
+          <Lists />
+        </Grid>
+      </Grid>
+    </Grid>
   );
 };
 
