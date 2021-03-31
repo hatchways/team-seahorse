@@ -1,5 +1,4 @@
 import {
-  Button,
   Grid,
   makeStyles,
   Paper,
@@ -11,7 +10,7 @@ import React, { useContext, useEffect, useState, useRef } from "react";
 import FollowerNotificationPaper from "../components/FollowerNotificationPaper";
 import PriceNotificationPaper from "../components/PriceNotificationPaper";
 import { userContext } from "../providers/UsersProvider";
-import { PRICE, FOLLOWED, ALL_TYPES_OBJECT } from "../utils/enums";
+import { PRICE, FOLLOWED } from "../utils/enums";
 import { useBottomScrollListener } from "react-bottom-scroll-listener";
 
 const useStyles = makeStyles(() => ({
@@ -43,7 +42,7 @@ const AllNotifications = () => {
   const classes = useStyles();
   const listInnerRef = useRef();
 
-  const { getNotifications, loadUser, user } = useContext(userContext);
+  const { getNotifications, user } = useContext(userContext);
 
   const [value, setValue] = React.useState(0);
   const [notifications, setNotifications] = useState([]);
