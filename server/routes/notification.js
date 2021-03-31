@@ -6,6 +6,7 @@ const ProductModel = require("../models/productModel");
 const UserListModel = require("../models/userListModel");
 const { ALL_TYPES_OBJECT } = require("../utils/enums");
 const router = require("express").Router();
+const userSockets = require("../sockets/userSockets");
 
 //Make the given notification id read
 router.put("/read/:id", authMiddleware, async (req, res) => {
@@ -130,7 +131,7 @@ router.get("/get-notifications", authMiddleware, async (req, res) => {
 //Will be used by a service
 router.post("/price", async (req, res) => {
   const transaction = await sequelize.transaction();
-  const { productId, title, price } = req.body;
+  const { productId, name, price } = req.body;
 
   try {
     //Get the product with the price change
@@ -174,7 +175,7 @@ router.post("/price", async (req, res) => {
       //If we havent made a data object for the user, make one.
       if (!newNotifications[userList.userId]) {
         const data = {
-          title,
+          name,
           productId,
           price,
           previousPrice: productModel.currentPrice,
@@ -218,13 +219,36 @@ router.post("/price", async (req, res) => {
       }
     );
 
+    //Hashmap for keeping track who are the users that we already sent an event to
+    let notifiedUsers = {};
+
+    //We iterate the userLists which contains all the affected users of the price change.
+    //We check here if the user is NOT in the notifiedUsers hashmap, if so we emit an event
+    //and add the userId to the hashmap so that if the users userId comes up again, we dont
+    //send them another emit again.
+    userLists.forEach((userList) => {
+      let stringUserId = `${userList.userId}`;
+
+      if (
+        //is User connected and is User not Notified yet?
+        userSockets.connections[stringUserId] &&
+        !notifiedUsers[stringUserId]
+      ) {
+        userSockets.connections[stringUserId][0].emit("new-notifications");
+
+        userSockets.connections[stringUserId].forEach((socket) => {
+          socket.emit("new-notifications");
+        });
+        notifiedUsers[stringUserId] = true;
+      }
+    });
     await transaction.commit();
 
     res.status(201).send({ msg: "Success" });
   } catch (error) {
     await transaction.rollback();
     console.error(error);
-    res.send({
+    res.status(400).send({
       error: {
         msg: "Server Error while using service",
         data: error,
