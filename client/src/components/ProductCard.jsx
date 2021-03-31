@@ -4,10 +4,10 @@ import {
   Grid,
   Typography,
   makeStyles,
+  Link,
 } from "@material-ui/core";
 
 import React, { useContext } from "react";
-import sample from "../images/productIcon.jpg";
 import { userContext as context } from "../providers/UsersProvider";
 
 const useStyles = makeStyles(() => ({
@@ -21,6 +21,7 @@ const useStyles = makeStyles(() => ({
     borderRadius: "7px",
     margin: "15px",
     maxWidth: "100px",
+    maxHeight: "100px",
   },
   previousPrice: {
     textDecoration: "line-through",
@@ -48,32 +49,33 @@ const ProductCard = ({ product }) => {
 
   const { currentList, removeProductInList } = userContext;
   const { id: listId } = currentList;
-  const { name, currentPrice, previousPrice, link, id: productId } = product;
+  const {
+    name,
+    currentPrice,
+    previousPrice,
+    link,
+    id: productId,
+    imageUrl,
+  } = product;
 
   return (
     <Card className={classes.card}>
-      <img src={sample} className={classes.img} />
+      <img src={imageUrl} className={classes.img} alt={name} />
 
       <Grid container direction="column" style={{ marginTop: "15px" }}>
         <Grid item>
-          <Typography variant="h6" style={{ lineHeight: "20px" }}>
+          <Typography
+            variant="h6"
+            component={Link}
+            href={link}
+            color="textPrimary"
+            style={{ lineHeight: "20px" }}
+          >
             {name}
           </Typography>
         </Grid>
         <Grid item>
-          <Typography
-            style={{
-              color: "gray",
-              fontStyle: "italic",
-              cursor: "pointer",
-              fontWeight: "lighter",
-            }}
-          >
-            {link}
-          </Typography>
-        </Grid>
-        <Grid item>
-          <Typography variant="h5">
+          <Typography variant="subtitle1">
             <span hidden={!previousPrice} className={classes.previousPrice}>
               {currentPrice}
             </span>{" "}

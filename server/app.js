@@ -85,9 +85,9 @@ const io = socketIo(httpServer, {
     origin: [process.env.FRONTEND_DOMAIN],
     credentials: true,
   },
-  cookie: {
-    name: "token",
-  },
+  // cookie: {
+  //   name: "token",
+  // },
 });
 io.use(authorizeSocket);
 io.on("connection", (socket) => {
