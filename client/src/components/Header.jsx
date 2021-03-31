@@ -8,11 +8,13 @@ import {
   Button,
   Popover,
   MenuItem,
+  Badge,
 } from "@material-ui/core";
 import React, { useContext, useEffect } from "react";
 import { Link, useHistory } from "react-router-dom";
 import logo from "../images/logo.png";
 import { userContext as context } from "../providers/UsersProvider";
+import NotificationPopover from "./NotificationPopover";
 import SnackbarAlert from "./SnackbarAlert";
 
 const useStyles = makeStyles((theme) => ({
@@ -39,9 +41,11 @@ const Header = () => {
   const history = useHistory();
   const userContext = useContext(context);
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const [anchorNotification, setAnchorNotification] = React.useState(null);
   const open = Boolean(anchorEl);
+  const notificationOpen = Boolean(anchorNotification);
 
-  const { logout, user, loadUser } = userContext;
+  const { logout, user, loadUser, notificationCount } = userContext;
 
   useEffect(async () => {
     acquireUser();
@@ -53,6 +57,14 @@ const Header = () => {
 
   const handleClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleClickNotification = (event) => {
+    setAnchorNotification(event.currentTarget);
+  };
+
+  const handleCloseNotification = () => {
+    setAnchorNotification(null);
   };
 
   const signoutHandler = async () => {
@@ -97,7 +109,18 @@ const Header = () => {
               >
                 Followers
               </Typography>
-              <Typography color="textPrimary">Notifications</Typography>
+
+              <Badge badgeContent={notificationCount} color="primary">
+                <Button color="textPrimary" onClick={handleClickNotification}>
+                  Notifications
+                </Button>
+              </Badge>
+
+              <NotificationPopover
+                handleCloseNotification={handleCloseNotification}
+                anchorNotification={anchorNotification}
+                notificationOpen={notificationOpen}
+              />
             </Box>
             <Box
               display="flex"
