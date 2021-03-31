@@ -9,7 +9,7 @@ import {
 import AssignmentTurnedInIcon from "@material-ui/icons/AssignmentTurnedIn";
 import ArrowUpwardIcon from "@material-ui/icons/ArrowUpward";
 import ArrowDownwardIcon from "@material-ui/icons/ArrowDownward";
-import React, { useContext, useEffect, useState, useForceUpdate } from "react";
+import React, { useContext, useState } from "react";
 import { userContext } from "../providers/UsersProvider";
 
 const useStyles = makeStyles((theme) => ({

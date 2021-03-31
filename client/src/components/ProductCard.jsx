@@ -75,10 +75,10 @@ const ProductCard = ({ product }) => {
         <Grid item>
           <Typography variant="h5">
             <span hidden={!previousPrice} className={classes.previousPrice}>
-              {currentPrice}
+              {previousPrice}
             </span>{" "}
             <span className={classes.newPrice}>
-              {previousPrice ? previousPrice : currentPrice}
+              {previousPrice ? currentPrice : previousPrice}
             </span>
           </Typography>
         </Grid>

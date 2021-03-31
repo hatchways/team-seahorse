@@ -1,5 +1,6 @@
 import { Grid, Popover, makeStyles, Box, Button } from "@material-ui/core";
 import React, { useContext } from "react";
+import { useHistory } from "react-router";
 import { userContext } from "../providers/UsersProvider";
 import BaseNotification from "./BaseNotification";
 const useStyles = makeStyles((theme) => ({
@@ -17,6 +18,7 @@ const NotificationPopover = ({
   notificationOpen,
 }) => {
   const classes = useStyles();
+  const history = useHistory()
 
   const { notifications, localReadAllNotification } = useContext(userContext);
 
@@ -36,7 +38,12 @@ const NotificationPopover = ({
     >
       <Grid container direction="column" style={{}}>
         <Box className={classes.topBar}>
-          <Button>View All Notification</Button>
+          <Button
+            onClick = { () => {
+              history.push('/notifications-all')
+              handleCloseNotification()
+            }}
+          >View All Notification</Button>
           <Button
             onClick={() => {
               localReadAllNotification();

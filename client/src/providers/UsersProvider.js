@@ -90,6 +90,7 @@ const UsersProvider = ({ children }) => {
 
   const loadUser = async () => {
     const tokenUserData = await getCurrentUser();
+    console.log(tokenUserData);
 
     if (tokenUserData.user) {
       const data = await getUserById(tokenUserData.user.id);
@@ -198,14 +199,16 @@ const UsersProvider = ({ children }) => {
     setNotificationCount(data.length);
   };
 
-  const getNotifications = async () => {
+  const getNotifications = async (params = {}) => {
     try {
-      if (!user) return;
-
+      if (!user) return [];
       const { data } = await axiosWithAuth().get(
-        "/notification/get-notifications"
+        "/notification/get-notifications",
+        {
+          params,
+        }
       );
-      setNotifications(data);
+      return data;
     } catch (err) {
       console.error(err);
       openSnackbar("error", "There's a problem on our side, sorry!");
@@ -236,13 +239,18 @@ const UsersProvider = ({ children }) => {
         notification.isRead = true;
       });
       setNotifications(notifications);
-      setNotificationCount(0)
+      setNotificationCount(0);
 
       await axiosWithAuth().put("/notification/read-all");
     } catch (err) {
       console.error(err);
       openSnackbar("error", "There's a problem on our side, sorry!");
     }
+  };
+
+  const updateNotifications = async () => {
+    const notificationsLists = await getNotifications();
+    setNotifications(notificationsLists);
   };
 
   //#endregion
@@ -262,7 +270,7 @@ const UsersProvider = ({ children }) => {
 
   useEffect(() => {
     getList();
-    getNotifications();
+    updateNotifications();
     getNotificationCount();
     // eslint-disable-next-line
   }, [user]);
@@ -324,6 +332,7 @@ const UsersProvider = ({ children }) => {
         localReadAllNotification,
         getTimeDifference,
         updateIsPrivate,
+        getNotifications,
       }}
     >
       {children}

@@ -180,6 +180,7 @@ router.post("/price", async (req, res) => {
           previousPrice: productModel.currentPrice,
           listLocations: [userList.id],
           imageUrl: productModel.imageUrl,
+          link: productModel.link,
         };
 
         newNotifications[userList.userId] = {
@@ -264,6 +265,7 @@ const validateQueryParams = (page, order, type, isRead, maxNotifications) => {
   } else {
     type = type.toLowerCase();
     if (!ALL_TYPES_OBJECT[type.toUpperCase()]) {
+        console.log("returnign error");
       return false;
     }
   }

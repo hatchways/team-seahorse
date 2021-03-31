@@ -53,9 +53,9 @@ const deleteProduct = async (req, res) => {
     DELETE FROM "ListProducts"
     USING "UserLists"
     WHERE (
-        "ListProducts".listId = "UserLists".id
-        AND "ListProducts".productId = ${productId} AND "ListProducts".listId = ${listId}
-        AND "UserLists".userId = ${req.user.id}
+        "ListProducts"."listId" = "UserLists".id
+        AND "ListProducts"."productId" = ${productId} AND "ListProducts"."listId" = ${listId}
+        AND "UserLists"."userId" = ${req.user.id}
     )
   `,
       { transaction }
