@@ -8,8 +8,6 @@ import {
   Typography,
   Dialog,
   DialogTitle,
-  List,
-  ListItem,
   Link,
   Box,
 } from "@material-ui/core";
@@ -127,7 +125,11 @@ const PublicLists = () => {
                   <Card elevation={0} className={classes.product}>
                     <CardMedia image={imageUrl} className={classes.img} />
                     <CardContent className={classes.content}>
-                      <Typography component={Link} href={link}>
+                      <Typography
+                        component={Link}
+                        href={link}
+                        color="textPrimary"
+                      >
                         {name}
                       </Typography>
                       <Typography>{currentPrice}</Typography>

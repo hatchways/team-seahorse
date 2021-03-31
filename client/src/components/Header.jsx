@@ -76,6 +76,7 @@ const Header = () => {
           width={229}
           height={28}
           px={5}
+          onClick={() => history.push("/dashboard")}
         />
         {user && (
           <>
