@@ -193,9 +193,12 @@ const UsersProvider = ({ children }) => {
   //#region Notification Realted Functions
 
   const getNotificationCount = async () => {
-    const { data } = await axiosWithAuth().get("/notification/get-count");
-
-    setNotificationCount(data.length);
+    try {
+      const { data } = await axiosWithAuth().get("/notification/get-count");
+      setNotificationCount(data.length);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const getNotifications = async () => {
