@@ -138,14 +138,6 @@ const AllNotifications = () => {
         </Tabs>
       </Paper>
 
-      <Button
-        onClick={() => {
-          console.log(notifications);
-        }}
-      >
-        LALALALALALALALALA
-      </Button>
-
       {notifications.length > 0 &&
         notifications.map((notification) => {
           if (notification.type === PRICE)

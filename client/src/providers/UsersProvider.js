@@ -90,7 +90,6 @@ const UsersProvider = ({ children }) => {
 
   const loadUser = async () => {
     const tokenUserData = await getCurrentUser();
-    console.log(tokenUserData);
 
     if (tokenUserData.user) {
       const data = await getUserById(tokenUserData.user.id);
