@@ -47,7 +47,7 @@ const Header = () => {
 
   const { logout, user, loadUser, notificationCount } = userContext;
 
-  useEffect(async () => {
+  useEffect(() => {
     acquireUser();
   }, []);
 
