@@ -87,7 +87,6 @@ const AddProductDialog = () => {
     //Get the products of the list then setLoading(false)
   }, []);
 
-  //TODO: Use submitLink function in `ProductProvider`
   const submitHandler = async () => {
     await submitLink(currentList.id, productUrl);
     setIsConfirming(true);
@@ -97,6 +96,7 @@ const AddProductDialog = () => {
     updateIsAddingProd(false);
     updateIsListClicked(false);
     updateCurrentList({});
+    setIsConfirming(false);
   };
   return (
     <>
@@ -104,16 +104,13 @@ const AddProductDialog = () => {
 
       <Dialog
         open={isAddingProd}
-        onBackdropClick={() => updateIsAddingProd(false)}
+        onBackdropClick={handleClose}
         hideBackdrop={true}
         maxWidth="md"
       >
         <Slide direction="left" in={isAddingProd && !isConfirming} mountOnEnter>
           <Paper className={classes.paper}>
-            <IconButton
-              className={classes.iconButton}
-              onClick={() => updateIsAddingProd(false)}
-            >
+            <IconButton className={classes.iconButton} onClick={handleClose}>
               <ArrowBackIcon fontSize="large" />
             </IconButton>
 

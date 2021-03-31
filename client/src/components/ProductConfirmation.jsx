@@ -98,6 +98,12 @@ const ProductConfirmation = ({ setModal }) => {
         >
           <CloseIcon />
         </IconButton>
+        <ProductConfirmationBody
+          title={title}
+          price={price}
+          imageURL={imageURL}
+          handleClose={handleClose}
+        />
       </Paper>
     </Box>
   );
