@@ -17,7 +17,7 @@ const getLists = async (req, res) => {
   }
 };
 
-const getProductsofList = async (req, res) => {
+const getProductsOfList = async (req, res) => {
   const userId = req.params.userId;
   const listId = req.params.listId;
   try {
@@ -31,7 +31,7 @@ const getProductsofList = async (req, res) => {
 
     if (listFound) {
       const [products] = await db.query(`
-        SELECT "Products".name, "Products".link, "Products".id, "Products"."currentPrice", "Products"."previousPrice" FROM "ListProducts" 
+        SELECT "Products".name, "Products".link, "Products".id, "Products"."currentPrice", "Products"."previousPrice", "Products"."imageUrl" FROM "ListProducts" 
         JOIN "Products" ON ("ListProducts"."productId" = "Products".id)
         JOIN "UserLists" ON ("ListProducts"."listId" = "UserLists".id)
         WHERE ( "ListProducts"."listId" = ${parseInt(listId)} )
@@ -46,6 +46,6 @@ const getProductsofList = async (req, res) => {
 };
 
 router.get("/:userId", getLists);
-router.get("/:userId/:listId", getProductsofList);
+router.get("/:userId/:listId", getProductsOfList);
 
 module.exports = router;
