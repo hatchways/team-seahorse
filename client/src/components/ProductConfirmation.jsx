@@ -7,6 +7,7 @@ import {
   Box,
   IconButton,
 } from "@material-ui/core";
+import CloseIcon from "@material-ui/icons/Close";
 import { productContext } from "../providers/ProductProvider";
 
 const useStyles = makeStyles((theme) => ({
