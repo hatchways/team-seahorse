@@ -1,8 +1,6 @@
 import {
   Button,
-  Card,
   Dialog,
-  DialogContent,
   Grid,
   IconButton,
   makeStyles,
@@ -11,10 +9,7 @@ import {
   TextField,
   Typography,
 } from "@material-ui/core";
-import React, { useContext, useEffect, useState } from "react";
-import PropTypes from "prop-types";
-import CloseIcon from "@material-ui/icons/Close";
-import sample from "../images/productIcon.jpg";
+import React, { useContext, useEffect } from "react";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import { userContext as context } from "../providers/UsersProvider";
 import EditListDialog from "./EditListDialog";
@@ -77,10 +72,7 @@ const AddProductDialog = () => {
   const classes = useStyles();
   const userContext = useContext(context);
 
-  const {
-    updateIsAddingProd,
-    isAddingProd,
-  } = userContext;
+  const { updateIsAddingProd, isAddingProd } = userContext;
 
   useEffect(() => {
     //Get the products of the list then setLoading(false)
