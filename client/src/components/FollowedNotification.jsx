@@ -9,7 +9,6 @@ import {
 import AssignmentTurnedInIcon from "@material-ui/icons/AssignmentTurnedIn";
 import React, { useContext, useEffect, useState, useForceUpdate } from "react";
 import { userContext } from "../providers/UsersProvider";
-import Cookies from "js-cookie";
 
 const useStyles = makeStyles((theme) => ({
   gridContainer: {
