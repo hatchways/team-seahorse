@@ -91,7 +91,13 @@ const Header = () => {
         />
         {user && (
           <>
-            <Box flexGrow={1} display="flex" justifyContent="flex-end" px={5}>
+            <Box
+              flexGrow={1}
+              display="flex"
+              alignItems="center"
+              justifyContent="flex-end"
+              px={5}
+            >
               <Typography
                 className={classes.navItem}
                 component={Link}
