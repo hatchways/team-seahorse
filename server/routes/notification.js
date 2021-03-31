@@ -130,7 +130,7 @@ router.get("/get-notifications", authMiddleware, async (req, res) => {
 //Will be used by a service
 router.post("/price", async (req, res) => {
   const transaction = await sequelize.transaction();
-  const { productId, title, price } = req.body;
+  const { productId, name, price } = req.body;
 
   try {
     //Get the product with the price change
@@ -174,7 +174,7 @@ router.post("/price", async (req, res) => {
       //If we havent made a data object for the user, make one.
       if (!newNotifications[userList.userId]) {
         const data = {
-          title,
+          name,
           productId,
           price,
           previousPrice: productModel.currentPrice,

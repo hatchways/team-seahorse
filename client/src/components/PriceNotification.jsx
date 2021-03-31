@@ -80,7 +80,7 @@ const PriceNotification = ({ notification, index }) => {
   const classes = useStyles();
 
   let { data, createdAt, isRead, id: notificationId } = notification;
-  const { title, listLocations, price, previousPrice, imageUrl } = data;
+  const { name, listLocations, price, previousPrice, imageUrl } = data;
 
   const [isPaperDisabled, setIsPaperDisabled] = useState(false);
 
@@ -114,7 +114,7 @@ const PriceNotification = ({ notification, index }) => {
               >
                 {listLocations.length >= 2 ? (
                   <>
-                    <span className={classes.textHighlight}>{title}</span> has a
+                    <span className={classes.textHighlight}>{name}</span> has a
                     price change. Updated on{" "}
                     <span className={classes.textHighlight}>
                       {listLocations.length}
@@ -123,7 +123,7 @@ const PriceNotification = ({ notification, index }) => {
                   </>
                 ) : (
                   <>
-                    <span className={classes.textHighlight}>{title}</span> has a
+                    <span className={classes.textHighlight}>{name}</span> has a
                     price change.
                   </>
                 )}

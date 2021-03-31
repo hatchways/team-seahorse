@@ -36,7 +36,7 @@ const PriceNotificationPaper = ({ notification }) => {
   const classes = useStyles();
 
   const { updatedAt, data } = notification;
-  const { price, previousPrice, imageUrl, link } = data;
+  const { price, previousPrice, imageUrl, link, name } = data;
 
   const { getProperDateInfo } = useContext(utilitiesContext);
 
@@ -56,7 +56,7 @@ const PriceNotificationPaper = ({ notification }) => {
         </Grid>
 
         <Grid item>
-          <Typography variant="h6">Product Name</Typography>
+          <Typography variant="h6">{name}</Typography>
           <Typography
             variant="body2"
             style={{
