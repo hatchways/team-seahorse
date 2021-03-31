@@ -219,31 +219,36 @@ router.post("/price", async (req, res) => {
       }
     );
 
-    await transaction.commit();
-
     //Hashmap for keeping track who are the users that we already sent an event to
     let notifiedUsers = {};
 
     //We iterate the userLists which contains all the affected users of the price change.
     //We check here if the user is NOT in the notifiedUsers hashmap, if so we emit an event
-    //and add the userId to the hashmap so that if the users userId comes up again, we dont 
+    //and add the userId to the hashmap so that if the users userId comes up again, we dont
     //send them another emit again.
     userLists.forEach((userList) => {
       let stringUserId = `${userList.userId}`;
 
-      if (userSockets.connections[stringUserId]) {
-        if (!notifiedUsers[stringUserId]) {
-          userSockets.connections[stringUserId][0].emit("new-notifications");
-          notifiedUsers[stringUserId] = true;
-        }
+      if (
+        //is User connected and is User not Notified yet?
+        userSockets.connections[stringUserId] &&
+        !notifiedUsers[stringUserId]
+      ) {
+        userSockets.connections[stringUserId][0].emit("new-notifications");
+
+        userSockets.connections[stringUserId].forEach((socket) => {
+          socket.emit("new-notifications");
+        });
+        notifiedUsers[stringUserId] = true;
       }
     });
+    await transaction.commit();
 
     res.status(201).send({ msg: "Success" });
   } catch (error) {
     await transaction.rollback();
     console.error(error);
-    res.send({
+    res.status(400).send({
       error: {
         msg: "Server Error while using service",
         data: error,

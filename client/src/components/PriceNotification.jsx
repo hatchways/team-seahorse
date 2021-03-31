@@ -115,7 +115,7 @@ const PriceNotification = ({ notification, index }) => {
               >
                 {listLocations.length >= 2 ? (
                   <>
-                    <span className={classes.textHighlight}>{}</span> has a
+                    <span className={classes.textHighlight}>{name}</span> has a
                     price change. Updated on{" "}
                     <span className={classes.textHighlight}>
                       {listLocations.length}
