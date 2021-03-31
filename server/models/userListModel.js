@@ -21,6 +21,11 @@ const UserListModel = db.define("UserList", {
     type: dt.INTEGER,
     defaultValue: 0,
   },
+  isPrivate: {
+    type: dt.BOOLEAN,
+    defaultValue: true,
+    allowNull: false,
+  },
 });
 
 UserModel.hasMany(UserListModel, {

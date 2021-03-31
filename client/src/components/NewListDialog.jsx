@@ -8,10 +8,14 @@ import {
   Button,
   TextField,
   IconButton,
+  FormControlLabel,
+  Checkbox,
 } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
-import { useState } from "react";
+import { useState, useMemo, useContext } from "react";
 import axios from "axios";
+import { useDropzone } from "react-dropzone";
+import { userContext } from "../providers/UsersProvider";
 
 const useStyles = makeStyles((theme) => ({
   closeButton: {
@@ -30,6 +34,7 @@ const useStyles = makeStyles((theme) => ({
   },
   formItem: {
     margin: "10px 0",
+    textAlign: "center",
   },
   formButton: {
     marginTop: 30,
@@ -42,7 +47,43 @@ const useStyles = makeStyles((theme) => ({
   dialogTitle: {
     marginBottom: 30,
   },
+  cover: {
+    width: 200,
+    borderRadius: 5,
+    margin: 5,
+  },
+  checkbox: {
+    paddingTop: 10,
+  },
 }));
+
+const baseStyle = {
+  flex: 1,
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  padding: "20px",
+  borderWidth: 2,
+  borderRadius: 2,
+  borderColor: "#eeeeee",
+  borderStyle: "dashed",
+  backgroundColor: "#fafafa",
+  color: "#bdbdbd",
+  outline: "none",
+  transition: "border .24s ease-in-out",
+};
+
+const activeStyle = {
+  borderColor: "#2196f3",
+};
+
+const acceptStyle = {
+  borderColor: "#00e676",
+};
+
+const rejectStyle = {
+  borderColor: "#ff1744",
+};
 
 const DialogFormTextField = (props) => {
   const classes = useStyles();
@@ -63,12 +104,47 @@ const NewListDialog = ({ isOpen, onClose, onAddList }) => {
   const classes = useStyles();
 
   const [title, setTitle] = useState("");
-  const [imageUrl, setImageUrl] = useState("http://example.com/image");
+  const [imageUrl, setImageUrl] = useState("");
+  const [isPrivate, setIsPrivate] = useState(true);
   const [awaitingResponse, setAwaitingResponse] = useState(false);
+  const { axiosWithAuth } = useContext(userContext);
 
-  const handleImageUrlChange = (e) => {
-    setImageUrl(e.target.value);
-  };
+  const {
+    //acceptedFiles,
+    getRootProps,
+    getInputProps,
+    isDragActive,
+    isDragAccept,
+    isDragReject,
+  } = useDropzone({
+    accept: "image/*",
+    onDrop: async (acceptedFiles) => {
+      if (acceptedFiles.length > 0) {
+        const formData = new FormData();
+        formData.append("image", acceptedFiles[0]);
+        try {
+          const { data } = await axiosWithAuth().post(
+            "/upload-image",
+            formData
+          );
+          setImageUrl(data.imageUrl);
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    },
+  });
+
+  const style = useMemo(
+    () => ({
+      ...baseStyle,
+      ...(isDragActive ? activeStyle : {}),
+      ...(isDragAccept ? acceptStyle : {}),
+      ...(isDragReject ? rejectStyle : {}),
+    }),
+    [isDragActive, isDragReject, isDragAccept]
+  );
+
   const handleTitleChange = (e) => {
     setTitle(e.target.value);
   };
@@ -77,10 +153,18 @@ const NewListDialog = ({ isOpen, onClose, onAddList }) => {
       setAwaitingResponse(true);
       const result = await axios
         .create({ withCredentials: true })
-        .post("/lists", { title, imageUrl });
+        .post("/lists", { title, imageUrl, isPrivate });
       onClose();
-      onAddList({ id: result.data.id, title });
+      onAddList({
+        id: result.data.id,
+        title,
+        imageUrl,
+        items: 0,
+        isPrivate: isPrivate,
+      });
       setAwaitingResponse(false);
+      setImageUrl("");
+      setIsPrivate(true);
     } catch (error) {
       //TODO: Error handling
       setAwaitingResponse(false);
@@ -121,15 +205,32 @@ const NewListDialog = ({ isOpen, onClose, onAddList }) => {
             </DialogFormTextField>
           </Grid>
           <Grid item className={classes.formItem}>
-            <DialogFormTextField
-              textProps={{
-                label: "Image URL",
-                defaultValue: "http://example.com/image",
-                onChange: handleImageUrlChange,
-              }}
-            >
+            <Typography variant="h6" paragraph>
               Add a Cover
-            </DialogFormTextField>
+            </Typography>
+            {imageUrl && (
+              <img src={imageUrl} alt="cover" className={classes.cover} />
+            )}
+            <div {...getRootProps({ style })}>
+              <input {...getInputProps()} />
+              {isDragActive ? (
+                <p>Drop the files here ...</p>
+              ) : (
+                <p>Drag 'n' drop some files here, or click to select files</p>
+              )}
+            </div>
+            <FormControlLabel
+              className={classes.checkbox}
+              control={
+                <Checkbox
+                  checked={isPrivate}
+                  onChange={() => setIsPrivate((isPrivate) => !isPrivate)}
+                  name="isPrivate"
+                  color="primary"
+                />
+              }
+              label="Private"
+            />
           </Grid>
           <Grid item className={classes.formButton}>
             <Button

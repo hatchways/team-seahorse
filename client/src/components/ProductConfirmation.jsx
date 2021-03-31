@@ -5,10 +5,8 @@ import {
   Paper,
   Typography,
   Box,
-  CircularProgress,
   IconButton,
 } from "@material-ui/core";
-import CloseIcon from "@material-ui/icons/Close";
 import { productContext } from "../providers/ProductProvider";
 
 const useStyles = makeStyles((theme) => ({
@@ -88,6 +86,7 @@ const ProductConfirmation = ({ setModal }) => {
       left="0"
       top="0"
       bgcolor="rgba(37, 35, 35, 0.541)"
+      zIndex="10"
     >
       <Paper className={classes.paper}>
         <IconButton
