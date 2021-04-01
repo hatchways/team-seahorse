@@ -170,23 +170,24 @@ const AuthModal = ({ isAuthPage }) => {
                 justify="center"
                 alignItems="center"
               >
-                <Grid item md={"auto"} className={classes.box}>
-                  <Typography variant="h6" className={classes.typography}>
-                    Your Name:{" "}
-                  </Typography>
+                {pathname === "/sign-up" && (
+                  <Grid item md={"auto"} className={classes.box}>
+                    <Typography variant="h6" className={classes.typography}>
+                      Your Name:{" "}
+                    </Typography>
 
-                  <Tooltip title="Enter your name" placement="right-start">
-                    <TextField
-                      className={classes.textField}
-                      placeholder="Name"
-                      required={true}
-                      value={name}
-                      onChange={(e) => {
-                        setName(e.target.value);
-                      }}
-                    />
-                  </Tooltip>
-                </Grid>
+                    <Tooltip title="Enter your name" placement="right-start">
+                      <TextField
+                        className={classes.textField}
+                        placeholder="Name"
+                        required={true}
+                        value={name}
+                        onChange={(e) => {
+                          setName(e.target.value);
+                        }}
+                      />
+                    </Tooltip>
+                  </Grid>
                 )}
                 <Grid item className={classes.box}>
                   <Typography variant="h6" className={classes.typography}>
