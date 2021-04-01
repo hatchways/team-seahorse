@@ -9,7 +9,7 @@ import {
 import AssignmentTurnedInIcon from "@material-ui/icons/AssignmentTurnedIn";
 import ArrowUpwardIcon from "@material-ui/icons/ArrowUpward";
 import ArrowDownwardIcon from "@material-ui/icons/ArrowDownward";
-import React, { useContext, useEffect, useState, useForceUpdate } from "react";
+import React, { useContext, useState } from "react";
 import { userContext } from "../providers/UsersProvider";
 
 const useStyles = makeStyles((theme) => ({
@@ -80,7 +80,7 @@ const PriceNotification = ({ notification, index }) => {
   const classes = useStyles();
 
   let { data, createdAt, isRead, id: notificationId } = notification;
-  const { title, listLocations, price, previousPrice, imageUrl } = data;
+  const { name, listLocations, price, previousPrice, imageUrl } = data;
 
   const [isPaperDisabled, setIsPaperDisabled] = useState(false);
 
@@ -92,6 +92,7 @@ const PriceNotification = ({ notification, index }) => {
         style={{ width: "400px", height: "100%" }}
         onClick={() => {
           if (isPaperDisabled) return;
+          //show a dialog for notification
         }}
         disableTouchRipple={isPaperDisabled}
       >
@@ -114,7 +115,7 @@ const PriceNotification = ({ notification, index }) => {
               >
                 {listLocations.length >= 2 ? (
                   <>
-                    <span className={classes.textHighlight}>{title}</span> has a
+                    <span className={classes.textHighlight}>{name}</span> has a
                     price change. Updated on{" "}
                     <span className={classes.textHighlight}>
                       {listLocations.length}
@@ -123,7 +124,7 @@ const PriceNotification = ({ notification, index }) => {
                   </>
                 ) : (
                   <>
-                    <span className={classes.textHighlight}>{title}</span> has a
+                    <span className={classes.textHighlight}>{name}</span> has a
                     price change.
                   </>
                 )}

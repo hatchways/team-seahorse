@@ -14,6 +14,7 @@ import {
 } from "@material-ui/core";
 import AccountCircleIcon from "@material-ui/icons/AccountCircle";
 import axios from "axios";
+import { NavLink } from "react-router-dom";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -82,7 +83,14 @@ const UserCard = ({ user, isFollowing, toggleUserGroup_ }) => {
       <CardContent>
         <Grid container alignItems="center">
           <AccountCircleIcon className={classes.pfpPlaceholder} />
-          <Typography variant="h6">{user.name}</Typography>
+          <Typography
+            variant="h6"
+            component={NavLink}
+            to={`/public-lists/${user.id}`}
+            style={{ color: "black" }}
+          >
+            {user.name}
+          </Typography>
           <Button
             variant="contained"
             color="primary"

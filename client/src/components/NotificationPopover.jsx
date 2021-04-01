@@ -1,7 +1,9 @@
 import { Grid, Popover, makeStyles, Box, Button } from "@material-ui/core";
-import React, { useContext } from "react";
+import { useHistory } from "react-router";
+import React, { useContext, useEffect } from "react";
 import { userContext } from "../providers/UsersProvider";
 import BaseNotification from "./BaseNotification";
+import { socketContext } from "../providers/SocketProvider";
 const useStyles = makeStyles((theme) => ({
   topBar: {
     display: "flex",
@@ -17,8 +19,24 @@ const NotificationPopover = ({
   notificationOpen,
 }) => {
   const classes = useStyles();
+  const history = useHistory();
+  const {
+    notifications,
+    localReadAllNotification,
+    updateNotifications,
+    getNotificationCount,
+  } = useContext(userContext);
+  const { socket, openConnection } = useContext(socketContext);
 
-  const { notifications, localReadAllNotification } = useContext(userContext);
+  useEffect(() => {
+    if (socket == null) openConnection();
+    else {
+      socket.on("new-notifications", () => {
+        updateNotifications();
+        getNotificationCount();
+      });
+    }
+  }, [socket]);
 
   return (
     <Popover
@@ -36,7 +54,14 @@ const NotificationPopover = ({
     >
       <Grid container direction="column" style={{}}>
         <Box className={classes.topBar}>
-          <Button>View All Notification</Button>
+          <Button
+            onClick={() => {
+              history.push("/notifications-all");
+              handleCloseNotification();
+            }}
+          >
+            View All Notification
+          </Button>
           <Button
             onClick={() => {
               localReadAllNotification();

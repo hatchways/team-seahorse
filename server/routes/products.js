@@ -53,9 +53,9 @@ const deleteProduct = async (req, res) => {
     DELETE FROM "ListProducts"
     USING "UserLists"
     WHERE (
-        "ListProducts".listId = "UserLists".id
-        AND "ListProducts".productId = ${productId} AND "ListProducts".listId = ${listId}
-        AND "UserLists".userId = ${req.user.id}
+        "ListProducts"."listId" = "UserLists".id
+        AND "ListProducts"."productId" = ${productId} AND "ListProducts"."listId" = ${listId}
+        AND "UserLists"."userId" = ${req.user.id}
     )
   `,
       { transaction }
@@ -157,6 +157,21 @@ const addProduct = async (req, res) => {
     }
   }
 };
+
+router.get("/get-all", async (req, res) => {
+  try {
+    const { password } = req.headers;
+
+    if (password !== process.env.SCRAPER_PASSWORD)
+      return res.status(401).send({ msg: "Unauthorized Access" });
+
+    const data = await ProductModel.findAll();
+    res.send(data);
+  } catch (error) {
+    console.error(error);
+    giveServerError(res);
+  }
+});
 
 router.use(authMiddleware);
 router.get("/:productId", [productIdCheck, validate, getProduct]);
