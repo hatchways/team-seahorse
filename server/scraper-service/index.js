@@ -287,8 +287,6 @@ cron.schedule("*/2 * * * *", async () => {
   console.log("\n");
 });
 
-wrapper();
-
 app.listen(8000, () => {
   console.log("Running on port 8k");
 });

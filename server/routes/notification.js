@@ -131,9 +131,7 @@ router.get("/get-notifications", authMiddleware, async (req, res) => {
 //Will be used by a service
 router.post("/price", async (req, res) => {
   const transaction = await db.transaction();
-  const { id: productId, name, newPrice:price } = req.body;
-  
-  console.log(req.body)
+  const { id: productId, name, newPrice: price } = req.body;
 
   try {
     //Get the product with the price change
@@ -183,6 +181,7 @@ router.post("/price", async (req, res) => {
           previousPrice: productModel.currentPrice,
           listLocations: [userList.id],
           imageUrl: productModel.imageUrl,
+          link: productModel.link,
         };
 
         newNotifications[userList.userId] = {
@@ -236,8 +235,6 @@ router.post("/price", async (req, res) => {
         userSockets.connections[stringUserId] &&
         !notifiedUsers[stringUserId]
       ) {
-        userSockets.connections[stringUserId][0].emit("new-notifications");
-
         userSockets.connections[stringUserId].forEach((socket) => {
           socket.emit("new-notifications");
         });

@@ -201,15 +201,16 @@ const UsersProvider = ({ children }) => {
     }
   };
 
-  const getNotifications = async () => {
+  const getNotifications = async (params = {}) => {
     try {
-      if (!user) return;
-
+      if (!user) return [];
       const { data } = await axiosWithAuth().get(
-        "/notification/get-notifications"
+        "/notification/get-notifications",
+        {
+          params,
+        }
       );
-      setNotifications(data);
-      getNotificationCount()
+      return data;
     } catch (err) {
       console.error(err);
       openSnackbar("error", "There's a problem on our side, sorry!");
@@ -249,6 +250,11 @@ const UsersProvider = ({ children }) => {
     }
   };
 
+  const updateNotifications = async () => {
+    const notificationsLists = await getNotifications();
+    setNotifications(notificationsLists);
+  };
+
   //#endregion
 
   const hoursDifference = (dt2, dt1) => {
@@ -266,7 +272,7 @@ const UsersProvider = ({ children }) => {
 
   useEffect(() => {
     getList();
-    getNotifications();
+    updateNotifications();
     getNotificationCount();
     // eslint-disable-next-line
   }, [user]);
@@ -329,6 +335,8 @@ const UsersProvider = ({ children }) => {
         getTimeDifference,
         updateIsPrivate,
         getNotifications,
+        updateNotifications,
+        getNotificationCount,
       }}
     >
       {children}
