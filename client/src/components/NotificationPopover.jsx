@@ -19,11 +19,12 @@ const NotificationPopover = ({
   notificationOpen,
 }) => {
   const classes = useStyles();
-  const history = useHistory()
+  const history = useHistory();
   const {
     notifications,
     localReadAllNotification,
-    getNotifications,
+    updateNotifications,
+    getNotificationCount,
   } = useContext(userContext);
   const { socket, openConnection } = useContext(socketContext);
 
@@ -31,7 +32,8 @@ const NotificationPopover = ({
     if (socket == null) openConnection();
     else {
       socket.on("new-notifications", () => {
-        getNotifications();
+        updateNotifications();
+        getNotificationCount();
       });
     }
   }, [socket]);
@@ -53,11 +55,13 @@ const NotificationPopover = ({
       <Grid container direction="column" style={{}}>
         <Box className={classes.topBar}>
           <Button
-            onClick = { () => {
-              history.push('/notifications-all')
-              handleCloseNotification()
+            onClick={() => {
+              history.push("/notifications-all");
+              handleCloseNotification();
             }}
-          >View All Notification</Button>
+          >
+            View All Notification
+          </Button>
           <Button
             onClick={() => {
               localReadAllNotification();

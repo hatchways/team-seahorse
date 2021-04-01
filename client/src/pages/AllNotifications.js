@@ -67,7 +67,6 @@ const AllNotifications = () => {
 
   const addNotifications = async (page, notificationType) => {
     const result = await getNotifications({ type: notificationType, page });
-    console.log(result);
     setNotifications([...notifications, ...result]);
   };
 

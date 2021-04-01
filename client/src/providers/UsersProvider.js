@@ -335,6 +335,8 @@ const UsersProvider = ({ children }) => {
         getTimeDifference,
         updateIsPrivate,
         getNotifications,
+        updateNotifications,
+        getNotificationCount,
       }}
     >
       {children}

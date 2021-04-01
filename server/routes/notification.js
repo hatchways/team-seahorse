@@ -131,7 +131,7 @@ router.get("/get-notifications", authMiddleware, async (req, res) => {
 //Will be used by a service
 router.post("/price", async (req, res) => {
   const transaction = await db.transaction();
-  const { id: productId, name, newPrice:price } = req.body;
+  const { id: productId, name, newPrice: price } = req.body;
 
   try {
     //Get the product with the price change
@@ -235,8 +235,6 @@ router.post("/price", async (req, res) => {
         userSockets.connections[stringUserId] &&
         !notifiedUsers[stringUserId]
       ) {
-        userSockets.connections[stringUserId][0].emit("new-notifications");
-
         userSockets.connections[stringUserId].forEach((socket) => {
           socket.emit("new-notifications");
         });
@@ -289,7 +287,6 @@ const validateQueryParams = (page, order, type, isRead, maxNotifications) => {
   } else {
     type = type.toLowerCase();
     if (!ALL_TYPES_OBJECT[type.toUpperCase()]) {
-        console.log("returnign error");
       return false;
     }
   }
