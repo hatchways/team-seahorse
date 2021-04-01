@@ -77,12 +77,9 @@ const UsersProvider = ({ children }) => {
   const logout = async () => {
     await fetch("/user/sign-out");
     setUser(null);
-<<<<<<< HEAD
     setToken(null);
     setCurrentList({})
     
-=======
->>>>>>> origin/dev
   };
 
   const updateUser = (userData) => {
