@@ -213,7 +213,7 @@ const AuthModal = ({ isAuthPage }) => {
                   </Typography>
 
                   <Tooltip
-                    title="Enter at least 7 characters"
+                    title="Enter your password"
                     placement="right-start"
                   >
                     <TextField
