@@ -20,7 +20,7 @@ const Lists = () => {
       <Typography className={classes.title} align="left" variant="h6">
         My Shopping Lists:
       </Typography>
-      <Grid container spacing={2}>
+      <Grid container spacing={2} justify="center">
         {lists &&
           lists.map((list) => {
             return <ListCover key={list.id} list={list} />;

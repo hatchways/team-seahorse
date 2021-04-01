@@ -1,5 +1,4 @@
 import {
-  Box,
   Button,
   Dialog,
   DialogContent,
@@ -8,7 +7,7 @@ import {
   makeStyles,
   Typography,
 } from "@material-ui/core";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext } from "react";
 import CloseIcon from "@material-ui/icons/Close";
 import { userContext as context } from "../providers/UsersProvider";
 import ProductCard from "./ProductCard";
@@ -61,12 +60,6 @@ const EditListDialog = () => {
 
   const { title, items } = currentList;
 
-  const [titlePlaceholder, setTitlePlaceholder] = useState("");
-
-  useEffect(() => {
-    setTitlePlaceholder(title);
-  }, []);
-
   return (
     <Dialog
       open={isListClicked}
@@ -104,7 +97,7 @@ const EditListDialog = () => {
         >
           {currentListProducts.length > 0 &&
             currentListProducts.map((product) => {
-              return <ProductCard product={product} />;
+              return <ProductCard product={product} key={product.id} />;
             })}
         </Grid>
 
