@@ -29,7 +29,11 @@ function App() {
                 <Switch>
                   <ProtectedRoute path="/dashboard" component={Dashboard} />
                   <ProtectedRoute path="/followers" component={Followers} />
-                  <ProtectedRoute path="/notifications-all" component={Notifications} />
+                  <ProtectedRoute
+                    path="/notifications-all"
+                    component={Notifications}
+                  />
+                  <Route path="/public-lists/:userId" component={PublicLists} />
                   <Route path="/sign-up" component={Signup} />
                   <Route path="/sign-in" component={Signin} />
                   <Route exact path="/" component={null} />
