@@ -7,8 +7,14 @@ const {
   validate,
   giveServerError,
 } = require("../middlewares/validate");
-const { UserModel, UserFollowerModel } = require("../models/models");
+const {
+  UserModel,
+  UserFollowerModel,
+  NotificationModel,
+} = require("../models/models");
 const db = require("../models");
+const { FOLLOWED } = require("../utils/enums");
+const userSockets = require("../sockets/userSockets");
 
 //Gets all the users the user is currently following, and from that gets all the users that aren't part of that group.
 const getSuggestions = async (req, res) => {
@@ -68,13 +74,48 @@ const getFollowedUsers = async (req, res) => {
 };
 
 const followUser = async (req, res) => {
+  const transaction = await db.transaction();
+
   try {
-    await UserFollowerModel.create({
+    await UserFollowerModel.create(
+      {
+        followerId: req.user.id,
+        followedId: req.params.userId,
+      },
+      { transaction }
+    );
+
+    let data = {
       followerId: req.user.id,
       followedId: req.params.userId,
-    });
+      //change in the future
+      followerImageUrl: "https://www.w3schools.com/howto/img_avatar2.png",
+      followerName: req.body.user.name,
+    };
+
+    //create followed notification for that user
+    await NotificationModel.create(
+      {
+        type: FOLLOWED,
+        data,
+        userId: req.params.userId,
+        isRead: false,
+      },
+      { transaction }
+    );
+
+    //If the followed user is connected, emit an event to show a notification for them
+    if (userSockets.connections[`${req.params.userId}`]) {
+      userSockets.connections[`${req.params.userId}`].forEach((socket) => {
+        socket.emit("new-notifications");
+      });
+    }
+
+    await transaction.commit();
+
     res.status(201).send();
   } catch (error) {
+    await transaction.rollback();
     console.error(error);
     //If the user already follows the user they are trying to follow.
     if (
