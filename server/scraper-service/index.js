@@ -215,9 +215,7 @@ craigslistQueue2.process(async (job) => {
 });
 //#endregion
 
-cron.schedule("*/2 * * * *", async () => {});
-
-const wrapper = async () => {
+cron.schedule("*/2 * * * *", async () => {
   const { data: allProducts } = await axios.get(
     "http://localhost:3001/products/get-all",
     {
@@ -287,7 +285,7 @@ const wrapper = async () => {
     }
   });
   console.log("\n");
-};
+});
 
 wrapper();
 
