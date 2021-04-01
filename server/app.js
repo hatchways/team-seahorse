@@ -41,7 +41,7 @@ app.use("/products", productsRouter);
 app.use("/upload-image", imageUploadRouter);
 app.use("/followers", followRouter);
 app.use("/notification", notificationRouter);
-app.use("/publicLists", publicListsRouter);
+app.use("/public-Lists", publicListsRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

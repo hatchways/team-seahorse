@@ -57,7 +57,7 @@ const PublicLists = () => {
 
   const getPublicLists = async (userId) => {
     try {
-      const { data } = await axios.get(`/publicLists/${userId}`);
+      const { data } = await axios.get(`/public-Lists/${userId}`);
       setLists(data);
     } catch (error) {
       console.error(error);
@@ -67,7 +67,7 @@ const PublicLists = () => {
   const getProductsOfList = async (userId, listId) => {
     setOpen(true);
     try {
-      const { data } = await axios.get(`/publicLists/${userId}/${listId}`);
+      const { data } = await axios.get(`/public-Lists/${userId}/${listId}`);
       setProducts(data);
     } catch (error) {}
   };
