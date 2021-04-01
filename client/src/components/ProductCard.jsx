@@ -5,10 +5,13 @@ import {
   Typography,
   makeStyles,
   Link,
+  CircularProgress,
 } from "@material-ui/core";
 
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { userContext as context } from "../providers/UsersProvider";
+import ArrowUpwardIcon from "@material-ui/icons/ArrowUpward";
+import ArrowDownwardIcon from "@material-ui/icons/ArrowDownward";
 
 const useStyles = makeStyles(() => ({
   card: {
@@ -41,6 +44,9 @@ const useStyles = makeStyles(() => ({
     borderRadius: "50px",
     background: "#fafafa",
   },
+  spinner: {
+    margin: "15px",
+  },
 }));
 
 const ProductCard = ({ product }) => {
@@ -71,9 +77,10 @@ const ProductCard = ({ product }) => {
             color="textPrimary"
             style={{ lineHeight: "20px" }}
           >
-            {name}
+            {name.length > 130 ? `${name.slice(0, 131)}...` : name}
           </Typography>
         </Grid>
+
         <Grid item>
           <Typography variant="subtitle1">
             <span hidden={!previousPrice} className={classes.previousPrice}>
@@ -82,6 +89,15 @@ const ProductCard = ({ product }) => {
             <span className={classes.newPrice}>
               {currentPrice ? currentPrice : previousPrice}
             </span>
+            {parseFloat(currentPrice) && parseFloat(previousPrice) ? (
+              <>
+                {parseFloat(currentPrice) > parseFloat(previousPrice) ? (
+                  <ArrowUpwardIcon />
+                ) : (
+                  <ArrowDownwardIcon />
+                )}
+              </>
+            ) : null}
           </Typography>
         </Grid>
       </Grid>
