@@ -4,13 +4,13 @@ import { userContext as context } from "../providers/UsersProvider";
 
 const ProtectedRoute = ({ component: Component, ...rest }) => {
   const userContext = useContext(context);
-  const { user, token } = userContext;
+  const { user } = userContext;
 
   return (
     <Route
       {...rest}
       render={(props) =>
-        !user && !token ? <Redirect to="/sign-in" /> : <Component {...props} />
+        !user ? <Redirect to="/sign-in" /> : <Component {...props} />
       }
     />
   );

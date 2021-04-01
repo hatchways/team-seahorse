@@ -9,6 +9,7 @@ import {
   Popover,
   MenuItem,
   Badge,
+  Link as MuiLink,
 } from "@material-ui/core";
 import React, { useContext, useEffect } from "react";
 import { Link, useHistory } from "react-router-dom";
@@ -23,7 +24,11 @@ const useStyles = makeStyles((theme) => ({
     height: 100,
   },
   navItem: {
-    paddingRight: 40,
+    marginRight: 40,
+  },
+  notificationsLink: {
+    //This padding offsets the badge so it doesn't overlap too much with the text.
+    paddingRight: "0.75ch",
   },
   typography: {
     padding: theme.spacing(2),
@@ -118,9 +123,15 @@ const Header = () => {
               </Typography>
 
               <Badge badgeContent={notificationCount} color="primary">
-                <Button color="textPrimary" onClick={handleClickNotification}>
+                <Typography
+                  className={classes.notificationsLink}
+                  component="a"
+                  href="#"
+                  onClick={handleClickNotification}
+                  color="textPrimary"
+                >
                   Notifications
-                </Button>
+                </Typography>
               </Badge>
 
               <NotificationPopover
