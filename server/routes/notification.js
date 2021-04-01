@@ -6,6 +6,7 @@ const ProductModel = require("../models/productModel");
 const UserListModel = require("../models/userListModel");
 const { ALL_TYPES_OBJECT } = require("../utils/enums");
 const router = require("express").Router();
+const userSockets = require("../sockets/userSockets");
 
 //Make the given notification id read
 router.put("/read/:id", authMiddleware, async (req, res) => {
@@ -43,11 +44,38 @@ router.put("/read/:id", authMiddleware, async (req, res) => {
   }
 });
 
+router.put("/read-all", authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.user;
+
+    const result = await NotificationModel.update(
+      { isRead: true },
+      {
+        where: {
+          userId: id,
+          isRead: false,
+        },
+        returning: true,
+      }
+    );
+
+    res.send({ result });
+  } catch (err) {
+    console.error(err);
+    res.send({
+      error: {
+        msg: "Server Error ",
+        data: err,
+      },
+    });
+  }
+});
+
 //Paginated querying of notifications of a user
 //Accepts "page" as a query. By default will be a 1.
 //Accepts "order" as a query. By default is "DESC" to show latest notifs first
 //Accepts "type" as a query. By default is an array of all types to show all types of notifications
-//Accepts "isRead" as a query. By default is false to show only unread notifs
+//Accepts "isRead" as a query. By default is [true, false] all regardles if read or not
 //Accepts "maxNotifications" as a query. By default is 10
 router.get("/get-notifications", authMiddleware, async (req, res) => {
   const { id: userId } = req.user;
@@ -60,8 +88,6 @@ router.get("/get-notifications", authMiddleware, async (req, res) => {
     isRead,
     maxNotifications
   );
-
-  console.log(validQueries)
 
   if (validQueries === false) {
     return res.status(400).send({
@@ -105,7 +131,9 @@ router.get("/get-notifications", authMiddleware, async (req, res) => {
 //Will be used by a service
 router.post("/price", async (req, res) => {
   const transaction = await db.transaction();
-  const { id: productId, name, newPrice:price, currentPrice } = req.body;
+  const { id: productId, name, newPrice:price } = req.body;
+  
+  console.log(req.body)
 
   try {
     //Get the product with the price change
@@ -152,8 +180,9 @@ router.post("/price", async (req, res) => {
           name,
           productId,
           price,
-          previousPrice: currentPrice,
+          previousPrice: productModel.currentPrice,
           listLocations: [userList.id],
+          imageUrl: productModel.imageUrl,
         };
 
         newNotifications[userList.userId] = {
@@ -192,11 +221,57 @@ router.post("/price", async (req, res) => {
       }
     );
 
+    //Hashmap for keeping track who are the users that we already sent an event to
+    let notifiedUsers = {};
+
+    //We iterate the userLists which contains all the affected users of the price change.
+    //We check here if the user is NOT in the notifiedUsers hashmap, if so we emit an event
+    //and add the userId to the hashmap so that if the users userId comes up again, we dont
+    //send them another emit again.
+    userLists.forEach((userList) => {
+      let stringUserId = `${userList.userId}`;
+
+      if (
+        //is User connected and is User not Notified yet?
+        userSockets.connections[stringUserId] &&
+        !notifiedUsers[stringUserId]
+      ) {
+        userSockets.connections[stringUserId][0].emit("new-notifications");
+
+        userSockets.connections[stringUserId].forEach((socket) => {
+          socket.emit("new-notifications");
+        });
+        notifiedUsers[stringUserId] = true;
+      }
+    });
     await transaction.commit();
 
     res.status(201).send({ msg: "Success" });
   } catch (err) {
     await transaction.rollback();
+    console.error(err);
+    res.status(400).send({
+      error: {
+        msg: "Server Error while using service",
+        data: err,
+      },
+    });
+  }
+});
+
+router.get("/get-count", authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.user;
+
+    const notificationCount = await NotificationModel.count({
+      where: {
+        isRead: false,
+        userId: id,
+      },
+    });
+
+    res.send({ length: notificationCount });
+  } catch (err) {
     console.error(err);
     res.send({
       error: {
@@ -223,7 +298,6 @@ const validateQueryParams = (page, order, type, isRead, maxNotifications) => {
     page = 1;
   } else {
     if (isNaN(page)) {
-      console.log('object')
       return false;
     }
   }
@@ -243,14 +317,12 @@ const validateQueryParams = (page, order, type, isRead, maxNotifications) => {
     return false;
   }
 
-  if (!isRead) {
-    isRead = false;
-  } else {
-    if (isRead === "true") {
-      isRead = true;
-    } else if (isRead === "false") isRead = false;
-    else return false;
-  }
+  if (isRead === "true") {
+    isRead = true;
+  } else if (isRead === "false") isRead = false;
+  else if (isRead) return false;
+
+  isRead = [true, false];
 
   return { page, order, type, isRead, maxNotifications };
 };

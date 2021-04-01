@@ -30,7 +30,6 @@ const options = {
 ebayQueue.process(async (job) => {
   const { link, id, currentPrice, name } = job.data;
   console.log(`Ebay 1 : Job Starting: ${id}`);
-
   try {
     let seconds = new Date().getTime() / 1000;
     const results = await scrapeEbayProduct(link, id, 1);
@@ -216,7 +215,9 @@ craigslistQueue2.process(async (job) => {
 });
 //#endregion
 
-cron.schedule("*/2 * * * *", async () => {
+cron.schedule("*/2 * * * *", async () => {});
+
+const wrapper = async () => {
   const { data: allProducts } = await axios.get(
     "http://localhost:3001/products/get-all",
     {
@@ -286,7 +287,9 @@ cron.schedule("*/2 * * * *", async () => {
     }
   });
   console.log("\n");
-});
+};
+
+wrapper();
 
 app.listen(8000, () => {
   console.log("Running on port 8k");

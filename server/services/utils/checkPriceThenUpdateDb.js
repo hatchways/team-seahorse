@@ -1,15 +1,14 @@
 const axios = require("axios");
 
-const checkPriceChange = (currentPrice, fetchedPrice, productId, name) => {
+const checkPriceChange = (currentPrice, fetchedPrice, id, name) => {
   console.log(`Product Name ${name}`);
   console.log(`Current Price ${currentPrice}`);
   console.log(`Fetched Price ${fetchedPrice}`);
 
   if (currentPrice !== fetchedPrice) {
     const body = {
-      currentPrice,
       newPrice: fetchedPrice,
-      id: productId,
+      id,
       name,
     };
 
