@@ -249,7 +249,7 @@ router.post("/price", async (req, res) => {
     res.status(201).send({ msg: "Success" });
   } catch (err) {
     await transaction.rollback();
-    console.error(err);
+    console.error(error);
     res.status(400).send({
       error: {
         msg: "Server Error while using service",

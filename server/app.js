@@ -15,6 +15,7 @@ const imageUploadRouter = require("./routes/imageUpload");
 const followRouter = require("./routes/follower");
 const authorizeSocket = require("./middlewares/sockets/auth");
 const notificationRouter = require("./routes/notification");
+const publicListsRouter = require("./routes/publicLists");
 const userSockets = require("./sockets/userSockets");
 
 const { json, urlencoded } = express;
@@ -40,6 +41,7 @@ app.use("/products", productsRouter);
 app.use("/upload-image", imageUploadRouter);
 app.use("/followers", followRouter);
 app.use("/notification", notificationRouter);
+app.use("/public-Lists", publicListsRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

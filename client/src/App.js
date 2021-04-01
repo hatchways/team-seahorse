@@ -13,6 +13,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Header from "./components/Header";
 import ProductProvider from "./providers/ProductProvider";
 import SocketProvider from "./providers/SocketProvider";
+import PublicLists from "./pages/PublicLists";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
               <Switch>
                 <ProtectedRoute path="/dashboard" component={Dashboard} />
                 <ProtectedRoute path="/followers" component={Followers} />
+                <Route path="/public-lists/:userId" component={PublicLists} />
                 <Route path="/sign-up" component={Signup} />
                 <Route path="/sign-in" component={Signin} />
                 <Route exact path="/" component={null} />
