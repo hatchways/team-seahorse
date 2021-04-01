@@ -10,14 +10,18 @@ const UsersProvider = ({ children }) => {
   const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("Default Message");
   const [snackbarSeverity, setSnackbarSeverity] = useState("info");
+  const [notifications, setNotifications] = useState([]);
+  const [notificationCount, setNotificationCount] = useState(0);
 
-  //#region  List Related
+  //#region  List Related Variables
   const [currentList, setCurrentList] = useState({});
   const [isListClicked, setIsListClicked] = useState(false);
   const [isAddingProd, setIsAddingProd] = useState(false);
   const [currentListProducts, setCurrentListProducts] = useState([]);
   const [isLoadingListProducts, setIsLoadingListProducts] = useState(false);
   //#endregion
+
+  //#region User Related Functions
 
   const login = async (email, password) => {
     let data = await fetch("/user/sign-in", {
@@ -98,6 +102,8 @@ const UsersProvider = ({ children }) => {
     return { msg: "Error on obtaining user by id " };
   };
 
+  //#endregion
+
   const axiosWithAuth = () => {
     return axios.create({
       baseURL: process.env.REACT_APP_BACKEND,
@@ -114,7 +120,7 @@ const UsersProvider = ({ children }) => {
     }
   };
 
-  //#region List Related
+  //#region List Related Functions
 
   const updateIsListClicked = (bool) => {
     setIsListClicked(bool);
@@ -186,8 +192,90 @@ const UsersProvider = ({ children }) => {
     setIsSnackbarOpen(true);
   };
 
+  //#region Notification Realted Functions
+
+  const getNotificationCount = async () => {
+    try {
+      const { data } = await axiosWithAuth().get("/notification/get-count");
+      setNotificationCount(data.length);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const getNotifications = async (params = {}) => {
+    try {
+      if (!user) return [];
+      const { data } = await axiosWithAuth().get(
+        "/notification/get-notifications",
+        {
+          params,
+        }
+      );
+      return data;
+    } catch (err) {
+      console.error(err);
+      openSnackbar("error", "There's a problem on our side, sorry!");
+    }
+  };
+
+  const readNotification = async (id, index) => {
+    try {
+      const { data } = await axiosWithAuth().put(`/notification/read/${id}`);
+
+      setNotificationCount(notificationCount - 1);
+      localReadNotification(index);
+
+      return data;
+    } catch (err) {
+      console.error(err);
+      openSnackbar("error", "There's a problem on our side, sorry!");
+    }
+  };
+
+  const localReadNotification = (index) => {
+    notifications[index].isRead = true;
+  };
+
+  const localReadAllNotification = async () => {
+    try {
+      notifications.forEach((notification) => {
+        notification.isRead = true;
+      });
+      setNotifications(notifications);
+      setNotificationCount(0);
+
+      await axiosWithAuth().put("/notification/read-all");
+    } catch (err) {
+      console.error(err);
+      openSnackbar("error", "There's a problem on our side, sorry!");
+    }
+  };
+
+  const updateNotifications = async () => {
+    const notificationsLists = await getNotifications();
+    setNotifications(notificationsLists);
+  };
+
+  //#endregion
+
+  const hoursDifference = (dt2, dt1) => {
+    var diff = (dt2.getTime() - dt1.getTime()) / 1000;
+    diff /= 60 * 60;
+    return Math.abs(Math.round(diff));
+  };
+
+  const getTimeDifference = (previousTime) => {
+    const currentTime = new Date();
+    const parsedInitialDate = new Date(previousTime);
+
+    return hoursDifference(currentTime, parsedInitialDate);
+  };
+
   useEffect(() => {
     getList();
+    updateNotifications();
+    getNotificationCount();
     // eslint-disable-next-line
   }, [user]);
 
@@ -221,14 +309,16 @@ const UsersProvider = ({ children }) => {
         isAddingProd,
         isLoadingListProducts,
         currentList,
+        isSnackbarOpen,
+        snackbarMessage,
+        snackbarSeverity,
+        notifications,
+        notificationCount,
         removeProductInList,
         getListProducts,
         updateCurrentListProducts,
         updateCurrentList,
         setLists,
-        isSnackbarOpen,
-        snackbarMessage,
-        snackbarSeverity,
         login,
         register,
         getCurrentUser,
@@ -242,7 +332,13 @@ const UsersProvider = ({ children }) => {
         setIsAddingProd,
         openSnackbar,
         updateIsSnackbarOpen,
+        readNotification,
+        localReadAllNotification,
+        getTimeDifference,
         updateIsPrivate,
+        getNotifications,
+        updateNotifications,
+        getNotificationCount,
       }}
     >
       {children}

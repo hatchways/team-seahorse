@@ -5,7 +5,6 @@ const scrapeEbay = async (url) => {
     const [el] = await page.$x(XPath);
     const data = await el.getProperty(property);
     const parsedData = await data.jsonValue();
-
     return parsedData;
   };
 
@@ -17,17 +16,18 @@ const scrapeEbay = async (url) => {
   let title;
   let price;
 
+  //Update for the edge case of discounted items
+  //*[@id="mm-saleDscPrc"]
   try {
     imageURL = await getValue('//*[@id="icImg"]', "src");
     title = await getValue('//*[@id="itemTitle"]/text()', "textContent");
     price = await getValue('//*[@id="prcIsum"]', "textContent");
-  } catch (error) {
-    return {
-      msg: `Error getting values on product link. Please check if product is still available: ${url}`,
-      error,
-    };
-  }
 
+    price = parseFloat(price.split("$")[1].replace(",", ""));
+  } catch (error) {
+    console.error(error);
+    return Error;
+  }
   browser.close();
 
   return { imageURL, title, price };

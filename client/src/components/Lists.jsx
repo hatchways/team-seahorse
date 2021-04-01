@@ -15,20 +15,18 @@ const Lists = () => {
   const classes = useStyles();
   const { lists, setLists } = useContext(userContext);
   return (
-    <Box px={10} >
-      <Box style={{ alignItems: "center" }}>
-        <ListModal />
-        <Typography className={classes.title} align="left" variant="h6">
-          My Shopping Lists:
-        </Typography>
-        <Grid container spacing={2}>
-          {lists &&
-            lists.map((list) => {
-              return <ListCover key={list.id} list={list} />;
-            })}
-          <AddNewList onAddList={(list) => setLists(lists.concat(list))} />
-        </Grid>
-      </Box>
+    <Box px={10}>
+      <ListModal />
+      <Typography className={classes.title} align="left" variant="h6">
+        My Shopping Lists:
+      </Typography>
+      <Grid container spacing={2} justify="center">
+        {lists &&
+          lists.map((list) => {
+            return <ListCover key={list.id} list={list} />;
+          })}
+        <AddNewList onAddList={(list) => setLists(lists.concat(list))} />
+      </Grid>
     </Box>
   );
 };

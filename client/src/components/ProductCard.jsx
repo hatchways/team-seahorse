@@ -4,10 +4,10 @@ import {
   Grid,
   Typography,
   makeStyles,
-  CircularProgress,
+  Link,
 } from "@material-ui/core";
+
 import React, { useContext, useState } from "react";
-import sample from "../images/productIcon.jpg";
 import { userContext as context } from "../providers/UsersProvider";
 import ArrowUpwardIcon from "@material-ui/icons/ArrowUpward";
 import ArrowDownwardIcon from "@material-ui/icons/ArrowDownward";
@@ -22,8 +22,8 @@ const useStyles = makeStyles(() => ({
   img: {
     borderRadius: "7px",
     margin: "15px",
-    maxWidth: "100px",
     width: "100px",
+    height: "100px",
   },
   previousPrice: {
     textDecoration: "line-through",
@@ -54,58 +54,41 @@ const ProductCard = ({ product }) => {
 
   const { currentList, removeProductInList } = userContext;
   const { id: listId } = currentList;
-  const { name, currentPrice, previousPrice, link, id: productId } = product;
+  const {
+    name,
+    currentPrice,
+    previousPrice,
+    link,
+    id: productId,
+    imageUrl,
+  } = product;
 
   const [isImageLoaded, setIsImageLoaded] = useState(false);
 
   return (
     <Card className={classes.card}>
-      <Grid>
-        <img
-          src={sample}
-          className={classes.img}
-          onLoad={() => setIsImageLoaded(true)}
-        />
-
-        {!isImageLoaded && (
-          <CircularProgress className={classes.spinner} size={100} />
-        )}
-      </Grid>
+      <img src={imageUrl} className={classes.img} alt={name} />
 
       <Grid container direction="column" style={{ marginTop: "15px" }}>
         <Grid item>
-          <Typography variant="h6" style={{ lineHeight: "20px" }}>
+          <Typography
+            variant="h6"
+            component={Link}
+            href={link}
+            color="textPrimary"
+            style={{ lineHeight: "20px" }}
+          >
             {name}
           </Typography>
         </Grid>
 
         <Grid item>
-          <Typography
-            style={{
-              color: "gray",
-              fontStyle: "italic",
-              cursor: "pointer",
-              fontWeight: "lighter",
-              maxWidth: "350px",
-            }}
-            noWrap
-          >
-            {link}
-          </Typography>
-        </Grid>
-
-        <Grid item>
-          <Typography variant="h5">
+          <Typography variant="subtitle1">
             <span hidden={!previousPrice} className={classes.previousPrice}>
               {previousPrice}
             </span>{" "}
-            <span
-              className={classes.newPrice}
-              onClick={() => {
-                console.log(previousPrice);
-              }}
-            >
-              {previousPrice ? currentPrice : null}
+            <span className={classes.newPrice}>
+              {previousPrice ? currentPrice : previousPrice}
             </span>
             {parseFloat(currentPrice) && parseFloat(previousPrice) ? (
               <>

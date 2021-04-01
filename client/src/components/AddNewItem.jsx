@@ -88,7 +88,9 @@ const AddNewItem = () => {
         >
           {lists &&
             lists.map((option) => (
-              <option value={option.id}>{option.title}</option>
+              <option value={option.id} key={option.id}>
+                {option.title}
+              </option>
             ))}
         </TextField>
         <Button

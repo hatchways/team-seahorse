@@ -1,0 +1,89 @@
+import { Grid, Popover, makeStyles, Box, Button } from "@material-ui/core";
+import { useHistory } from "react-router";
+import React, { useContext, useEffect } from "react";
+import { userContext } from "../providers/UsersProvider";
+import BaseNotification from "./BaseNotification";
+import { socketContext } from "../providers/SocketProvider";
+const useStyles = makeStyles((theme) => ({
+  topBar: {
+    display: "flex",
+    alignItems: "center",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+  },
+}));
+
+const NotificationPopover = ({
+  handleCloseNotification,
+  anchorNotification,
+  notificationOpen,
+}) => {
+  const classes = useStyles();
+  const history = useHistory();
+  const {
+    notifications,
+    localReadAllNotification,
+    updateNotifications,
+    getNotificationCount,
+  } = useContext(userContext);
+  const { socket, openConnection } = useContext(socketContext);
+
+  useEffect(() => {
+    if (socket == null) openConnection();
+    else {
+      socket.on("new-notifications", () => {
+        updateNotifications();
+        getNotificationCount();
+      });
+    }
+  }, [socket]);
+
+  return (
+    <Popover
+      open={notificationOpen}
+      anchorEl={anchorNotification}
+      onClose={handleCloseNotification}
+      anchorOrigin={{
+        vertical: "bottom",
+        horizontal: "center",
+      }}
+      transformOrigin={{
+        vertical: "top",
+        horizontal: "right",
+      }}
+    >
+      <Grid container direction="column" style={{}}>
+        <Box className={classes.topBar}>
+          <Button
+            onClick={() => {
+              history.push("/notifications-all");
+              handleCloseNotification();
+            }}
+          >
+            View All Notification
+          </Button>
+          <Button
+            onClick={() => {
+              localReadAllNotification();
+            }}
+          >
+            Mark as Read All
+          </Button>
+        </Box>
+
+        {notifications &&
+          notifications.map((notification, index) => {
+            return (
+              <BaseNotification
+                type={notification.type}
+                notification={notification}
+                index={index}
+              />
+            );
+          })}
+      </Grid>
+    </Popover>
+  );
+};
+
+export default NotificationPopover;

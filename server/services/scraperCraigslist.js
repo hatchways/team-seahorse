@@ -7,33 +7,42 @@ const scrapeCraigslist = async (url) => {
   const page = await browser.newPage();
   const res = await page.goto(url);
   let productInfo = undefined;
-  if (res.status() == "200") {
-    productInfo = await page.evaluate(() => {
-      const imageContainer = document.querySelector('*[id^="1_image"]');
-      const priceElement = document.querySelector(".price");
-      if (priceElement == null) {
-        throw "no price";
-      }
-      return {
-        title: document.querySelector("#titletextonly").textContent,
-        //Removes currency symbol (e.g. "$25" -> "25")
-        price: priceElement.textContent.substr(1),
-        imageURL:
-          //If there isn't a given image, we use the URL of the placeholder image Craigslist uses.
-          imageContainer != null
-            ? imageContainer.firstElementChild.src
-            : "https://craigslist.org/images/peace.jpg",
-        isStillAvailable: true,
-      };
-    });
-  } else {
-    productInfo = { isStillAvailable: false };
-  }
 
-  //wait for 1s, to prevent some cases which might cause abuse of use(optional)
-  await page.waitForTimeout(1000);
-  browser.close();
-  return productInfo;
+  try {
+    if (res.status() == "200") {
+      productInfo = await page.evaluate(() => {
+        const imageContainer = document.querySelector('*[id^="1_image"]');
+        const priceElement = document.querySelector(".price");
+        if (priceElement == null) {
+          throw "no price";
+        }
+
+        return {
+          title: document.querySelector("#titletextonly").textContent,
+          //Removes currency symbol (e.g. "$25" -> "25")
+          price: parseFloat(
+            priceElement.textContent.substr(1).replace(",", "")
+          ),
+          imageUrl:
+            //If there isn't a given image, we use the URL of the placeholder image Craigslist uses.
+            imageContainer != null
+              ? imageContainer.firstElementChild.src
+              : "https://craigslist.org/images/peace.jpg",
+          isStillAvailable: true,
+        };
+      });
+    } else {
+      productInfo = { isStillAvailable: false };
+    }
+    //wait for 1s, to prevent some cases which might cause abuse of use(optional)
+    await page.waitForTimeout(1000);
+    browser.close();
+    return productInfo;
+  } catch (error) {
+    console.error(error);
+    browser.close();
+    return new Error(error);
+  }
 };
 
 module.exports = scrapeCraigslist;
