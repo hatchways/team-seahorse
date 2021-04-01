@@ -1,10 +1,8 @@
 import React, { useState, createContext, useEffect } from "react";
-import Cookies from "js-cookie";
 import axios from "axios";
 export const userContext = createContext();
 
 const UsersProvider = ({ children }) => {
-  const [token, setToken] = useState(Cookies.get("token"));
   const [user, setUser] = useState(null);
   const [lists, setLists] = useState(null);
   const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
@@ -79,7 +77,6 @@ const UsersProvider = ({ children }) => {
   const logout = async () => {
     await fetch("/user/sign-out");
     setUser(null);
-    setToken(null);
   };
 
   const updateUser = (userData) => {
@@ -300,7 +297,6 @@ const UsersProvider = ({ children }) => {
     <userContext.Provider
       value={{
         user,
-        token,
         lists,
         isListClicked,
         currentListProducts,

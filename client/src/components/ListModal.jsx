@@ -15,8 +15,4 @@ const ListModal = () => {
   );
 };
 
-ListModal.propTypes = {
-  isEditing: PropTypes.bool.isRequired,
-};
-
 export default ListModal;

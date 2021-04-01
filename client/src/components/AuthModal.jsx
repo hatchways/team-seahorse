@@ -12,7 +12,6 @@ import {
 import React, { useState, useEffect, useContext } from "react";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import { userContext as context } from "../providers/UsersProvider";
-import ErrorAlert from "./ErrorAlert";
 
 const useStyles = makeStyles(() => ({
   centerAdornment: {
@@ -76,8 +75,6 @@ const AuthModal = ({ isAuthPage }) => {
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [signedIn, setSignedIn] = useState(true);
-  const [isError, setIsError] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
 
   const history = useHistory();
   const location = useLocation();
@@ -86,10 +83,6 @@ const AuthModal = ({ isAuthPage }) => {
 
   const { pathname } = location;
   const { login, register, getCurrentUser, openSnackbar } = userContext;
-
-  useEffect(() => {
-    checkCurrentUser();
-  }, []);
 
   const checkCurrentUser = async () => {
     const results = await getCurrentUser();
@@ -101,6 +94,10 @@ const AuthModal = ({ isAuthPage }) => {
       history.push("/dashboard");
     }
   };
+
+  useEffect(() => {
+    checkCurrentUser();
+  }, []);
 
   const submitHandler = async (e) => {
     e.preventDefault();
@@ -173,8 +170,6 @@ const AuthModal = ({ isAuthPage }) => {
                 justify="center"
                 alignItems="center"
               >
-                <ErrorAlert message={alertMessage} visible={isError} />
-
                 {pathname === "/sign-up" && (
                   <Grid item md={"auto"} className={classes.box}>
                     <Typography variant="h6" className={classes.typography}>
@@ -212,7 +207,6 @@ const AuthModal = ({ isAuthPage }) => {
                     />
                   </Tooltip>
                 </Grid>
-
                 <Grid item className={classes.box}>
                   <Typography variant="h6" className={classes.typography}>
                     Your Password:
@@ -235,7 +229,6 @@ const AuthModal = ({ isAuthPage }) => {
                     />
                   </Tooltip>
                 </Grid>
-
                 <Grid item>
                   <Button
                     className={classes.button}
@@ -246,9 +239,7 @@ const AuthModal = ({ isAuthPage }) => {
                     {pathname === "/sign-up" ? "Register" : "Login"}
                   </Button>
                 </Grid>
-
                 <Divider />
-
                 <Grid item className={classes.footer}>
                   <Typography variant="subtitle2">
                     {pathname === "/sign-up"
