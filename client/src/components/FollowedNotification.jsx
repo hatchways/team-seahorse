@@ -69,6 +69,7 @@ const useStyles = makeStyles((theme) => ({
   time: {
     position: "absolute",
     bottom: "5%",
+    color: 'grey'
   },
   icon: {
     fontSize: "25px",
