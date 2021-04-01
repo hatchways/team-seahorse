@@ -11,6 +11,7 @@ import ArrowUpwardIcon from "@material-ui/icons/ArrowUpward";
 import ArrowDownwardIcon from "@material-ui/icons/ArrowDownward";
 import React, { useContext, useState } from "react";
 import { userContext } from "../providers/UsersProvider";
+import { utilitiesContext } from "../providers/UtilitiesProvider";
 
 const useStyles = makeStyles((theme) => ({
   gridContainer: {
@@ -84,7 +85,8 @@ const PriceNotification = ({ notification, index }) => {
 
   const [isPaperDisabled, setIsPaperDisabled] = useState(false);
 
-  const { readNotification, getTimeDifference } = useContext(userContext);
+  const { readNotification } = useContext(userContext);
+  const { getProperDateInfo } = useContext(utilitiesContext);
 
   return (
     <Grid container className={classes.gridContainer}>
@@ -124,16 +126,16 @@ const PriceNotification = ({ notification, index }) => {
                   </>
                 ) : (
                   <>
-                    <span className={classes.textHighlight}>{name}</span> has a
-                    price change.
+                    <span className={classes.textHighlight}>
+                      {name.length > 23 ? `${name.slice(0, 23)}...` : name}
+                    </span>{" "}
+                    has a price change.
                   </>
                 )}
               </Typography>
 
               <span className={classes.time}>
-                {getTimeDifference(createdAt) > 1
-                  ? `${getTimeDifference(createdAt)} Hours ago`
-                  : `${getTimeDifference(createdAt)} Hour ago`}
+                {getProperDateInfo(createdAt)}
               </span>
             </Grid>
 

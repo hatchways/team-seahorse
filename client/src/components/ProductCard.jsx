@@ -5,6 +5,7 @@ import {
   Typography,
   makeStyles,
   Link,
+  CircularProgress,
 } from "@material-ui/core";
 
 import React, { useContext, useState } from "react";
@@ -63,8 +64,6 @@ const ProductCard = ({ product }) => {
     imageUrl,
   } = product;
 
-  const [isImageLoaded, setIsImageLoaded] = useState(false);
-
   return (
     <Card className={classes.card}>
       <img src={imageUrl} className={classes.img} alt={name} />
@@ -78,7 +77,7 @@ const ProductCard = ({ product }) => {
             color="textPrimary"
             style={{ lineHeight: "20px" }}
           >
-            {name}
+            {name.length > 130 ? `${name.slice(0, 131)}...` : name}
           </Typography>
         </Grid>
 

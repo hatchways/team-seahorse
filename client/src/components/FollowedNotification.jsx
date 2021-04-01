@@ -9,7 +9,7 @@ import {
 import AssignmentTurnedInIcon from "@material-ui/icons/AssignmentTurnedIn";
 import React, { useContext, useEffect, useState, useForceUpdate } from "react";
 import { userContext } from "../providers/UsersProvider";
-import { utilitiesContext} from "../providers/UtilitiesProvider";
+import { utilitiesContext } from "../providers/UtilitiesProvider";
 
 const useStyles = makeStyles((theme) => ({
   gridContainer: {
@@ -84,7 +84,7 @@ const FollowedNotification = ({ notification, index }) => {
   const [isPaperDisabled, setIsPaperDisabled] = useState(false);
 
   const { readNotification, getTimeDifference } = useContext(userContext);
-  const { getProperDateInfo } = useContext(utilitiesContext)
+  const { getProperDateInfo } = useContext(utilitiesContext);
 
   return (
     <Grid container className={classes.gridContainer}>
@@ -114,7 +114,13 @@ const FollowedNotification = ({ notification, index }) => {
                   paddingTop: "5px",
                 }}
               >
-                <span style={{fontWeight: 'bold'}} >{followerName}</span> has followed you!
+                {/* check length */}
+                <span style={{ fontWeight: "bold" }}>
+                  {followerName.length > 23
+                    ? `${followerName.slice(0, 23)}...`
+                    : followerName}
+                </span>{" "}
+                has followed you!
               </Typography>
 
               <span className={classes.time}>
