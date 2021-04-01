@@ -80,7 +80,7 @@ const ProductCard = ({ product }) => {
               {previousPrice}
             </span>{" "}
             <span className={classes.newPrice}>
-              {previousPrice ? currentPrice : previousPrice}
+              {currentPrice ? currentPrice : previousPrice}
             </span>
           </Typography>
         </Grid>
