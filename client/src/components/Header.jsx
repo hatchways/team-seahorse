@@ -9,7 +9,6 @@ import {
   Popover,
   MenuItem,
   Badge,
-  Link as MuiLink,
 } from "@material-ui/core";
 import React, { useContext, useEffect } from "react";
 import { Link, useHistory } from "react-router-dom";
