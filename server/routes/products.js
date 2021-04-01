@@ -94,17 +94,18 @@ const addProduct = async (req, res) => {
     try {
       const productData = await scraper(url);
       const { title, price, imageURL } = productData;
-      const [_, priceNum] = price.split("$");
+      // console.log(productData);
+      // const [_, priceNum] = price.split("$");
 
       //check the if the price is 0 (scaper return 0 when the item is not avaliabe)
-      if (Number(priceNum) === 0) {
+      if (Number(price) === 0) {
         res
           .status(400)
           .send({ message: "Item is not available or not for sale" });
       } else {
         //add item
         const result = await ProductModel.create({
-          currentPrice: Number(priceNum.replace(",", "")),
+          currentPrice: price,
           name: title,
           imageUrl: imageURL,
           link: url,

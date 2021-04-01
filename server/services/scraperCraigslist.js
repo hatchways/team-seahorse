@@ -23,7 +23,7 @@ const scrapeCraigslist = async (url) => {
           price: parseFloat(
             priceElement.textContent.substr(1).replace(",", "")
           ),
-          imageUrl:
+          imageURL:
             //If there isn't a given image, we use the URL of the placeholder image Craigslist uses.
             imageContainer != null
               ? imageContainer.firstElementChild.src
