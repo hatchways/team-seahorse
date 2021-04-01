@@ -158,6 +158,21 @@ const addProduct = async (req, res) => {
   }
 };
 
+router.get("/get-all", async (req, res) => {
+  try {
+    const { password } = req.headers;
+
+    if (password !== process.env.SCRAPER_PASSWORD)
+      return res.status(401).send({ msg: "Unauthorized Access" });
+
+    const data = await ProductModel.findAll();
+    res.send(data);
+  } catch (error) {
+    console.error(error);
+    giveServerError(res);
+  }
+});
+
 router.use(authMiddleware);
 router.get("/:productId", [productIdCheck, validate, getProduct]);
 router.delete("/:listId/:productId", [
