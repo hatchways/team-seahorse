@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import {
   Box,
   Button,
@@ -15,6 +15,7 @@ import {
 import AccountCircleIcon from "@material-ui/icons/AccountCircle";
 import axios from "axios";
 import { NavLink } from "react-router-dom";
+import { userContext } from "../providers/UsersProvider";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -53,14 +54,23 @@ const useStyles = makeStyles(() => ({
 //NOTE: isFollowing refers to if the user being toggled is currently being followed by our user, not to if the user will be
 //toggled to following.
 const toggleUserGroup___ = (setFollowing, setSuggested) => (isFollowing) => {
+  const { user: userObject } = useContext(userContext);
+
   //Sets the group of users which the user will be moving from.
   const setFromGroup = isFollowing ? setFollowing : setSuggested;
   //Sets the group of user which the user will be moving to.
   const setToGroup = isFollowing ? setSuggested : setFollowing;
   return (user) => async () => {
+    const body = {
+      user: userObject,
+    };
+
     await axios
       .create({ withCredentials: true })
-      .post(`/followers/${isFollowing ? "unfollow" : "follow"}/${user.id}`);
+      .post(
+        `/followers/${isFollowing ? "unfollow" : "follow"}/${user.id}`,
+        body
+      );
     //Removes user from the "from group" of users.
     setFromGroup((fromGroup) => {
       let userIndex = fromGroup.indexOf(user);
