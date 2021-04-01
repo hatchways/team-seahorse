@@ -92,6 +92,7 @@ const PriceNotification = ({ notification, index }) => {
         style={{ width: "400px", height: "100%" }}
         onClick={() => {
           if (isPaperDisabled) return;
+          //show a dialog for notification
         }}
         disableTouchRipple={isPaperDisabled}
       >

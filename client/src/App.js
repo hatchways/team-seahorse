@@ -15,6 +15,7 @@ import Header from "./components/Header";
 import ProductProvider from "./providers/ProductProvider";
 import SocketProvider from "./providers/SocketProvider";
 import UtilitiesProvider from "./providers/UtilitiesProvider";
+import PublicLists from "./pages/PublicLists";
 
 function App() {
   return (

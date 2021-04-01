@@ -1,8 +1,9 @@
 import { Grid, Popover, makeStyles, Box, Button } from "@material-ui/core";
-import React, { useContext } from "react";
 import { useHistory } from "react-router";
+import React, { useContext, useEffect } from "react";
 import { userContext } from "../providers/UsersProvider";
 import BaseNotification from "./BaseNotification";
+import { socketContext } from "../providers/SocketProvider";
 const useStyles = makeStyles((theme) => ({
   topBar: {
     display: "flex",
@@ -19,8 +20,21 @@ const NotificationPopover = ({
 }) => {
   const classes = useStyles();
   const history = useHistory()
+  const {
+    notifications,
+    localReadAllNotification,
+    getNotifications,
+  } = useContext(userContext);
+  const { socket, openConnection } = useContext(socketContext);
 
-  const { notifications, localReadAllNotification } = useContext(userContext);
+  useEffect(() => {
+    if (socket == null) openConnection();
+    else {
+      socket.on("new-notifications", () => {
+        getNotifications();
+      });
+    }
+  }, [socket]);
 
   return (
     <Popover
