@@ -74,7 +74,7 @@ cron.schedule("*/2 * * * *", async () => {
     process.env.BACKEND_DOMAIN + "/products/get-all",
     {
       headers: {
-        password: "password",
+        password: process.env.SCRAPER_PASSWORD,
       },
     }
   );
