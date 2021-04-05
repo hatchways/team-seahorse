@@ -12,7 +12,7 @@ const checkPriceChange = (currentPrice, fetchedPrice, id, name) => {
       name,
     };
 
-    return axios.post("http://localhost:3001/notification/price", body);
+    return axios.post(process.env.BACKEND_DOMAIN + "/notification/price", body);
   }
 
   return { data: { msg: "No Price Change" } };
