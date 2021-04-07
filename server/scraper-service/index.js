@@ -11,12 +11,12 @@ const {
   scrapeAmazonProduct,
 } = require("../services/utils/scrapeProduct");
 
+require("dotenv").config();
+
 const ebayQueue = new Queue("ebay");
 const ebayQueue2 = new Queue("ebay2");
-
 const amazonQueue = new Queue("amazon");
 const amazonQueue2 = new Queue("amazon2");
-
 const craigslistQueue = new Queue("craigslist");
 const craigslistQueue2 = new Queue("craigslist2");
 
@@ -24,203 +24,57 @@ const options = {
   attempts: 2,
 };
 
+const scrapeProcess_ = (scrape, companyName, num) => async (job) => {
+  const { link, id, currentPrice, name } = job.data;
+  console.log(`${companyName} ${num} : Job Starting: ${id}`);
+  try {
+    let seconds = new Date().getTime() / 1000;
+    const results = await scrape(link, id, 1);
+    const { data } = await checkPriceThenUpdateDb(
+      currentPrice,
+      results.price,
+      id,
+      name
+    );
+
+    console.log(data);
+    console.log(
+      `Process finish at ${parseInt(
+        new Date().getTime() / 1000 - seconds
+      )} seconds\n`
+    );
+
+    await job.moveToCompleted();
+  } catch (error) {
+    console.error(`${companyName} Product : ${id} Failed`);
+    console.log("-----------------");
+    console.error(error);
+    console.log("-----------------");
+    throw new Error(error);
+  }
+};
+
 //For some reason, I'm getting a Missing lock error when abstracting the
 //process. For now, will be placed here to have a working server
 //#region Functions or code that will run when a job is pushed in to the respective queue
-ebayQueue.process(async (job) => {
-  const { link, id, currentPrice, name } = job.data;
-  console.log(`Ebay 1 : Job Starting: ${id}`);
-  try {
-    let seconds = new Date().getTime() / 1000;
-    const results = await scrapeEbayProduct(link, id, 1);
-    const { data } = await checkPriceThenUpdateDb(
-      currentPrice,
-      results.price,
-      id,
-      name
-    );
-
-    console.log(data);
-    console.log(
-      `Process finish at ${parseInt(
-        new Date().getTime() / 1000 - seconds
-      )} seconds\n`
-    );
-
-    await job.moveToCompleted();
-  } catch (error) {
-    console.error(`Ebay Product : ${id} Failed`);
-    console.log("-----------------");
-    console.error(error);
-    console.log("-----------------");
-    throw new Error(error);
-  }
-});
-
-ebayQueue2.process(async (job) => {
-  const { link, id, currentPrice, name } = job.data;
-  console.log(`Ebay 2 : Job Starting: ${id}`);
-
-  try {
-    let seconds = new Date().getTime() / 1000;
-    const results = await scrapeEbayProduct(link, id, 1);
-    const { data } = await checkPriceThenUpdateDb(
-      currentPrice,
-      results.price,
-      id,
-      name
-    );
-
-    console.log(data);
-    console.log(
-      `Process finish at ${parseInt(
-        new Date().getTime() / 1000 - seconds
-      )} seconds\n`
-    );
-
-    await job.moveToCompleted();
-  } catch (error) {
-    console.error(`Ebay Product : ${id} Failed`);
-    console.log("-----------------");
-    console.error(error);
-    console.log("-----------------");
-    throw new Error(error);
-  }
-});
-
-amazonQueue.process(async (job) => {
-  const { link, id, currentPrice, name } = job.data;
-
-  console.log(`Amazon 1 : Job Starting: ${id}`);
-
-  try {
-    let seconds = new Date().getTime() / 1000;
-    const results = await scrapeAmazonProduct(link, id, 2);
-    const { data } = await checkPriceThenUpdateDb(
-      currentPrice,
-      results.price,
-      id,
-      name
-    );
-
-    console.log(data);
-    console.log(
-      `Process finish at ${parseInt(
-        new Date().getTime() / 1000 - seconds
-      )} seconds\n`
-    );
-
-    await job.moveToCompleted();
-  } catch (error) {
-    console.error(`Amazon Product : ${id} Failed`);
-    console.log("-----------------");
-    console.error(error);
-    console.log("-----------------");
-    throw new Error(error);
-  }
-});
-
-amazonQueue2.process(async (job) => {
-  const { link, id, currentPrice, name } = job.data;
-
-  console.log(`Amazon 2  : Job Starting: ${id}`);
-
-  try {
-    let seconds = new Date().getTime() / 1000;
-    const results = await scrapeAmazonProduct(link, id, 2);
-    const { data } = await checkPriceThenUpdateDb(
-      currentPrice,
-      results.price,
-      id,
-      name
-    );
-
-    console.log(data);
-    console.log(
-      `Process finish at ${parseInt(
-        new Date().getTime() / 1000 - seconds
-      )} seconds\n`
-    );
-
-    await job.moveToCompleted();
-  } catch (error) {
-    console.error(`Amazon Product : ${id} Failed`);
-    console.log("-----------------");
-    console.error(error);
-    console.log("-----------------");
-    throw new Error(error);
-  }
-});
-
-craigslistQueue.process(async (job) => {
-  const { link, id, currentPrice, name } = job.data;
-  console.log(`Craigslist 1 : Job Starting: ${id}`);
-
-  try {
-    let seconds = new Date().getTime() / 1000;
-    const results = await scrapeCraigslistProduct(link, id, 1);
-    const { data } = await checkPriceThenUpdateDb(
-      currentPrice,
-      results.price,
-      id,
-      name
-    );
-
-    console.log(data);
-    console.log(
-      `Process finish at ${parseInt(
-        new Date().getTime() / 1000 - seconds
-      )} seconds\n`
-    );
-
-    await job.moveToCompleted();
-  } catch (error) {
-    console.error(`CraigslistProduct : ${id} Failed`);
-    console.log("-----------------");
-    console.error(error);
-    console.log("-----------------");
-    throw new Error(error);
-  }
-});
-
-craigslistQueue2.process(async (job) => {
-  const { link, id, currentPrice, name } = job.data;
-  console.log(`Craigslist 2 : Job Starting: ${id}`);
-
-  try {
-    let seconds = new Date().getTime() / 1000;
-    const results = await scrapeCraigslistProduct(link, id, 2);
-    const { data } = await checkPriceThenUpdateDb(
-      currentPrice,
-      results.price,
-      id,
-      name
-    );
-
-    console.log(data);
-    console.log(
-      `Process finish at ${parseInt(
-        new Date().getTime() / 1000 - seconds
-      )} seconds\n`
-    );
-
-    await job.moveToCompleted();
-  } catch (error) {
-    console.error(`CraigslistProduct : ${id} Failed`);
-    console.log("-----------------");
-    console.error(error);
-    console.log("-----------------");
-    throw new Error(error);
-  }
-});
+ebayQueue.process(scrapeProcess_(scrapeEbayProduct, "Ebay", 1));
+ebayQueue2.process(scrapeProcess_(scrapeEbayProduct, "Ebay", 2));
+amazonQueue.process(scrapeProcess_(scrapeAmazonProduct, "Amazon", 1));
+amazonQueue2.process(scrapeProcess_(scrapeAmazonProduct, "Amazon", 2));
+craigslistQueue.process(
+  scrapeProcess_(scrapeCraigslistProduct, "Craigslist", 1)
+);
+craigslistQueue2.process(
+  scrapeProcess_(scrapeCraigslistProduct, "Craigslist", 2)
+);
 //#endregion
 
 cron.schedule("*/2 * * * *", async () => {
   const { data: allProducts } = await axios.get(
-    "http://localhost:3001/products/get-all",
+    process.env.BACKEND_DOMAIN + "/products/get-all",
     {
       headers: {
-        password: "password",
+        password: process.env.SCRAPER_PASSWORD,
       },
     }
   );
